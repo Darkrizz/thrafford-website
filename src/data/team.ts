@@ -104,10 +104,16 @@ export const teamGroups: TeamGroup[] = [
         headline:
           'Final-year medical student and software developer with expertise in prompt engineering and generative AI.',
         photo: '/images/team/tanishq.webp',
-        expertise: ['Software development', 'Prompt engineering', 'Generative AI', 'Medicine'],
         linkedin: 'https://www.linkedin.com/in/tanishq-jain-b7894b266',
       },
-      { name: 'Ms. Kavita Singh', role: 'Research Intern', headline: '', photo: '/images/team/kavita.webp', pending: true },
+      {
+        name: 'Ms. Kavita Singh',
+        role: 'Research Intern',
+        headline:
+          'Biotechnologist in our Cell & Gene Therapy lab, developing γδ T cell therapy for MRD-AML, from PBMC isolation to scale-up expansion and FACS-based QC.',
+        photo: '/images/team/kavita.webp',
+        linkedin: 'https://www.linkedin.com/in/kavita-singh-04ab8b441',
+      },
     ],
   },
 ];
