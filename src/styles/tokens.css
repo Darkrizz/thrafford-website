@@ -1,0 +1,113 @@
+:root {
+  /*
+   * Palette — "lab industrial": cobalt-ice surfaces, graphite ink,
+   * cobalt (from the Thrafford mark) and a signal-teal accent.
+   */
+
+  /* Graphite ink scale */
+  --ink-950: #0a0e13;
+  --ink-900: #11171e;
+  --ink-800: #1b232c;
+  --ink-700: #363e48;
+  --ink-500: #59616b;
+  --ink-400: #858b92;
+  --ink-200: #c9ccce;
+  --ink-100: #d5dcea;
+  --ink-50: #dfe5f1;
+  --white: #ffffff;
+
+  /* Cobalt-ice surfaces (tinted toward the brand blue) */
+  --canvas: #e5eaf5;
+  --surface-raised: #f0f3fa;
+  --surface-sunken: #d8e0ef;
+
+  /* Cobalt (brand) */
+  --blue-700: #1c3394;
+  --blue-600: #2643c4;
+  --blue-500: #4565e6;
+  --blue-300: #8fa6ff;
+  --blue-100: #ccd7f5;
+  --blue-50: #dbe3f7;
+
+  /* Signal teal (accent) */
+  --teal-700: #0b6f69;
+  --teal-500: #129e96;
+  --teal-300: #63d2ca;
+  --teal-50: #d3e9ea;
+
+  /* Warm amber (status) */
+  --amber-50: #f5ecdc;
+  --amber-700: #7e4a08;
+
+  --text: var(--ink-900);
+  --text-muted: var(--ink-500);
+  --surface: var(--canvas);
+  --surface-alt: var(--surface-sunken);
+  --border: #c8d1e4;
+  --border-strong: #aebbd6;
+  --brand: var(--blue-600);
+  --brand-hover: var(--blue-700);
+  --accent: var(--teal-500);
+  --focus: #e0961f;
+  --danger: #b3301d;
+  --success: var(--teal-700);
+
+  --gradient-brand: linear-gradient(135deg, #1d3285, #2c4bc0 52%, #0f8a83);
+  --gradient-dark: linear-gradient(160deg, #141b23 0%, #0a0e13 100%);
+
+  /* Type */
+  --font-display: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
+
+  --fs-xs: 0.8125rem;
+  --fs-sm: 0.9375rem;
+  --fs-base: 1.0625rem;
+  --fs-lg: clamp(1.125rem, 1.05rem + 0.35vw, 1.3125rem);
+  --fs-xl: clamp(1.375rem, 1.2rem + 0.8vw, 1.75rem);
+  --fs-2xl: clamp(1.75rem, 1.4rem + 1.6vw, 2.625rem);
+  --fs-3xl: clamp(2.25rem, 1.6rem + 3vw, 4rem);
+  --fs-stat: clamp(2.25rem, 1.7rem + 2.2vw, 3.4rem);
+  --fs-display: clamp(2.5rem, 1.35rem + 4vw, 4.75rem);
+
+  /* Space (8px base) */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+  --sp-8: 4rem;
+  --sp-9: 6rem;
+  --section-y: clamp(4rem, 3rem + 5vw, 7.5rem);
+
+  --container: 1200px;
+  --gutter: clamp(1rem, 0.5rem + 2.5vw, 2rem);
+  --header-h: 72px;
+
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* Soft, cobalt-tinted layered shadows */
+  --shadow-sm: 0 1px 2px rgb(22 36 84 / 0.06);
+  --shadow-soft:
+    0 0 0 1px rgb(38 67 196 / 0.05), 0 1px 2px rgb(22 36 84 / 0.04), 0 6px 14px -6px rgb(22 36 84 / 0.08),
+    0 22px 44px -22px rgb(22 36 84 / 0.22);
+  --shadow: var(--shadow-soft);
+  --shadow-lg:
+    0 0 0 1px rgb(38 67 196 / 0.06), 0 2px 4px rgb(22 36 84 / 0.05), 0 16px 32px -12px rgb(22 36 84 / 0.18),
+    0 44px 80px -32px rgb(22 36 84 / 0.32);
+
+  /* Translucent glass layers */
+  --glass-bg: rgb(255 255 255 / 0.56);
+  --glass-bg-strong: rgb(255 255 255 / 0.82);
+  --glass-border: rgb(255 255 255 / 0.85);
+  --glass-blur: blur(18px) saturate(1.5);
+  --glass-highlight: inset 0 1px 0 rgb(255 255 255 / 0.9);
+
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --dur: 320ms;
+}

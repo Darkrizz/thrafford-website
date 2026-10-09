@@ -1,0 +1,173 @@
+---
+import Icon, { type IconName } from './Icon.astro';
+
+interface Props {
+  href?: string;
+  variant?: 'primary' | 'secondary' | 'ghost' | 'light' | 'outline-light';
+  size?: 'md' | 'lg';
+  icon?: IconName;
+  iconPosition?: 'start' | 'end';
+  type?: 'button' | 'submit';
+  external?: boolean;
+  class?: string;
+  [key: string]: unknown;
+}
+
+const {
+  href,
+  variant = 'primary',
+  size = 'md',
+  icon,
+  iconPosition = 'end',
+  type = 'button',
+  external = false,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const Tag = href ? 'a' : 'button';
+const linkAttrs = href
+  ? { href, ...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {}) }
+  : { type };
+---
+
+<Tag class:list={['btn', `btn--${variant}`, `btn--${size}`, className]} {...linkAttrs} {...rest}>
+  {icon && iconPosition === 'start' && <Icon name={icon} size={18} />}
+  <span><slot /></span>
+  {
+    icon && iconPosition === 'end' && (
+      <span class="btn__orb" aria-hidden="true">
+        <Icon name={icon} size={16} class="btn__icon-end" />
+      </span>
+    )
+  }
+  {external && <span class="visually-hidden">(opens in a new tab)</span>}
+</Tag>
+
+<style>
+  .btn {
+    --btn-bg: var(--brand);
+    --btn-fg: var(--white);
+    --btn-border: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 46px;
+    padding: 0.7rem 1.25rem;
+    border: 1.5px solid var(--btn-border);
+    border-radius: var(--radius-pill);
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--fs-sm);
+    line-height: 1.2;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+      background-color var(--dur) var(--ease),
+      color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease),
+      transform var(--dur) var(--ease),
+      box-shadow var(--dur) var(--ease);
+  }
+
+  .btn--lg {
+    min-height: 54px;
+    padding: 0.85rem 1.6rem;
+    font-size: 1rem;
+  }
+
+  .btn:hover {
+    color: var(--btn-fg);
+    transform: translateY(-1px);
+  }
+
+  .btn:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  /* Trailing icon nested in its own orb, flush with the button's inner edge. */
+  .btn__orb {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    margin: -0.35rem -0.75rem -0.35rem 0.15rem;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.16);
+    transition:
+      transform var(--dur) var(--ease),
+      background-color var(--dur) var(--ease);
+  }
+
+  .btn--lg .btn__orb {
+    width: 34px;
+    height: 34px;
+    margin-right: -0.95rem;
+  }
+
+  .btn--secondary .btn__orb,
+  .btn--light .btn__orb {
+    background: rgb(17 23 30 / 0.07);
+  }
+
+  .btn--ghost .btn__orb {
+    margin: 0;
+    background: var(--blue-50);
+  }
+
+  .btn:hover .btn__orb {
+    transform: translate(2px, -1px) scale(1.06);
+  }
+
+  .btn--primary:hover {
+    --btn-bg: var(--brand-hover);
+    box-shadow: 0 8px 20px -8px rgb(29 78 216 / 0.6);
+  }
+
+  .btn--secondary {
+    --btn-bg: transparent;
+    --btn-fg: var(--ink-900);
+    --btn-border: var(--border-strong);
+  }
+
+  .btn--secondary:hover {
+    --btn-border: var(--ink-700);
+    --btn-bg: var(--surface-raised);
+  }
+
+  .btn--ghost {
+    --btn-bg: transparent;
+    --btn-fg: var(--brand);
+    padding-inline: 0.25rem;
+    min-height: 40px;
+  }
+
+  .btn--ghost:hover {
+    --btn-fg: var(--brand-hover);
+    transform: none;
+  }
+
+  .btn--light {
+    --btn-bg: var(--canvas);
+    --btn-fg: var(--ink-900);
+  }
+
+  .btn--light:hover {
+    --btn-bg: var(--white);
+  }
+
+  .btn--outline-light {
+    --btn-bg: transparent;
+    --btn-fg: var(--white);
+    --btn-border: rgb(255 255 255 / 0.35);
+  }
+
+  .btn--outline-light:hover {
+    --btn-border: var(--white);
+    --btn-bg: rgb(255 255 255 / 0.06);
+  }
+</style>

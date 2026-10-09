@@ -1,0 +1,604 @@
+---
+import Icon from './Icon.astro';
+import { publications, publicationTypes, type Publication } from '../data/publications';
+
+const TEAM_NAMES = /(Kadalmani Krishnan|Kadalmani K\b|Krishnan, K\.|Chugh, Anita|Chugh, A\.?|Chugh A\b|Anita Chugh)/g;
+
+const escape = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+const highlight = (authors: string) => escape(authors).replace(TEAM_NAMES, '<mark>$1</mark>');
+
+const sorted = [...publications].sort((a, b) => (b.year ?? -1) - (a.year ?? -1));
+
+const groupKey = (p: Publication) => (p.year ? `${Math.floor(p.year / 10) * 10}s` : 'Undated');
+const groups = sorted.reduce<Map<string, Publication[]>>((map, p) => {
+  const key = groupKey(p);
+  map.set(key, [...(map.get(key) ?? []), p]);
+  return map;
+}, new Map());
+
+const counts = Object.fromEntries(
+  publicationTypes.map((t) => [t.id, publications.filter((p) => p.type === t.id).length])
+);
+const typeLabel = Object.fromEntries(publicationTypes.map((t) => [t.id, t.singular]));
+
+const lookupUrl = (p: Publication) => {
+  if (p.doi) return { href: `https://doi.org/${p.doi}`, label: `DOI ${p.doi}` };
+  if (p.type === 'paper' || p.type === 'chapter')
+    return { href: `https://scholar.google.com/scholar?q=${encodeURIComponent(p.title)}`, label: 'Find on Google Scholar' };
+  return { href: `https://patents.google.com/?q=${encodeURIComponent(`"${p.title}"`)}`, label: 'Search Google Patents' };
+};
+---
+
+<div class="pubs" data-pubs>
+  {/* Anchor targets so /publications/#patent etc. land on the list even without JS. */}
+  {publicationTypes.map((t) => <span id={t.id} class="pubs__anchor" aria-hidden="true" />)}
+  <div class="pubs__controls">
+    <div class="tabs" role="tablist" aria-label="Filter by type">
+      <button role="tab" type="button" aria-selected="true" data-filter="all" id="tab-all">
+        All <span class="tabs__count">{publications.length}</span>
+      </button>
+      {
+        publicationTypes.map((t) => (
+          <button role="tab" type="button" aria-selected="false" data-filter={t.id} id={`tab-${t.id}`}>
+            {t.label} <span class="tabs__count">{counts[t.id]}</span>
+          </button>
+        ))
+      }
+    </div>
+
+    <div class="search">
+      <label for="pub-search" class="visually-hidden">Search publications</label>
+      <Icon name="search" size={18} class="search__icon" />
+      <input
+        id="pub-search"
+        type="search"
+        placeholder="Search title, author, journal, year"
+        autocomplete="off"
+        data-search
+      />
+    </div>
+  </div>
+
+  <p class="pubs__status" role="status" aria-live="polite" data-status>
+    Showing {publications.length} of {publications.length} entries
+  </p>
+
+  <div class="pubs__groups" role="tabpanel" aria-labelledby="tab-all" data-panel>
+    {
+      [...groups].map(([decade, items]) => (
+        <section class="group" data-group>
+          <h2 class="group__title">
+            {decade}
+            <span data-group-count>{items.length} {items.length === 1 ? 'entry' : 'entries'}</span>
+          </h2>
+          <ol class="group__list">
+            {items.map((p) => {
+              const link = lookupUrl(p);
+              const long = p.authors.length > 180;
+              return (
+                <li
+                  class="pub"
+                  data-type={p.type}
+                  data-text={`${p.title} ${p.authors} ${p.venue ?? ''} ${p.year ?? ''}`.toLowerCase()}
+                >
+                  <span class="pub__year">{p.year ?? '—'}</span>
+                  <div class="pub__main">
+                    <span class={`pub__type pub__type--${p.type}`}>{typeLabel[p.type]}</span>
+                    <h3 class="pub__title">{p.title}</h3>
+                    <p class:list={['pub__authors', { 'is-clamped': long }]} set:html={highlight(p.authors)} />
+                    {long && (
+                      <button type="button" class="pub__more" aria-expanded="false" data-more>
+                        Show all authors
+                      </button>
+                    )}
+                    {p.venue && <p class="pub__venue">{p.venue}</p>}
+                    {p.incomplete && (
+                      <p class="pub__note">
+                        <Icon name="alert" size={16} />
+                        Citation incomplete in our records — full details to be added.
+                      </p>
+                    )}
+                    <a class="pub__link" href={link.href} target="_blank" rel="noopener noreferrer">
+                      {link.label}
+                      <Icon name="arrow-up-right" size={14} />
+                      <span class="visually-hidden">(opens in a new tab)</span>
+                    </a>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      ))
+    }
+  </div>
+
+  <div class="pubs__empty" data-empty hidden>
+    <Icon name="search" size={28} />
+    <p><strong>No entries match your search.</strong></p>
+    <p>Try a different keyword, or clear the search to see everything.</p>
+    <button type="button" class="pubs__clear" data-clear>Clear search</button>
+  </div>
+</div>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-pubs]');
+  if (root) {
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const search = root.querySelector<HTMLInputElement>('[data-search]')!;
+    const items = [...root.querySelectorAll<HTMLElement>('.pub')];
+    const groups = [...root.querySelectorAll<HTMLElement>('[data-group]')];
+    const status = root.querySelector<HTMLElement>('[data-status]')!;
+    const empty = root.querySelector<HTMLElement>('[data-empty]')!;
+    const panel = root.querySelector<HTMLElement>('[data-panel]')!;
+    const valid = new Set(tabs.map((t) => t.dataset.filter));
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let filter = 'all';
+    let releaseTimer: number | undefined;
+
+    /**
+     * If the reader has scrolled down into the list, glide back to the top of the results.
+     * The list keeps its current height during the glide so the page never snaps when the
+     * filtered list becomes shorter.
+     */
+    const glideToResults = () => {
+      const headerH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 72;
+      const top = Math.round(root.getBoundingClientRect().top + window.scrollY - headerH);
+      if (window.scrollY <= top + 1) return;
+
+      panel.style.minHeight = `${panel.offsetHeight}px`;
+      window.scrollTo({ top, behavior: reduced ? 'auto' : 'smooth' });
+
+      const release = () => {
+        clearTimeout(releaseTimer);
+        panel.style.minHeight = '';
+      };
+      if ('onscrollend' in window) window.addEventListener('scrollend', release, { once: true });
+      releaseTimer = window.setTimeout(release, 1200);
+    };
+
+    const fadeIn = () => {
+      if (reduced) return;
+      panel.animate(
+        [
+          { opacity: 0, transform: 'translateY(10px)' },
+          { opacity: 1, transform: 'none' },
+        ],
+        { duration: 360, easing: 'cubic-bezier(0.2, 0.7, 0.2, 1)' }
+      );
+    };
+
+    const apply = () => {
+      const terms = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+      let shown = 0;
+      items.forEach((item) => {
+        const okType = filter === 'all' || item.dataset.type === filter;
+        const okText = terms.every((t) => item.dataset.text!.includes(t));
+        const visible = okType && okText;
+        item.hidden = !visible;
+        if (visible) shown++;
+      });
+      groups.forEach((g) => {
+        const n = g.querySelectorAll('.pub:not([hidden])').length;
+        g.hidden = n === 0;
+        g.querySelector('[data-group-count]')!.textContent = `${n} ${n === 1 ? 'entry' : 'entries'}`;
+      });
+      root.classList.toggle('is-filtered', filter !== 'all');
+      empty.hidden = shown !== 0;
+      status.textContent = `Showing ${shown} of ${items.length} entries`;
+    };
+
+    const select = (id: string, updateHash = true, animate = false) => {
+      if (animate) glideToResults();
+      filter = valid.has(id) ? id : 'all';
+      tabs.forEach((t) => {
+        const on = t.dataset.filter === filter;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        if (on) panel.setAttribute('aria-labelledby', t.id);
+      });
+      if (updateHash) history.replaceState(null, '', filter === 'all' ? location.pathname : `#${filter}`);
+      apply();
+      if (animate) fadeIn();
+    };
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(tab.dataset.filter!, true, true));
+      tab.addEventListener('keydown', (e) => {
+        const dir = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (!dir) return;
+        e.preventDefault();
+        const next = tabs[(i + dir + tabs.length) % tabs.length];
+        next.focus({ preventScroll: true });
+        select(next.dataset.filter!, true, true);
+      });
+    });
+
+    let t: number | undefined;
+    search.addEventListener('input', () => {
+      clearTimeout(t);
+      t = window.setTimeout(apply, 120);
+    });
+
+    root.querySelector('[data-clear]')!.addEventListener('click', () => {
+      search.value = '';
+      select('all', true, true);
+      search.focus({ preventScroll: true });
+    });
+
+    root.querySelectorAll<HTMLButtonElement>('[data-more]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const authors = btn.previousElementSibling as HTMLElement;
+        const open = authors.classList.toggle('is-clamped') === false;
+        btn.setAttribute('aria-expanded', String(open));
+        btn.textContent = open ? 'Show fewer authors' : 'Show all authors';
+      });
+    });
+
+    select(location.hash.slice(1) || 'all', false);
+
+    // Hero shortcuts (e.g. #patent) filter the list and glide down to it.
+    window.addEventListener('hashchange', () => {
+      select(location.hash.slice(1) || 'all', false);
+      const headerH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 72;
+      window.scrollTo({
+        top: Math.round(root.getBoundingClientRect().top + window.scrollY - headerH),
+        behavior: reduced ? 'auto' : 'smooth',
+      });
+    });
+  }
+</script>
+
+<style>
+  .pubs__anchor {
+    display: block;
+    height: 0;
+    scroll-margin-top: var(--header-h);
+  }
+
+  .pubs__controls {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 5;
+    display: grid;
+    gap: var(--sp-4);
+    padding-block: var(--sp-4);
+    /* Solid (no backdrop blur): a blurred sticky bar is re-rasterised on every scroll frame. */
+    background: rgb(8 12 28 / 0.96);
+    box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.04), 0 12px 24px -16px rgb(0 0 0 / 0.8);
+    border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  }
+
+  .tabs {
+    display: flex;
+    gap: var(--sp-2);
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-inline: calc(var(--gutter) * -1);
+    padding-inline: var(--gutter);
+  }
+
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tabs button {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--sp-2);
+    min-height: 42px;
+    padding: 0.5rem 1rem;
+    border: 1px solid rgb(255 255 255 / 0.14);
+    border-radius: var(--radius-pill);
+    background: rgb(255 255 255 / 0.04);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--fs-sm);
+    color: var(--ink-200);
+    cursor: pointer;
+    transition:
+      background-color var(--dur) var(--ease),
+      color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
+  }
+
+  .tabs button:hover {
+    border-color: rgb(255 255 255 / 0.35);
+    color: var(--white);
+  }
+
+  .tabs button[aria-selected='true'] {
+    border-color: transparent;
+    background: var(--gradient-brand);
+    color: var(--white);
+    box-shadow: 0 8px 20px -10px rgb(69 101 230 / 0.9);
+  }
+
+  .tabs__count {
+    padding: 0.05rem 0.5rem;
+    border-radius: var(--radius-pill);
+    background: rgb(255 255 255 / 0.1);
+    color: var(--ink-200);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+
+  [aria-selected='true'] .tabs__count {
+    background: rgb(255 255 255 / 0.16);
+    color: var(--white);
+  }
+
+  .search {
+    position: relative;
+  }
+
+  .search :global(.search__icon) {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-400);
+    pointer-events: none;
+  }
+
+  .search input {
+    width: 100%;
+    min-height: 50px;
+    padding: 0.75rem 1rem 0.75rem 46px;
+    border: 1px solid rgb(255 255 255 / 0.14);
+    border-radius: var(--radius);
+    background: rgb(255 255 255 / 0.05);
+    color: var(--white);
+    transition:
+      border-color var(--dur) var(--ease),
+      box-shadow var(--dur) var(--ease);
+  }
+
+  .search input::placeholder {
+    color: var(--ink-400);
+  }
+
+  .search input:focus {
+    outline: none;
+    border-color: var(--blue-500);
+    box-shadow: 0 0 0 4px rgb(69 101 230 / 0.25);
+  }
+
+  .pubs__status {
+    margin: var(--sp-5) 0 var(--sp-2);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-400);
+  }
+
+  .group {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: var(--sp-5);
+    padding-block: var(--sp-6);
+    border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  }
+
+  .group__title {
+    position: sticky;
+    top: calc(var(--header-h) + 150px);
+    align-self: start;
+    display: grid;
+    gap: var(--sp-1);
+    font-size: var(--fs-2xl);
+    font-weight: 800;
+    color: var(--white);
+  }
+
+  .group__title span {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--teal-300);
+  }
+
+  .group__list {
+    display: grid;
+    gap: var(--sp-3);
+    list-style: none;
+  }
+
+  .pub {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: var(--sp-4);
+    padding: var(--sp-5);
+    border: 1px solid rgb(255 255 255 / 0.9);
+    border-radius: var(--radius-lg);
+    color: var(--ink-900);
+    background: linear-gradient(180deg, #f6f8fd, #eaeff9);
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 0.25),
+      0 12px 24px -14px rgb(0 0 0 / 0.6);
+    /* Skip layout/paint for cards far off-screen; ~90 cards stay cheap to scroll. */
+    content-visibility: auto;
+    contain-intrinsic-size: auto 190px;
+    transition:
+      transform var(--dur) var(--ease),
+      box-shadow var(--dur) var(--ease);
+  }
+
+  .pub:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 0 0 1px rgb(69 101 230 / 0.5),
+      0 18px 32px -16px rgb(0 0 0 / 0.7);
+  }
+
+  .pub__year {
+    font-family: var(--font-mono) !important;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.0625rem;
+    color: var(--blue-600);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pub__main {
+    display: grid;
+    justify-items: start;
+    gap: var(--sp-2);
+    min-width: 0;
+  }
+
+  .pub__type {
+    padding: 0.1rem 0.55rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: var(--blue-50);
+    color: var(--blue-700);
+  }
+
+  .pub__type--granted {
+    background: var(--teal-50);
+    color: var(--teal-700);
+  }
+
+  .pub__type--patent {
+    background: var(--ink-100);
+    color: var(--ink-700);
+  }
+
+  .pub__type--chapter {
+    background: var(--amber-50);
+    color: var(--amber-700);
+  }
+
+  .is-filtered .pub__type {
+    display: none;
+  }
+
+  .pub__title {
+    font-size: 1.0625rem;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    overflow-wrap: anywhere;
+    text-wrap: pretty;
+  }
+
+  .pub__authors {
+    font-size: var(--fs-sm);
+    color: var(--ink-700);
+    overflow-wrap: anywhere;
+  }
+
+  .pub__authors.is-clamped {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .pub__authors :global(mark) {
+    padding: 0 0.15em;
+    border-radius: 3px;
+    background: var(--teal-50);
+    color: var(--teal-700);
+    font-weight: 700;
+  }
+
+  .pub__more,
+  .pubs__clear {
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--brand);
+    cursor: pointer;
+  }
+
+  .pub__more:hover,
+  .pubs__clear:hover {
+    text-decoration: underline;
+  }
+
+  .pub__venue {
+    font-size: var(--fs-sm);
+    font-style: italic;
+    color: var(--text-muted);
+    overflow-wrap: anywhere;
+  }
+
+  .pub__note {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: 0.3rem 0.65rem;
+    border-radius: var(--radius-sm);
+    background: var(--amber-50);
+    color: var(--amber-700);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+  }
+
+  .pub__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: var(--sp-1);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  .pub__link:hover {
+    text-decoration: underline;
+  }
+
+  .pubs__empty {
+    display: grid;
+    justify-items: center;
+    gap: var(--sp-2);
+    padding: var(--sp-8) var(--sp-4);
+    text-align: center;
+    color: var(--ink-200);
+  }
+
+  .pubs__empty strong {
+    color: var(--white);
+  }
+
+  .pubs__empty .pubs__clear {
+    color: var(--blue-300);
+  }
+
+  @media (max-width: 760px) {
+    .group {
+      grid-template-columns: 1fr;
+      gap: var(--sp-3);
+    }
+
+    .group__title {
+      position: static;
+      display: flex;
+      align-items: baseline;
+      gap: var(--sp-3);
+    }
+
+    .pub {
+      grid-template-columns: 1fr;
+      gap: var(--sp-2);
+      padding: var(--sp-4);
+    }
+
+    .pub__year {
+      font-size: var(--fs-sm);
+    }
+  }
+</style>

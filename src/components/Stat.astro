@@ -1,0 +1,78 @@
+---
+interface Props {
+  value: number;
+  prefix?: string;
+  suffix?: string;
+  /** Static text shown instead of an animated count (e.g. ranges like "60–80%"). */
+  display?: string;
+  label: string;
+  note?: string;
+  tone?: 'light' | 'dark';
+}
+
+const { value, prefix = '', suffix = '', display, label, note, tone = 'light' } = Astro.props;
+const formatted = value.toLocaleString('en-US');
+---
+
+<div class:list={['stat', `stat--${tone}`]} data-reveal>
+  {
+    display ? (
+      <p class="stat__value">{display}</p>
+    ) : (
+      <p class="stat__value" aria-label={`${prefix}${formatted}${suffix}`}>
+        <span aria-hidden="true">
+          {prefix}
+          <span data-count={value}>{formatted}</span>
+          {suffix}
+        </span>
+      </p>
+    )
+  }
+  <p class="stat__label">{label}</p>
+  {note && <p class="stat__note">{note}</p>}
+</div>
+
+<style>
+  .stat {
+    display: grid;
+    align-content: start;
+    gap: var(--sp-2);
+  }
+
+  .stat__value {
+    font-family: var(--font-display);
+    font-size: var(--fs-stat);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    color: var(--ink-900);
+  }
+
+  .stat--dark .stat__value {
+    background: linear-gradient(120deg, #ffffff 30%, var(--teal-300));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .stat__label {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.0625rem;
+    line-height: 1.35;
+    color: var(--ink-900);
+  }
+
+  .stat--dark .stat__label {
+    color: var(--white);
+  }
+
+  .stat__note {
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+
+  .stat--dark .stat__note {
+    color: var(--ink-200);
+  }
+</style>

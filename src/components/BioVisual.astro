@@ -1,0 +1,916 @@
+---
+/**
+ * Generative, on-brand illustrations that replace generic stock photography.
+ * Pure SVG (no network cost), animated with CSS so `prefers-reduced-motion` disables them.
+ */
+interface Props {
+  variant: 'affordability' | 'scalability' | 'accessibility' | 'qc' | 'hero' | 'genome' | 'mrd' | 'ticobi';
+  label: string;
+  class?: string;
+}
+
+const { variant, label, class: className } = Astro.props;
+const uid = `bv-${variant}-${Math.random().toString(36).slice(2, 7)}`;
+
+// Deterministic pseudo-random so builds are stable.
+let seed = { affordability: 7, scalability: 13, accessibility: 29, qc: 41, hero: 53, genome: 67, mrd: 79, ticobi: 89 }[variant];
+const rand = () => {
+  seed = (seed * 16807) % 2147483647;
+  return (seed - 1) / 2147483646;
+};
+
+const W = 750;
+const H = variant === 'hero' ? 620 : 520;
+
+// Technical drafting grid shared by all variants.
+const gridLines = {
+  x: Array.from({ length: Math.ceil(W / 30) }, (_, i) => i * 30),
+  y: Array.from({ length: Math.ceil(H / 30) }, (_, i) => i * 30),
+};
+
+// Background particle field shared by all variants.
+const particles = Array.from({ length: 46 }, () => ({
+  x: rand() * W,
+  y: rand() * H,
+  r: 0.8 + rand() * 1.8,
+  o: 0.15 + rand() * 0.35,
+}));
+
+// --- Affordability: one batch -> many patients ---
+const source = { x: 210, y: 250 };
+const patients = Array.from({ length: 9 }, (_, i) => {
+  const t = (i / 8) * Math.PI * 0.8 - Math.PI * 0.4;
+  return { x: 520 + Math.cos(t) * 110, y: 262 + Math.sin(t) * 170, d: (i * 0.22).toFixed(2) };
+});
+const fanPath = (p: { x: number; y: number }) =>
+  `M${source.x + 70},${source.y} C${source.x + 200},${source.y} ${p.x - 160},${p.y} ${p.x - 16},${p.y}`;
+const membrane = Array.from({ length: 28 }, (_, i) => {
+  const a = (i / 28) * Math.PI * 2;
+  return { x: source.x + Math.cos(a) * 74, y: source.y + Math.sin(a) * 74 };
+});
+
+// --- Scalability: parallel batch grid (40 units) ---
+const cols = 8;
+const rows = 5;
+const cell = 58;
+const gx = (W - cols * cell) / 2 + 6;
+const gy = 64;
+const grid = Array.from({ length: cols * rows }, (_, i) => ({
+  x: gx + (i % cols) * cell,
+  y: gy + Math.floor(i / cols) * cell,
+  d: (((i % cols) + Math.floor(i / cols)) * 0.12).toFixed(2),
+}));
+
+// --- Accessibility: proximity map ---
+const dots: { x: number; y: number; o: number }[] = [];
+for (let y = 30; y < H; y += 22) {
+  for (let x = 30; x < W; x += 22) {
+    const dx = x - 400;
+    const dy = y - 270;
+    const blob = Math.sin(x / 90) * 40 + Math.cos(y / 70) * 50;
+    if (dx * dx * 0.55 + dy * dy < (230 + blob) ** 2) dots.push({ x, y, o: 0.18 + rand() * 0.3 });
+  }
+}
+const hubs = [
+  { x: 400, y: 270, main: true },
+  { x: 250, y: 170 },
+  { x: 560, y: 160 },
+  { x: 520, y: 380 },
+  { x: 270, y: 390 },
+];
+
+// --- Hero: CAR-T cell engaging a CD19+ tumour cell (schematic) ---
+const tc = { x: 235, y: 330, r: 118 };
+const tu = { x: 560, y: 330, r: 132 };
+const blob = (cx: number, cy: number, R: number, k: number) =>
+  Array.from({ length: 73 }, (_, i) => {
+    const a = (i / 72) * Math.PI * 2;
+    const r = R + Math.sin(a * 5 + k) * 7 + Math.sin(a * 9 + k * 2) * 4;
+    return `${i ? 'L' : 'M'}${(cx + Math.cos(a) * r).toFixed(1)},${(cy + Math.sin(a) * r).toFixed(1)}`;
+  }).join('') + 'Z';
+const tumourPath = blob(tu.x, tu.y, tu.r, 1.3);
+const chromatin = Array.from({ length: 60 }, () => {
+  const a = rand() * Math.PI * 2;
+  const r = Math.sqrt(rand()) * 46;
+  return { x: tc.x - 18 + Math.cos(a) * r, y: tc.y - 6 + Math.sin(a) * r, r: 1 + rand() * 1.6 };
+});
+const tumourNucleus = Array.from({ length: 70 }, () => {
+  const a = rand() * Math.PI * 2;
+  const r = Math.sqrt(rand()) * 58;
+  return { x: tu.x + 26 + Math.cos(a) * r, y: tu.y + 8 + Math.sin(a) * r, r: 1 + rand() * 1.8 };
+});
+// CAR receptors on the T-cell membrane, facing the tumour.
+const cars = Array.from({ length: 9 }, (_, i) => {
+  const a = ((i - 4) / 4) * 0.95;
+  return { a: (a * 180) / Math.PI, x: tc.x + Math.cos(a) * tc.r, y: tc.y + Math.sin(a) * tc.r };
+});
+// Native surface receptors around the rest of the T cell.
+const tcrs = Array.from({ length: 14 }, (_, i) => {
+  const a = Math.PI * 0.42 + (i / 13) * Math.PI * 1.16;
+  return { x: tc.x + Math.cos(a) * tc.r, y: tc.y + Math.sin(a) * tc.r, a: (a * 180) / Math.PI };
+});
+// CD19 antigens on the tumour surface.
+const antigens = Array.from({ length: 16 }, (_, i) => {
+  const a = Math.PI * 0.62 + (i / 15) * Math.PI * 0.76;
+  const r = tu.r + Math.sin(a * 5 + 1.3) * 7 + Math.sin(a * 9 + 2.6) * 4;
+  return { x: tu.x + Math.cos(a) * r, y: tu.y + Math.sin(a) * r, a: (a * 180) / Math.PI, d: (i * 0.15).toFixed(2) };
+});
+// Cytotoxic granules travelling across the immunological synapse.
+const granules = Array.from({ length: 7 }, (_, i) => {
+  const y0 = tc.y - 60 + i * 20;
+  const y1 = tc.y + (y0 - tc.y) * 0.5;
+  return {
+    d: `M${tc.x + 60},${y0} C${tc.x + 120},${y0 - 6} ${tu.x - 150},${y1} ${tu.x - 80},${y1}`,
+    delay: (i * 0.35).toFixed(2),
+  };
+});
+
+// --- Genome: double helix with an edited segment ---
+const helix = Array.from({ length: 34 }, (_, i) => {
+  const ph = i * 0.42;
+  return {
+    x: 50 + i * 20,
+    y1: 260 + Math.sin(ph) * 92,
+    y2: 260 - Math.sin(ph) * 92,
+    z1: Math.cos(ph),
+    edit: i >= 18 && i <= 23,
+    d: (i * 0.08).toFixed(2),
+  };
+});
+const strand = (k: 'y1' | 'y2') => helix.map((h, i) => `${i ? 'L' : 'M'}${h.x},${h[k].toFixed(1)}`).join('');
+
+// --- QC: live batch panel ---
+const batches = [
+  { id: 'Batch A-01', p: 0.92, type: 'CAR-T' },
+  { id: 'Batch A-02', p: 0.74, type: 'CAR-T' },
+  { id: 'Batch B-01', p: 0.58, type: 'NK' },
+  { id: 'Batch C-01', p: 0.36, type: 'DC' },
+];
+
+// --- MRD: leukaemic burden over time, hiding below the detection limit ---
+const plot = { x0: 92, x1: 704, top: 104, bot: 436, limit: 236 };
+const phases = [
+  { x: 112, t: 'DIAGNOSIS' },
+  { x: 236, t: 'INDUCTION' },
+  { x: 372, t: 'CONSOLIDATION' },
+  { x: 650, t: 'RELAPSE' },
+];
+const burden = 'M104,120 C150,118 196,262 252,334 S338,376 392,376 C428,376 450,374 470,368';
+const relapse = 'M470,368 C522,352 560,250 600,190 S652,124 690,118';
+const therapy = 'M440,374 C486,382 520,414 560,426 S640,432 690,432';
+const mrdCells = Array.from({ length: 26 }, () => ({
+  x: 270 + rand() * 190,
+  y: plot.limit + 30 + rand() * 150,
+  r: 1.4 + rand() * 2.2,
+  d: (rand() * 3).toFixed(2),
+}));
+
+// --- TiCoBi: one donor -> time-controlled expansion -> up to 15 doses ---
+const donor = { x: 112, y: 262 };
+const reactor = { x: 338, y: 262 };
+const ticks = Array.from({ length: 36 }, (_, i) => {
+  const a = (i / 36) * Math.PI * 2;
+  const long = i % 3 === 0;
+  return {
+    x1: reactor.x + Math.cos(a) * 118,
+    y1: reactor.y + Math.sin(a) * 118,
+    x2: reactor.x + Math.cos(a) * (long ? 130 : 125),
+    y2: reactor.y + Math.sin(a) * (long ? 130 : 125),
+  };
+});
+const expanding = Array.from({ length: 44 }, (_, i) => {
+  const a = rand() * Math.PI * 2;
+  const r = 14 + Math.sqrt(rand()) * 84;
+  return { x: reactor.x + Math.cos(a) * r, y: reactor.y + Math.sin(a) * r, r: 2.4 + rand() * 2.6, d: ((i / 44) * 4).toFixed(2) };
+});
+const vials = Array.from({ length: 15 }, (_, i) => ({
+  x: 534 + (i % 5) * 36,
+  y: 178 + Math.floor(i / 5) * 62,
+  d: (2 + i * 0.16).toFixed(2),
+}));
+const doseRows = [0, 1, 2].map(
+  (row) => `M${reactor.x + 132},${reactor.y} C${reactor.x + 170},${reactor.y} 490,${198 + row * 62} 526,${198 + row * 62}`
+);
+---
+
+<figure class:list={['bv', `bv--${variant}`, className]} role="img" aria-label={label}>
+  <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <radialGradient id={`${uid}-bg`} cx="70%" cy="20%" r="90%">
+        <stop offset="0" stop-color="#1c2734" />
+        <stop offset="0.55" stop-color="#11171e" />
+        <stop offset="1" stop-color="#0a0e13" />
+      </radialGradient>
+      <linearGradient id={`${uid}-brand`} x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#4565e6" />
+        <stop offset="1" stop-color="#5fd4cf" />
+      </linearGradient>
+      <radialGradient id={`${uid}-core`} cx="40%" cy="35%" r="70%">
+        <stop offset="0" stop-color="#9fe9e5" />
+        <stop offset="0.45" stop-color="#2f9bd8" />
+        <stop offset="1" stop-color="#1b3fd0" />
+      </radialGradient>
+      <radialGradient id={`${uid}-glow`}>
+        <stop offset="0" stop-color="#5fd4cf" stop-opacity="0.55" />
+        <stop offset="1" stop-color="#5fd4cf" stop-opacity="0" />
+      </radialGradient>
+      <filter id={`${uid}-blur`} x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="18" />
+      </filter>
+    </defs>
+
+    <rect width={W} height={H} fill={`url(#${uid}-bg)`} />
+    <circle cx={W * 0.85} cy={H * 0.1} r="160" fill="#3557de" opacity="0.16" filter={`url(#${uid}-blur)`} />
+    <circle cx={W * 0.1} cy={H * 0.95} r="140" fill="#129e96" opacity="0.14" filter={`url(#${uid}-blur)`} />
+    <g stroke="#ffffff" stroke-opacity="0.035" stroke-width="1">
+      {gridLines.x.map((x) => <line x1={x} y1="0" x2={x} y2={H} />)}
+      {gridLines.y.map((y) => <line x1="0" y1={y} x2={W} y2={y} />)}
+    </g>
+    <g class="bv__particles">
+      {particles.map((p) => <circle cx={p.x} cy={p.y} r={p.r} fill="#c9d3e6" opacity={p.o} />)}
+    </g>
+
+    {
+      variant === 'affordability' && (
+        <g>
+          <circle cx={source.x} cy={source.y} r="150" fill={`url(#${uid}-glow)`} class="bv__pulse" />
+          {patients.map((p) => (
+            <path d={fanPath(p)} fill="none" stroke={`url(#${uid}-brand)`} stroke-width="1.4" opacity="0.35" />
+          ))}
+          {patients.map((p) => (
+            <path
+              d={fanPath(p)}
+              fill="none"
+              stroke="#9fe9e5"
+              stroke-width="2"
+              stroke-linecap="round"
+              class="bv__flow"
+              style={`animation-delay:${p.d}s`}
+            />
+          ))}
+          <g class="bv__spin" style={`transform-origin:${source.x}px ${source.y}px`}>
+            {membrane.map((m) => (
+              <circle cx={m.x} cy={m.y} r="4" fill="#5fd4cf" opacity="0.8" />
+            ))}
+          </g>
+          <circle cx={source.x} cy={source.y} r="64" fill={`url(#${uid}-core)`} />
+          <circle cx={source.x - 14} cy={source.y - 12} r="20" fill="#11171e" opacity="0.35" />
+          <circle cx={source.x - 22} cy={source.y - 22} r="9" fill="#fff" opacity="0.5" />
+          {patients.map((p) => (
+            <g>
+              <circle cx={p.x} cy={p.y} r="15" fill="#11171e" stroke={`url(#${uid}-brand)`} stroke-width="1.5" />
+              <circle cx={p.x} cy={p.y - 3} r="4" fill="#c9d3e6" />
+              <path d={`M${p.x - 7},${p.y + 8} a7,6 0 0 1 14,0`} fill="#c9d3e6" />
+            </g>
+          ))}
+          <text x={source.x} y={source.y + 118} class="bv__label" text-anchor="middle">1 batch</text>
+          <text x="600" y="66" class="bv__label" text-anchor="middle">many patients</text>
+        </g>
+      )
+    }
+
+    {
+      variant === 'scalability' && (
+        <g>
+          <text x={gx} y="436" class="bv__big">40×</text>
+          <text x={gx + 150} y="410" class="bv__label">parallel multi-batch</text>
+          <text x={gx + 150} y="434" class="bv__label">production capacity</text>
+          {grid.map((g) => (
+            <g class="bv__unit" style={`animation-delay:${g.d}s`}>
+              <rect
+                x={g.x}
+                y={g.y}
+                width={cell - 12}
+                height={cell - 12}
+                rx="10"
+                fill="#161e27"
+                stroke="#4565e6"
+                stroke-opacity="0.45"
+              />
+              <circle cx={g.x + (cell - 12) / 2} cy={g.y + (cell - 12) / 2} r="11" fill={`url(#${uid}-core)`} />
+              <circle cx={g.x + (cell - 12) / 2 - 3} cy={g.y + (cell - 12) / 2 - 3} r="3.5" fill="#fff" opacity="0.6" />
+            </g>
+          ))}
+        </g>
+      )
+    }
+
+    {
+      variant === 'accessibility' && (
+        <g>
+          {dots.map((d) => (
+            <circle cx={d.x} cy={d.y} r="2.2" fill="#8fa6ff" opacity={d.o} />
+          ))}
+          {hubs.slice(1).map((h) => (
+            <line x1={hubs[0].x} y1={hubs[0].y} x2={h.x} y2={h.y} stroke="#5fd4cf" stroke-width="1.5" class="bv__dash" />
+          ))}
+          {[0, 1, 2].map((i) => (
+            <circle
+              cx={hubs[0].x}
+              cy={hubs[0].y}
+              r="40"
+              fill="none"
+              stroke="#5fd4cf"
+              stroke-width="1.5"
+              class="bv__ring"
+              style={`animation-delay:${i * 1.1}s; transform-origin:${hubs[0].x}px ${hubs[0].y}px`}
+            />
+          ))}
+          {hubs.slice(1).map((h) => (
+            <g>
+              <circle cx={h.x} cy={h.y} r="12" fill="#11171e" stroke="#8fa6ff" stroke-width="1.5" />
+              <circle cx={h.x} cy={h.y} r="4" fill="#8fa6ff" />
+            </g>
+          ))}
+          <circle cx={hubs[0].x} cy={hubs[0].y} r="34" fill={`url(#${uid}-brand)`} />
+          <path
+            d={`M${hubs[0].x - 9},${hubs[0].y}h18M${hubs[0].x},${hubs[0].y - 9}v18`}
+            stroke="#fff"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+          <text x={hubs[0].x} y={hubs[0].y + 66} class="bv__label" text-anchor="middle">point of care</text>
+        </g>
+      )
+    }
+
+    {
+      variant === 'qc' && (
+        <g>
+          <rect x="60" y="56" width="630" height="408" rx="22" fill="#161e27" fill-opacity="0.7" stroke="#4565e6" stroke-opacity="0.35" />
+          <text x="92" y="104" class="bv__title">PoCMAP · Live batches</text>
+          <circle cx="652" cy="98" r="6" fill="#5fd4cf" class="bv__blink" />
+          {batches.map((b, i) => {
+            const y = 150 + i * 74;
+            return (
+              <g>
+                <text x="92" y={y} class="bv__row">{b.id}</text>
+                <text x="250" y={y} class="bv__tag">{b.type}</text>
+                <rect x="92" y={y + 14} width="470" height="10" rx="5" fill="#26303c" />
+                <rect
+                  x="92"
+                  y={y + 14}
+                  width={470 * b.p}
+                  height="10"
+                  rx="5"
+                  fill={`url(#${uid}-brand)`}
+                  class="bv__bar"
+                  style={`animation-delay:${i * 0.25}s`}
+                />
+                <g transform={`translate(600 ${y + 2})`}>
+                  <circle r="14" fill="#5fd4cf" fill-opacity="0.15" />
+                  <path d="M-6,0 l4,4 l8,-8" fill="none" stroke="#5fd4cf" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                </g>
+              </g>
+            );
+          })}
+          <text x="92" y="438" class="bv__foot">Sterility ✓   QC ✓   Real-time monitoring</text>
+        </g>
+      )
+    }
+    {
+      variant === 'hero' && (
+        <g>
+          <defs>
+            <radialGradient id={`${uid}-tcell`} cx="38%" cy="32%" r="75%">
+              <stop offset="0" stop-color="#2b3f86" />
+              <stop offset="0.6" stop-color="#18234a" />
+              <stop offset="1" stop-color="#121a33" />
+            </radialGradient>
+            <radialGradient id={`${uid}-tumour`} cx="60%" cy="35%" r="75%">
+              <stop offset="0" stop-color="#4a2e26" />
+              <stop offset="0.65" stop-color="#2a1c19" />
+              <stop offset="1" stop-color="#1c1513" />
+            </radialGradient>
+            <radialGradient id={`${uid}-syn`}>
+              <stop offset="0" stop-color="#63d2ca" stop-opacity="0.45" />
+              <stop offset="1" stop-color="#63d2ca" stop-opacity="0" />
+            </radialGradient>
+          </defs>
+
+          <text x="34" y="46" class="bv__mono">FIG. 01</text>
+          <text x="34" y="66" class="bv__mono bv__mono--dim">γδ T CELL · MHC-INDEPENDENT KILLING · SCHEMATIC</text>
+
+          <ellipse cx={(tc.x + tu.x) / 2 + 10} cy={tc.y} rx="90" ry="150" fill={`url(#${uid}-syn)`} class="bv__pulse" />
+
+          <g class="bv__breathe" style={`transform-origin:${tu.x}px ${tu.y}px`}>
+            <path d={tumourPath} fill={`url(#${uid}-tumour)`} stroke="#e39a6d" stroke-opacity="0.75" stroke-width="2" />
+            <path d={tumourPath} fill="none" stroke="#e39a6d" stroke-opacity="0.18" stroke-width="10" />
+            <ellipse cx={tu.x + 26} cy={tu.y + 8} rx="62" ry="58" fill="#3a2520" stroke="#e39a6d" stroke-opacity="0.35" />
+            {tumourNucleus.map((c) => <circle cx={c.x} cy={c.y} r={c.r} fill="#e9b291" opacity="0.35" />)}
+            {antigens.map((g) => (
+              <g transform={`translate(${g.x} ${g.y}) rotate(${g.a})`}>
+                <line x1="0" y1="0" x2="10" y2="0" stroke="#f0b48a" stroke-width="2" />
+                <rect x="9" y="-4" width="8" height="8" rx="2" fill="#f0b48a" class="bv__glint" style={`animation-delay:${g.d}s`} />
+              </g>
+            ))}
+          </g>
+
+          {granules.map((g) => (
+            <path d={g.d} fill="none" stroke="#63d2ca" stroke-width="3.5" stroke-linecap="round" class="bv__granule" style={`animation-delay:${g.delay}s`} />
+          ))}
+
+          <circle cx={tc.x} cy={tc.y} r={tc.r} fill={`url(#${uid}-tcell)`} />
+          <circle cx={tc.x} cy={tc.y} r={tc.r + 7} fill="none" stroke="#4565e6" stroke-opacity="0.18" stroke-width="10" />
+          <circle cx={tc.x} cy={tc.y} r={tc.r} fill="none" stroke={`url(#${uid}-brand)`} stroke-width="2.5" />
+          <circle cx={tc.x - 18} cy={tc.y - 6} r="52" fill="#1d2b5c" stroke="#8fa6ff" stroke-opacity="0.4" />
+          {chromatin.map((c) => <circle cx={c.x} cy={c.y} r={c.r} fill="#8fa6ff" opacity="0.4" />)}
+          <ellipse cx={tc.x + 54} cy={tc.y + 56} rx="16" ry="8" fill="none" stroke="#63d2ca" stroke-opacity="0.4" transform={`rotate(-30 ${tc.x + 54} ${tc.y + 56})`} />
+          <ellipse cx={tc.x - 60} cy={tc.y + 62} rx="12" ry="7" fill="none" stroke="#63d2ca" stroke-opacity="0.35" />
+          {tcrs.map((t) => (
+            <g transform={`translate(${t.x} ${t.y}) rotate(${t.a})`}>
+              <line x1="0" y1="0" x2="9" y2="0" stroke="#8fa6ff" stroke-opacity="0.55" stroke-width="1.6" />
+              <circle cx="11" cy="0" r="2.2" fill="#8fa6ff" opacity="0.6" />
+            </g>
+          ))}
+          {cars.map((c) => (
+            <g transform={`translate(${c.x} ${c.y}) rotate(${c.a})`}>
+              <line x1="0" y1="0" x2="22" y2="0" stroke="#63d2ca" stroke-width="2.6" stroke-linecap="round" />
+              <path d="M22,0 L32,-8 M22,0 L32,8" stroke="#63d2ca" stroke-width="2.6" stroke-linecap="round" fill="none" />
+              <circle cx="33" cy="-8.5" r="2.4" fill="#e6fffb" />
+              <circle cx="33" cy="8.5" r="2.4" fill="#e6fffb" />
+            </g>
+          ))}
+
+          <g class="bv__anno">
+            <path d={`M${cars[1].x + 26},${cars[1].y - 18} L${cars[1].x + 56},${tc.y - 196} L${cars[1].x + 110},${tc.y - 196}`} />
+            <circle cx={cars[1].x + 26} cy={cars[1].y - 18} r="3" />
+            <text x={cars[1].x + 118} y={tc.y - 192} class="bv__mono">γδ TCR · NKG2D</text>
+
+            <path d={`M${antigens[13].x + 4},${antigens[13].y + 10} L${antigens[13].x - 26},${tc.y + 196} L${antigens[13].x - 62},${tc.y + 196}`} />
+            <circle cx={antigens[13].x + 4} cy={antigens[13].y + 10} r="3" />
+            <text x={antigens[13].x - 70} y={tc.y + 200} class="bv__mono" text-anchor="end">MICA/B · ULBP LIGANDS</text>
+
+            <text x={tc.x} y={tc.y - tc.r - 36} class="bv__mono bv__mono--dim" text-anchor="middle">γδ T CELL</text>
+            <text x={tu.x + 20} y={tu.y - tu.r - 36} class="bv__mono bv__mono--dim" text-anchor="middle">LEUKAEMIC CELL</text>
+          </g>
+        </g>
+      )
+    }
+
+    {
+      variant === 'genome' && (
+        <g>
+          <text x="34" y="46" class="bv__mono">FIG. 02</text>
+          <text x="34" y="66" class="bv__mono bv__mono--dim">GENE EDITING · SCHEMATIC</text>
+          <rect
+            x={helix[18].x - 14}
+            y="140"
+            width={helix[23].x - helix[18].x + 28}
+            height="240"
+            rx="12"
+            fill="#63d2ca"
+            fill-opacity="0.07"
+            stroke="#63d2ca"
+            stroke-opacity="0.45"
+            stroke-dasharray="5 6"
+          />
+          <text x={(helix[18].x + helix[23].x) / 2} y="404" class="bv__mono" text-anchor="middle">EDIT SITE</text>
+          {helix.map((h) => (
+            <line
+              x1={h.x}
+              y1={h.y1}
+              x2={h.x}
+              y2={h.y2}
+              stroke={h.edit ? '#63d2ca' : '#8fa6ff'}
+              stroke-opacity={h.edit ? 0.9 : 0.28}
+              stroke-width={h.edit ? 3 : 2}
+            />
+          ))}
+          <path d={strand('y1')} fill="none" stroke={`url(#${uid}-brand)`} stroke-width="3" opacity="0.85" />
+          <path d={strand('y2')} fill="none" stroke="#8fa6ff" stroke-width="2.5" opacity="0.5" />
+          {helix.map((h) => (
+            <g>
+              <circle cx={h.x} cy={h.y1} r={5 + h.z1 * 2} fill={h.edit ? '#63d2ca' : '#4565e6'} class="bv__shimmer" style={`animation-delay:${h.d}s`} />
+              <circle cx={h.x} cy={h.y2} r={5 - h.z1 * 2} fill={h.edit ? '#e6fffb' : '#8fa6ff'} opacity="0.85" />
+            </g>
+          ))}
+        </g>
+      )
+    }
+
+    {
+      variant === 'mrd' && (
+        <g>
+          <defs>
+            <linearGradient id={`${uid}-zone`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#63d2ca" stop-opacity="0.1" />
+              <stop offset="1" stop-color="#63d2ca" stop-opacity="0.02" />
+            </linearGradient>
+            <linearGradient id={`${uid}-window`} x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#4565e6" stop-opacity="0.05" />
+              <stop offset="0.5" stop-color="#5fd4cf" stop-opacity="0.2" />
+              <stop offset="1" stop-color="#4565e6" stop-opacity="0.05" />
+            </linearGradient>
+          </defs>
+
+          <text x="34" y="46" class="bv__mono">FIG. 03</text>
+          <text x="34" y="66" class="bv__mono bv__mono--dim">AML · LEUKAEMIC BURDEN OVER TIME</text>
+
+          <rect x={plot.x0} y={plot.limit} width={plot.x1 - plot.x0} height={plot.bot - plot.limit} fill={`url(#${uid}-zone)`} />
+          <rect
+            x="368"
+            y={plot.top}
+            width="116"
+            height={plot.bot - plot.top}
+            rx="10"
+            fill={`url(#${uid}-window)`}
+            stroke="#5fd4cf"
+            stroke-opacity="0.55"
+            stroke-dasharray="4 6"
+            class="bv__pulse"
+          />
+          <text x="426" y={plot.top - 12} class="bv__mono bv__mono--teal" text-anchor="middle">INTERVENTION WINDOW</text>
+
+          <line x1={plot.x0} y1={plot.top - 10} x2={plot.x0} y2={plot.bot} stroke="#c9d3e6" stroke-opacity="0.45" />
+          <line x1={plot.x0} y1={plot.bot} x2={plot.x1} y2={plot.bot} stroke="#c9d3e6" stroke-opacity="0.45" />
+          <text
+            x="64"
+            y={(plot.top + plot.bot) / 2}
+            class="bv__mono bv__mono--dim"
+            text-anchor="middle"
+            transform={`rotate(-90 64 ${(plot.top + plot.bot) / 2})`}
+          >
+            LEUKAEMIC BURDEN
+          </text>
+
+          <line x1={plot.x0} y1={plot.limit} x2={plot.x1} y2={plot.limit} stroke="#e6fffb" stroke-opacity="0.6" stroke-dasharray="7 6" />
+          <text x={plot.x1} y={plot.limit - 10} class="bv__mono bv__mono--dim" text-anchor="end">MICROSCOPY LIMIT · &lt;5% BLASTS</text>
+          <text x={plot.x1} y={plot.limit + 24} class="bv__mono bv__mono--teal" text-anchor="end">MRD · VISIBLE ONLY TO FLOW / qPCR / NGS</text>
+
+          {mrdCells.map((c) => (
+            <circle cx={c.x} cy={c.y} r={c.r} fill="#f0b48a" opacity="0.55" class="bv__glint" style={`animation-delay:${c.d}s`} />
+          ))}
+
+          <path d={relapse} fill="none" stroke="#f0b48a" stroke-opacity="0.16" stroke-width="12" stroke-linecap="round" />
+          <path d={burden} fill="none" stroke="#e8ecf2" stroke-width="3" stroke-linecap="round" pathLength="1" class="bv__draw" />
+          <path d={relapse} fill="none" stroke="#f0b48a" stroke-width="3" stroke-linecap="round" pathLength="1" class="bv__draw" style="--d:1.3s" />
+          <path d={therapy} fill="none" stroke={`url(#${uid}-brand)`} stroke-width="3.5" stroke-linecap="round" pathLength="1" class="bv__draw" style="--d:2.1s" />
+
+          <g class="bv__anno">
+            <circle cx="690" cy="118" r="4" fill="#f0b48a" />
+            <text x="676" y="146" class="bv__mono bv__mono--amber" text-anchor="end">RELAPSE · WITHOUT INTERVENTION</text>
+            <circle cx="690" cy="432" r="4" />
+            <text x="676" y="416" class="bv__mono bv__mono--teal" text-anchor="end">γδ T CELLS → MRD-NEGATIVE</text>
+            <path d="M330,372 L300,300 L216,300" />
+            <circle cx="330" cy="372" r="3" />
+            <text x="210" y="304" class="bv__mono" text-anchor="end">"REMISSION"</text>
+          </g>
+
+          {phases.map((ph) => (
+            <g>
+              <line x1={ph.x} y1={plot.bot} x2={ph.x} y2={plot.bot + 8} stroke="#c9d3e6" stroke-opacity="0.6" />
+              <text x={ph.x} y={plot.bot + 30} class="bv__mono bv__mono--dim" text-anchor="middle">
+                {ph.t}
+              </text>
+            </g>
+          ))}
+        </g>
+      )
+    }
+
+    {
+      variant === 'ticobi' && (
+        <g>
+          <text x="34" y="46" class="bv__mono">FIG. 04</text>
+          <text x="34" y="66" class="bv__mono bv__mono--dim">TiCoBi · ONE DONOR → MANY DOSES</text>
+
+          <path d={`M${donor.x + 46},${donor.y} L${reactor.x - 132},${reactor.y}`} stroke={`url(#${uid}-brand)`} stroke-width="1.4" opacity="0.4" />
+          <path d={`M${donor.x + 46},${donor.y} L${reactor.x - 132},${reactor.y}`} stroke="#9fe9e5" stroke-width="2" stroke-linecap="round" class="bv__flow" />
+          {doseRows.map((d, i) => (
+            <g>
+              <path d={d} fill="none" stroke={`url(#${uid}-brand)`} stroke-width="1.4" opacity="0.4" />
+              <path d={d} fill="none" stroke="#9fe9e5" stroke-width="2" stroke-linecap="round" class="bv__flow" style={`animation-delay:${0.5 + i * 0.4}s`} />
+            </g>
+          ))}
+
+          <circle cx={donor.x} cy={donor.y} r="86" fill={`url(#${uid}-glow)`} class="bv__pulse" />
+          <path
+            d={`M${donor.x},${donor.y - 52} C${donor.x + 24},${donor.y - 18} ${donor.x + 38},${donor.y} ${donor.x + 38},${donor.y + 18} a38,38 0 0 1 -76,0 C${donor.x - 38},${donor.y} ${donor.x - 24},${donor.y - 18} ${donor.x},${donor.y - 52}Z`}
+            fill={`url(#${uid}-core)`}
+          />
+          <circle cx={donor.x - 13} cy={donor.y + 8} r="7" fill="#fff" opacity="0.45" />
+          <text x={donor.x} y={donor.y + 100} class="bv__mono" text-anchor="middle">1 HEALTHY DONOR</text>
+
+          <circle cx={reactor.x} cy={reactor.y} r="104" fill="#161e27" stroke="#4565e6" stroke-opacity="0.45" />
+          <circle cx={reactor.x} cy={reactor.y} r="70" fill="none" stroke="#4565e6" stroke-opacity="0.25" stroke-dasharray="3 5" />
+          <circle cx={reactor.x} cy={reactor.y} r="38" fill="none" stroke="#4565e6" stroke-opacity="0.25" stroke-dasharray="3 5" />
+          {ticks.map((t) => (
+            <line x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} stroke="#8fa6ff" stroke-opacity="0.55" stroke-width="1.4" />
+          ))}
+          <g class="bv__sweep" style={`transform-origin:${reactor.x}px ${reactor.y}px`}>
+            <path
+              d={`M${reactor.x},${reactor.y} L${reactor.x},${reactor.y - 116} A116,116 0 0 1 ${reactor.x + 82},${reactor.y - 82} Z`}
+              fill="#5fd4cf"
+              opacity="0.12"
+            />
+            <line x1={reactor.x} y1={reactor.y} x2={reactor.x} y2={reactor.y - 116} stroke="#5fd4cf" stroke-width="2" />
+          </g>
+          {expanding.map((c) => (
+            <circle
+              cx={c.x}
+              cy={c.y}
+              r={c.r}
+              fill="#63d2ca"
+              class="bv__grow"
+              style={`animation-delay:${c.d}s; transform-origin:${c.x.toFixed(1)}px ${c.y.toFixed(1)}px`}
+            />
+          ))}
+          <circle cx={reactor.x} cy={reactor.y} r="12" fill={`url(#${uid}-brand)`} />
+          <text x={reactor.x} y={reactor.y + 160} class="bv__mono" text-anchor="middle">TIME-CONTROLLED EXPANSION</text>
+          <text x={reactor.x} y={reactor.y + 180} class="bv__mono bv__mono--dim" text-anchor="middle">
+            γδ T CELLS · NO EDITING · NO VECTORS
+          </text>
+
+          <text x="606" y="150" class="bv__mono bv__mono--teal" text-anchor="middle">UP TO 15 DOSES</text>
+          {vials.map((v) => (
+            <g class="bv__vial" style={`animation-delay:${v.d}s`}>
+              <rect x={v.x + 3} y={v.y - 6} width="14" height="7" rx="2" fill="#8fa6ff" opacity="0.7" />
+              <rect x={v.x} y={v.y} width="20" height="42" rx="6" fill="#11171e" stroke="#8fa6ff" stroke-opacity="0.6" />
+              <rect x={v.x + 3} y={v.y + 14} width="14" height="25" rx="4" fill={`url(#${uid}-core)`} />
+            </g>
+          ))}
+          <text x="606" y="400" class="bv__mono bv__mono--dim" text-anchor="middle">OFF-THE-SHELF</text>
+        </g>
+      )
+    }
+  </svg>
+</figure>
+
+<style>
+  .bv {
+    position: relative;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: #0a0e13;
+    overflow: hidden;
+  }
+
+  .bv svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .bv :global(text) {
+    font-family: var(--font-display);
+  }
+
+  .bv__label {
+    fill: #c9d3e6;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    opacity: 0.85;
+  }
+
+  .bv__big {
+    font-size: 72px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    fill: #ffffff;
+  }
+
+  .bv__title {
+    fill: #ffffff;
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .bv__row {
+    fill: #e8ecf2;
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  .bv__tag {
+    fill: #5fd4cf;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .bv__foot {
+    fill: #8fa6ff;
+    font-size: 15px;
+    font-weight: 600;
+    white-space: pre;
+  }
+
+  .bv__mono {
+    font-family: var(--font-mono) !important;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    fill: #e6fffb;
+  }
+
+  .bv__mono--dim {
+    fill: #8a95a3;
+  }
+
+  .bv__mono--teal {
+    fill: #63d2ca;
+  }
+
+  .bv__mono--amber {
+    fill: #f0b48a;
+  }
+
+  /* Curves that draw themselves once the figure scrolls into view. */
+  .bv__draw {
+    stroke-dasharray: 1;
+  }
+
+  :global(.js) .bv__draw {
+    stroke-dashoffset: 1;
+  }
+
+  :global(.is-visible) .bv__draw {
+    animation: bv-draw 1.8s var(--ease) forwards;
+    animation-delay: var(--d, 0.2s);
+  }
+
+  @keyframes bv-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .bv__sweep {
+    animation: bv-spin 6s linear infinite;
+  }
+
+  .bv__grow {
+    animation: bv-grow 4s ease-in-out infinite;
+  }
+
+  @keyframes bv-grow {
+    0%,
+    100% {
+      transform: scale(0.35);
+      opacity: 0.25;
+    }
+    50% {
+      transform: scale(1);
+      opacity: 0.9;
+    }
+  }
+
+  .bv__vial {
+    animation: bv-unit 3.2s ease-in-out infinite;
+  }
+
+  .bv__anno path {
+    fill: none;
+    stroke: #c9d3e6;
+    stroke-opacity: 0.55;
+    stroke-width: 1;
+  }
+
+  .bv__anno circle {
+    fill: #e6fffb;
+  }
+
+  .bv__granule {
+    stroke-dasharray: 2 400;
+    animation: bv-flow 2.8s linear infinite;
+  }
+
+  .bv__breathe {
+    animation: bv-breathe 7s ease-in-out infinite;
+  }
+
+  .bv__glint,
+  .bv__shimmer {
+    animation: bv-glint 2.4s ease-in-out infinite;
+  }
+
+  @keyframes bv-breathe {
+    50% {
+      transform: scale(1.015);
+    }
+  }
+
+  @keyframes bv-glint {
+    50% {
+      opacity: 0.45;
+    }
+  }
+
+  /* Motion */
+  .bv__flow {
+    stroke-dasharray: 18 420;
+    animation: bv-flow 3.2s linear infinite;
+  }
+
+  .bv__spin {
+    animation: bv-spin 40s linear infinite;
+  }
+
+  .bv__pulse {
+    animation: bv-pulse 4s ease-in-out infinite;
+  }
+
+  .bv__unit {
+    animation: bv-unit 3.6s ease-in-out infinite;
+  }
+
+  .bv__ring {
+    animation: bv-ring 3.3s ease-out infinite;
+    opacity: 0;
+  }
+
+  .bv__dash {
+    stroke-dasharray: 4 6;
+    animation: bv-dash 1.6s linear infinite;
+    opacity: 0.6;
+  }
+
+  .bv__bar {
+    transform-box: fill-box;
+    transform-origin: left;
+    animation: bv-bar 2.4s var(--ease) both;
+  }
+
+  .bv__blink {
+    animation: bv-blink 1.6s ease-in-out infinite;
+  }
+
+  .bv__particles {
+    animation: bv-drift 18s ease-in-out infinite alternate;
+  }
+
+  @keyframes bv-flow {
+    from {
+      stroke-dashoffset: 438;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes bv-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes bv-pulse {
+    50% {
+      opacity: 0.55;
+    }
+  }
+
+  @keyframes bv-unit {
+    0%,
+    100% {
+      opacity: 0.55;
+    }
+    30% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes bv-ring {
+    0% {
+      transform: scale(1);
+      opacity: 0.7;
+    }
+    100% {
+      transform: scale(5);
+      opacity: 0;
+    }
+  }
+
+  @keyframes bv-dash {
+    to {
+      stroke-dashoffset: -20;
+    }
+  }
+
+  @keyframes bv-bar {
+    from {
+      transform: scaleX(0);
+    }
+  }
+
+  @keyframes bv-blink {
+    50% {
+      opacity: 0.25;
+    }
+  }
+
+  @keyframes bv-drift {
+    to {
+      transform: translate(-12px, 8px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bv__ring {
+      opacity: 0.25;
+    }
+  }
+</style>

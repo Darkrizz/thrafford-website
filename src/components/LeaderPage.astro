@@ -1,0 +1,1083 @@
+---
+/**
+ * Long-form leadership profile: an arched portrait niche, a ledger of achievements,
+ * a pull quote, the story in chapters and the record of focus areas and highlights.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import CTABand from './CTABand.astro';
+import { teamGroups } from '../data/team';
+import { leaderProfiles, type LeaderProfile } from '../data/leaders';
+
+interface Props {
+  profile: LeaderProfile;
+}
+
+const { profile: p } = Astro.props;
+const member = teamGroups.flatMap((g) => g.members).find((m) => m.name === p.member)!;
+const [honorific, ...nameParts] = p.member.split(' ');
+const others = leaderProfiles.filter((x) => x.slug !== p.slug);
+const otherMember = (name: string) => teamGroups.flatMap((g) => g.members).find((m) => m.name === name)!;
+const roman = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: p.member,
+  jobTitle: member.role,
+  worksFor: { '@type': 'Organization', name: 'Thrafford Lifescience', url: 'https://thrafford.com' },
+  alumniOf: p.education.map((e) => e.value.split(',')[0]),
+  image: member.photo ? new URL(member.photo, 'https://thrafford.com').href : undefined,
+  sameAs: member.linkedin ? [member.linkedin] : undefined,
+};
+---
+
+<BaseLayout title={p.member} description={p.seoDescription} activeNav="/team/">
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(person)} />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+  </Fragment>
+
+  <!-- Hero -->
+  <section class="lp-hero" aria-labelledby="lp-name">
+    <div class="lp-hero__bg" aria-hidden="true"></div>
+    <div class="container">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <ol>
+          <li><a href="/team/">Team</a></li>
+          <li><a href="/team/#leadership">Leadership</a></li>
+          <li aria-current="page">{p.member}</li>
+        </ol>
+      </nav>
+
+      <div class="lp-hero__grid">
+        <div class="lp-hero__copy">
+          <p class="lp-role">{member.role}</p>
+          <h1 id="lp-name">
+            <span class="lp-honorific">{honorific}</span>
+            {nameParts.join(' ')}
+          </h1>
+          <p class="lp-affiliation">{p.affiliation}</p>
+          <p class="lp-summary">{p.summary}</p>
+
+          <dl class="lp-edu">
+            {
+              p.education.map((e) => (
+                <div>
+                  <dt>{e.label}</dt>
+                  <dd>{e.value}</dd>
+                </div>
+              ))
+            }
+          </dl>
+
+          <div class="lp-actions">
+            {
+              member.linkedin && (
+                <Button href={member.linkedin} icon="linkedin" iconPosition="start" external>
+                  LinkedIn profile
+                </Button>
+              )
+            }
+            <Button href="/team/#leadership" variant="secondary">Back to the team</Button>
+          </div>
+        </div>
+
+        <figure class="niche">
+          <div class="niche__halo" aria-hidden="true"></div>
+          <svg class="niche__ring" viewBox="0 0 200 200" aria-hidden="true">
+            <circle cx="100" cy="100" r="98" />
+          </svg>
+          <div class="niche__arch">
+            <img src={member.photo} alt={`Portrait of ${p.member}`} width="600" height="560" decoding="async" />
+          </div>
+          <figcaption class="niche__plate">
+            <span>{p.member}</span>
+            <span>{member.role}</span>
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ledger of achievements -->
+  <section class="section section--tight" aria-labelledby="ledger-title">
+    <div class="container">
+      <h2 id="ledger-title" class="lp-kicker" data-reveal>A record of impact</h2>
+      <dl class="ledger">
+        {
+          p.stats.map((s) => (
+            <div data-reveal>
+              <dt>{s.value}</dt>
+              <dd>{s.label}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <!-- Quote -->
+  {
+    p.quote && (
+      <section class="lp-quote" aria-label="In their words">
+        <div class="container">
+          <span class="ornament" aria-hidden="true">
+            <span />
+            <i />
+            <span />
+          </span>
+          <blockquote data-reveal>
+            <p>{p.quote.text}</p>
+            <footer>
+              <span>{p.member}</span>
+              {p.quote.note && <span class="lp-quote__note">{p.quote.note}</span>}
+            </footer>
+          </blockquote>
+          <span class="ornament" aria-hidden="true">
+            <span />
+            <i />
+            <span />
+          </span>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Story -->
+  <section class="section" aria-labelledby="story-title">
+    <div class="container story">
+      <aside class="story__aside">
+        <h2 id="story-title" class="lp-kicker">{p.chapters ? 'The journey' : 'Biography'}</h2>
+        {
+          p.chapters ? (
+            <ol class="story__index">
+              {p.chapters.map((c, i) => (
+                <li>
+                  <a href={`#chapter-${i + 1}`}>
+                    <span>{roman[i]}</span>
+                    {c.title}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <div class="story__facts">
+              {p.certifications && (
+                <>
+                  <p class="story__facts-title">Certifications</p>
+                  <ul>
+                    {p.certifications.map((c) => (
+                      <li>{c}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
+          )
+        }
+      </aside>
+
+      <div class="story__body">
+        {
+          p.chapters &&
+            p.chapters.map((c, i) => (
+              <article class="chapter" id={`chapter-${i + 1}`} data-reveal>
+                <p class="chapter__num" aria-hidden="true">
+                  {roman[i]}
+                </p>
+                <h3>{c.title}</h3>
+                {c.body.map((b) => (
+                  <p>{b}</p>
+                ))}
+                {c.list && (
+                  <ul class="chapter__list">
+                    {c.list.map((l) => (
+                      <li>{l}</li>
+                    ))}
+                  </ul>
+                )}
+              </article>
+            ))
+        }
+        {
+          p.bio && (
+            <div class="bio" data-reveal>
+              {p.bio.map((b) => (
+                <p>{b}</p>
+              ))}
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Focus & career -->
+  <section class="section section--alt" aria-labelledby="focus-title">
+    <div class="container focus">
+      <div>
+        <h2 id="focus-title" class="lp-kicker">{p.focusTitle}</h2>
+        <ol class="focus__list">
+          {
+            p.focus.map((f, i) => (
+              <li data-reveal>
+                <span>{String(i + 1).padStart(2, '0')}</span>
+                {f}
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+      {
+        p.career && (
+          <div class="focus__career" data-reveal>
+            <p class="lp-kicker">Organisations &amp; collaborations</p>
+            <ul>
+              {p.career.map((c) => (
+                <li>{c}</li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <!-- Highlights -->
+  {
+    p.highlights && (
+      <section class="section" aria-labelledby="highlights-title">
+        <div class="container">
+          <h2 id="highlights-title" class="lp-kicker" data-reveal>
+            Research &amp; media highlights
+          </h2>
+          <div class="highlights">
+            {p.highlights.map((h) => (
+              <div class="highlights__col" data-reveal>
+                <h3>{h.group}</h3>
+                <ul>
+                  {h.items.map((it) => (
+                    <li>
+                      <a href={it.href} target="_blank" rel="noopener noreferrer">
+                        <span>{it.label}</span>
+                        <Icon name="arrow-up-right" size={16} />
+                        <span class="visually-hidden">(opens in a new tab)</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Next profile -->
+  <section class="section section--tight">
+    <div class="container">
+      {
+        others.map((o) => {
+          const om = otherMember(o.member);
+          return (
+            <a class="next" href={`/${o.slug}/`} data-reveal>
+              <span class="next__photo">
+                <img src={om.photo} alt="" width="120" height="112" loading="lazy" />
+              </span>
+              <span class="next__text">
+                <span class="lp-kicker">Next profile</span>
+                <strong>{o.member}</strong>
+                <span>{om.role}</span>
+              </span>
+              <span class="next__arrow" aria-hidden="true">
+                <Icon name="arrow-right" size={22} />
+              </span>
+            </a>
+          );
+        })
+      }
+    </div>
+  </section>
+
+  <CTABand title={`Work with ${honorific} ${nameParts[nameParts.length - 1]} and the Thrafford team`} />
+</BaseLayout>
+
+<style>
+  /* ---------- Shared type ---------- */
+  .lp-kicker {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal-700);
+  }
+
+  /* ---------- Hero ---------- */
+  .lp-hero {
+    position: relative;
+    padding-block: clamp(2rem, 1.5rem + 2vw, 3rem) clamp(3.5rem, 2.5rem + 4vw, 6rem);
+    background: linear-gradient(180deg, rgb(238 242 251 / 0.55) 0%, rgb(226 232 245 / 0.2) 100%);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .lp-hero::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgb(38 67 196 / 0.35), rgb(18 158 150 / 0.35), transparent);
+  }
+
+  .lp-hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(700px 500px at 78% 40%, rgb(69 101 230 / 0.16), transparent 70%),
+      radial-gradient(500px 360px at 5% 100%, rgb(18 158 150 / 0.12), transparent 70%);
+  }
+
+  .lp-hero__bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(rgb(28 51 148 / 0.05) 1px, transparent 1px) 0 0 / 56px 56px,
+      linear-gradient(90deg, rgb(28 51 148 / 0.05) 1px, transparent 1px) 0 0 / 56px 56px;
+    mask-image: radial-gradient(ellipse 60% 80% at 75% 45%, #000, transparent 75%);
+  }
+
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-2);
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-500);
+  }
+
+  .crumbs li {
+    display: flex;
+    align-items: center;
+  }
+
+  .crumbs li + li::before {
+    content: '/';
+    margin-right: var(--sp-2);
+    color: var(--ink-400);
+  }
+
+  .crumbs a {
+    color: var(--ink-700);
+    text-decoration: none;
+  }
+
+  .crumbs a:hover {
+    color: var(--blue-600);
+  }
+
+  .lp-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    align-items: center;
+    gap: clamp(2.5rem, 1rem + 5vw, 6rem);
+    margin-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+  }
+
+  .lp-hero__copy {
+    display: grid;
+    gap: var(--sp-4);
+    justify-items: start;
+    animation: lp-rise 1000ms var(--ease) both;
+  }
+
+  @keyframes lp-rise {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+  }
+
+  .lp-role {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--teal-700);
+  }
+
+  /* The name, set in a quiet editorial serif. */
+  .lp-hero h1 {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: clamp(3.2rem, 1.8rem + 5vw, 6.2rem);
+    font-weight: 400;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: var(--ink-950);
+  }
+
+  .lp-honorific {
+    display: block;
+    margin-bottom: 0.1em;
+    font-style: italic;
+    font-size: 0.5em;
+    color: var(--blue-600);
+  }
+
+  .lp-affiliation {
+    font-weight: 600;
+    color: var(--ink-700);
+  }
+
+  .lp-summary {
+    max-width: 54ch;
+    font-size: var(--fs-lg);
+    line-height: 1.65;
+    color: var(--text-muted);
+  }
+
+  .lp-edu {
+    display: grid;
+    width: 100%;
+    max-width: 520px;
+    margin: var(--sp-2) 0 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .lp-edu > div {
+    display: grid;
+    grid-template-columns: 11rem 1fr;
+    gap: var(--sp-4);
+    padding-block: var(--sp-3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .lp-edu dt {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+    padding-top: 0.2rem;
+  }
+
+  .lp-edu dd {
+    margin: 0;
+    font-weight: 600;
+    color: var(--ink-900);
+  }
+
+  .lp-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-3);
+    margin-top: var(--sp-3);
+  }
+
+  /* Arched portrait niche, like a portrait hung in a gallery alcove. */
+  .niche {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+    animation: lp-rise 1200ms var(--ease) 150ms both;
+  }
+
+  .niche__halo {
+    position: absolute;
+    top: 8%;
+    left: 50%;
+    width: 120%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgb(255 255 255 / 0.95), rgb(143 166 255 / 0.25) 45%, transparent 70%);
+    transform: translateX(-50%);
+  }
+
+  .niche__ring {
+    position: absolute;
+    top: -2%;
+    left: 50%;
+    width: 112%;
+    transform: translateX(-50%);
+    overflow: visible;
+    animation: lp-spin 120s linear infinite;
+  }
+
+  .niche__ring circle {
+    fill: none;
+    stroke: rgb(38 67 196 / 0.25);
+    stroke-width: 0.4;
+    stroke-dasharray: 0.5 2.5;
+  }
+
+  @keyframes lp-spin {
+    to {
+      transform: translateX(-50%) rotate(360deg);
+    }
+  }
+
+  .niche__arch {
+    position: relative;
+    width: 100%;
+    padding: 9px;
+    border: 1px solid rgb(255 255 255 / 0.95);
+    border-radius: 999px 999px 30px 30px;
+    background: rgb(255 255 255 / 0.45);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.9),
+      0 0 0 1px rgb(38 67 196 / 0.08),
+      0 60px 100px -50px rgb(17 34 102 / 0.65);
+  }
+
+  .niche__arch img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    border-radius: 999px 999px 22px 22px;
+    object-fit: cover;
+    object-position: top center;
+    background:
+      radial-gradient(circle at 50% 30%, #ffffff, transparent 65%),
+      linear-gradient(170deg, #e8edf9, #c4d0ec);
+    mix-blend-mode: multiply;
+  }
+
+  .niche__plate {
+    position: relative;
+    display: grid;
+    gap: 0.15rem;
+    margin-top: -1.6rem;
+    padding: 0.7rem 1.4rem;
+    border: 1px solid rgb(255 255 255 / 0.95);
+    border-radius: 14px;
+    background: rgb(255 255 255 / 0.85);
+    box-shadow: 0 14px 30px -18px rgb(17 34 102 / 0.5);
+    text-align: center;
+  }
+
+  .niche__plate span:first-child {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 1.25rem;
+    color: var(--ink-950);
+  }
+
+  .niche__plate span:last-child {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+  }
+
+  @media (max-width: 900px) {
+    .lp-hero__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .niche {
+      order: -1;
+      max-width: 320px;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .lp-edu > div {
+      grid-template-columns: 1fr;
+      gap: 0.15rem;
+    }
+  }
+
+  /* ---------- Ledger ---------- */
+  .ledger {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    margin: var(--sp-5) 0 0;
+    border-top: 1px solid var(--border-strong);
+  }
+
+  .ledger > div {
+    display: grid;
+    align-content: start;
+    gap: var(--sp-2);
+    padding: var(--sp-6) var(--sp-5) var(--sp-6) 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ledger dt {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: clamp(3rem, 2rem + 3vw, 4.5rem);
+    line-height: 1;
+    color: var(--ink-950);
+  }
+
+  .ledger dd {
+    max-width: 26ch;
+    margin: 0;
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+    color: var(--text-muted);
+  }
+
+  /* ---------- Quote ---------- */
+  .lp-quote {
+    position: relative;
+    padding-block: clamp(4rem, 3rem + 5vw, 8rem);
+    background:
+      radial-gradient(600px 300px at 50% 50%, rgb(255 255 255 / 0.85), transparent 70%),
+      linear-gradient(180deg, transparent, rgb(69 101 230 / 0.06), transparent);
+    text-align: center;
+  }
+
+  .lp-quote .container {
+    display: grid;
+    justify-items: center;
+    gap: clamp(2rem, 1.5rem + 2vw, 3rem);
+  }
+
+  .ornament {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+
+  .ornament span {
+    width: 72px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-strong));
+  }
+
+  .ornament span:last-child {
+    background: linear-gradient(90deg, var(--border-strong), transparent);
+  }
+
+  .ornament i {
+    width: 8px;
+    height: 8px;
+    background: var(--gradient-brand);
+    transform: rotate(45deg);
+  }
+
+  blockquote {
+    max-width: 900px;
+    margin: 0;
+  }
+
+  blockquote p {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-style: italic;
+    font-size: clamp(2rem, 1.3rem + 2.8vw, 3.6rem);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: var(--ink-950);
+  }
+
+  blockquote p::before {
+    content: '“';
+    color: var(--blue-500);
+  }
+
+  blockquote p::after {
+    content: '”';
+    color: var(--blue-500);
+  }
+
+  blockquote footer {
+    display: grid;
+    gap: var(--sp-1);
+    margin-top: var(--sp-5);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+  }
+
+  .lp-quote__note {
+    font-family: var(--font-body);
+    font-size: var(--fs-sm);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  /* ---------- Story ---------- */
+  .story {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.8fr) minmax(0, 2fr);
+    gap: clamp(2rem, 1rem + 5vw, 6rem);
+    align-items: start;
+  }
+
+  .story__aside {
+    position: sticky;
+    top: calc(var(--header-h) + 2rem);
+    display: grid;
+    gap: var(--sp-5);
+  }
+
+  .story__index {
+    display: grid;
+    list-style: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .story__index a {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: var(--sp-2);
+    padding-block: var(--sp-3);
+    border-bottom: 1px solid var(--border);
+    color: var(--ink-700);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    line-height: 1.35;
+    text-decoration: none;
+    transition: color var(--dur) var(--ease);
+  }
+
+  .story__index a span {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 1.1rem;
+    color: var(--blue-600);
+  }
+
+  .story__index a:hover {
+    color: var(--ink-950);
+  }
+
+  .story__facts-title {
+    margin-bottom: var(--sp-2);
+    font-weight: 700;
+    color: var(--ink-900);
+  }
+
+  .story__facts ul {
+    display: grid;
+    gap: var(--sp-3);
+    list-style: none;
+  }
+
+  .story__facts li {
+    padding: var(--sp-4);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    background: var(--glass-bg);
+    box-shadow: var(--glass-highlight), var(--shadow-soft);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--ink-800);
+  }
+
+  .story__body {
+    display: grid;
+    gap: clamp(3rem, 2rem + 3vw, 5rem);
+  }
+
+  .chapter {
+    position: relative;
+    display: grid;
+    gap: var(--sp-4);
+    scroll-margin-top: calc(var(--header-h) + 2rem);
+  }
+
+  .chapter__num {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 4.5rem;
+    line-height: 0.8;
+    color: transparent;
+    -webkit-text-stroke: 1px rgb(38 67 196 / 0.4);
+  }
+
+  .chapter h3 {
+    font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.3rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.12;
+    color: var(--ink-950);
+  }
+
+  .chapter p:not(.chapter__num),
+  .bio p {
+    max-width: 66ch;
+    font-size: var(--fs-lg);
+    line-height: 1.75;
+    color: var(--ink-700);
+  }
+
+  .chapter__list {
+    display: grid;
+    gap: var(--sp-2);
+    list-style: none;
+  }
+
+  .chapter__list li {
+    display: flex;
+    gap: var(--sp-3);
+    align-items: baseline;
+    font-weight: 600;
+    color: var(--ink-900);
+  }
+
+  .chapter__list li::before {
+    content: '';
+    flex-shrink: 0;
+    width: 7px;
+    height: 7px;
+    background: var(--gradient-brand);
+    transform: rotate(45deg) translateY(-2px);
+  }
+
+  .bio {
+    display: grid;
+    gap: var(--sp-5);
+  }
+
+  /* Drop cap opens the biography. */
+  .bio p:first-child::first-letter {
+    float: left;
+    margin: 0.06em 0.12em 0 0;
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 4.6em;
+    line-height: 0.8;
+    color: var(--blue-600);
+  }
+
+  @media (max-width: 900px) {
+    .story {
+      grid-template-columns: 1fr;
+    }
+
+    .story__aside {
+      position: static;
+    }
+  }
+
+  /* ---------- Focus & career ---------- */
+  .focus {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: clamp(2rem, 1rem + 4vw, 5rem);
+    align-items: start;
+  }
+
+  .focus__list {
+    display: grid;
+    margin-top: var(--sp-5);
+    list-style: none;
+    border-top: 1px solid var(--border-strong);
+  }
+
+  .focus__list li {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    align-items: baseline;
+    padding-block: var(--sp-4);
+    border-bottom: 1px solid var(--border);
+    font-size: clamp(1.15rem, 1rem + 0.5vw, 1.4rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ink-950);
+  }
+
+  .focus__list span {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--blue-600);
+  }
+
+  .focus__career {
+    display: grid;
+    gap: var(--sp-4);
+    padding: var(--sp-6);
+    border: 1px solid var(--glass-border);
+    border-radius: 22px;
+    background: var(--glass-bg);
+    box-shadow: var(--glass-highlight), var(--shadow-soft);
+  }
+
+  .focus__career ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    list-style: none;
+  }
+
+  .focus__career li {
+    padding: 0.4rem 0.85rem;
+    border-radius: var(--radius-pill);
+    background: var(--blue-50);
+    border: 1px solid rgb(255 255 255 / 0.85);
+    color: var(--blue-700);
+    font-size: var(--fs-sm);
+    font-weight: 700;
+  }
+
+  @media (max-width: 900px) {
+    .focus {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- Highlights ---------- */
+  .highlights {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--sp-5);
+    margin-top: var(--sp-5);
+  }
+
+  .highlights__col {
+    display: grid;
+    align-content: start;
+    gap: var(--sp-3);
+    padding: var(--sp-6);
+    border: 1px solid var(--glass-border);
+    border-radius: 22px;
+    background: var(--glass-bg);
+    box-shadow: var(--glass-highlight), var(--shadow-soft);
+  }
+
+  .highlights__col h3 {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 1.9rem;
+    font-weight: 400;
+    color: var(--ink-950);
+  }
+
+  .highlights__col ul {
+    display: grid;
+    list-style: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .highlights__col a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    padding-block: var(--sp-3);
+    border-bottom: 1px solid var(--border);
+    color: var(--ink-800);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color var(--dur) var(--ease);
+  }
+
+  .highlights__col a :global(svg) {
+    flex-shrink: 0;
+    color: var(--ink-400);
+    transition: transform var(--dur) var(--ease);
+  }
+
+  .highlights__col a:hover {
+    color: var(--blue-600);
+  }
+
+  .highlights__col a:hover :global(svg) {
+    color: var(--blue-600);
+    transform: translate(2px, -2px);
+  }
+
+  @media (max-width: 900px) {
+    .highlights {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- Next profile ---------- */
+  .next {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--sp-5);
+    padding: var(--sp-4) var(--sp-6) var(--sp-4) var(--sp-4);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    background: var(--glass-bg);
+    box-shadow: var(--glass-highlight), var(--shadow-soft);
+    color: inherit;
+    text-decoration: none;
+    transition:
+      transform var(--dur) var(--ease),
+      box-shadow var(--dur) var(--ease);
+  }
+
+  .next:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--glass-highlight), var(--shadow-lg);
+  }
+
+  .next__photo {
+    width: 88px;
+    height: 88px;
+    overflow: hidden;
+    border-radius: 999px 999px 16px 16px;
+    background: linear-gradient(170deg, #e8edf9, #c4d0ec);
+  }
+
+  .next__photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    mix-blend-mode: multiply;
+  }
+
+  .next__text {
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  .next__text strong {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.2rem);
+    font-weight: 400;
+    color: var(--ink-950);
+  }
+
+  .next__text span:last-child {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+  }
+
+  .next__arrow {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--brand);
+    color: var(--white);
+    transition: transform var(--dur) var(--ease);
+  }
+
+  .next:hover .next__arrow {
+    transform: translateX(4px);
+  }
+
+  @media (max-width: 560px) {
+    .next {
+      grid-template-columns: auto 1fr;
+    }
+
+    .next__arrow {
+      display: none;
+    }
+  }
+</style>

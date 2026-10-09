@@ -1,0 +1,515 @@
+---
+import Icon from './Icon.astro';
+import Button from './Button.astro';
+import { contact } from '../data/site';
+
+const subjects = [
+  'Partnership or collaboration',
+  'Hospital / clinical enquiry',
+  'Research collaboration',
+  'General question',
+];
+---
+
+<form class="form" novalidate data-contact-form data-to={contact.email}>
+  <div class="form__summary" role="alert" tabindex="-1" data-summary hidden></div>
+
+  <div class="form__grid">
+    <div class="field">
+      <label for="cf-name">Full name <span class="req" aria-hidden="true">*</span></label>
+      <input id="cf-name" name="name" type="text" autocomplete="name" required aria-describedby="cf-name-err" />
+      <p class="field__error" id="cf-name-err" data-error></p>
+    </div>
+
+    <div class="field">
+      <label for="cf-email">Email <span class="req" aria-hidden="true">*</span></label>
+      <input id="cf-email" name="email" type="email" autocomplete="email" required aria-describedby="cf-email-err" />
+      <p class="field__error" id="cf-email-err" data-error></p>
+    </div>
+
+    <div class="field">
+      <label for="cf-phone">Phone <span class="opt">(optional)</span></label>
+      <input id="cf-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" aria-describedby="cf-phone-err" />
+      <p class="field__error" id="cf-phone-err" data-error></p>
+    </div>
+
+    <div class="field">
+      <label for="cf-company">Organisation <span class="opt">(optional)</span></label>
+      <input id="cf-company" name="company" type="text" autocomplete="organization" />
+    </div>
+
+    <div class="field field--full">
+      <label for="cf-subject">Subject <span class="req" aria-hidden="true">*</span></label>
+      <div class="select">
+        <select id="cf-subject" name="subject" required aria-describedby="cf-subject-err">
+          <option value="">Choose a topic…</option>
+          {subjects.map((s) => <option>{s}</option>)}
+        </select>
+      </div>
+      <p class="field__error" id="cf-subject-err" data-error></p>
+    </div>
+
+    <div class="field field--full">
+      <label for="cf-message">Message <span class="req" aria-hidden="true">*</span></label>
+      <textarea id="cf-message" name="message" rows="6" required minlength="10" aria-describedby="cf-message-err"
+      ></textarea>
+      <p class="field__error" id="cf-message-err" data-error></p>
+    </div>
+
+    <div class="field field--full field--check">
+      <input id="cf-consent" name="consent" type="checkbox" required aria-describedby="cf-consent-err" />
+      <label for="cf-consent">I agree to be contacted about my enquiry <span class="req" aria-hidden="true">*</span></label>
+      <p class="field__error" id="cf-consent-err" data-error></p>
+    </div>
+  </div>
+
+  <div class="form__honey" aria-hidden="true">
+    <label for="cf-honey">Leave this field empty</label>
+    <input id="cf-honey" name="_honey" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <p class="form__send-error" role="alert" data-send-error hidden>
+    <strong>Your message couldn’t be sent.</strong> Please check your connection and try again, or reach us
+    directly at <a href={`mailto:${contact.email}`}>{contact.email}</a> or{' '}
+    <a href={contact.phoneHref}>{contact.phoneDisplay}</a>.
+  </p>
+
+  <div class="form__footer">
+    <p class="form__hint">Fields marked <span class="req">*</span> are required.</p>
+    <Button type="submit" size="lg" icon="arrow-right" data-submit>Send message</Button>
+  </div>
+
+  <div class="form__success" data-success hidden tabindex="-1">
+    <span class="form__success-icon"><Icon name="check" size={28} /></span>
+    <h3>Thank you, your message has been sent</h3>
+    <p>
+      It’s on its way to the Thrafford team. {contact.responseTime} We’ll reply to <strong data-reply-to></strong>.
+    </p>
+    <p class="form__success-alt">
+      Need us sooner? Call <a href={contact.phoneHref}>{contact.phoneDisplay}</a>.
+    </p>
+    <button type="button" class="form__reset" data-reset>Write another message</button>
+  </div>
+</form>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+  if (form) {
+    const summary = form.querySelector<HTMLElement>('[data-summary]')!;
+    const success = form.querySelector<HTMLElement>('[data-success]')!;
+    const grid = form.querySelector<HTMLElement>('.form__grid')!;
+    const footer = form.querySelector<HTMLElement>('.form__footer')!;
+    const sendError = form.querySelector<HTMLElement>('[data-send-error]')!;
+    const submitBtn = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const submitLabel = submitBtn.querySelector('span')!;
+    const replyTo = form.querySelector<HTMLElement>('[data-reply-to]')!;
+    // FormSubmit's AJAX endpoint delivers the message to this inbox; no mail app needed.
+    const endpoint = `https://formsubmit.co/ajax/${form.dataset.to}`;
+
+    type Field = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+
+    const rules: Record<string, (el: Field) => string> = {
+      name: (el) => (el.value.trim().length < 2 ? 'Please enter your full name.' : ''),
+      email: (el) =>
+        !el.value.trim()
+          ? 'Please enter your email address.'
+          : !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(el.value.trim())
+            ? 'Please enter a valid email, e.g. name@hospital.org.'
+            : '',
+      phone: (el) =>
+        el.value.trim() && !/^[+()\d\s-]{7,20}$/.test(el.value.trim()) ? 'Please enter a valid phone number.' : '',
+      subject: (el) => (!el.value ? 'Please choose a topic.' : ''),
+      message: (el) =>
+        el.value.trim().length < 10 ? 'Please tell us a little more (at least 10 characters).' : '',
+      consent: (el) => (!(el as HTMLInputElement).checked ? 'Please confirm we may contact you.' : ''),
+    };
+
+    const fieldEl = (name: string) => form.elements.namedItem(name) as Field;
+
+    const check = (name: string) => {
+      const el = fieldEl(name);
+      const msg = rules[name](el);
+      const err = document.getElementById(`${el.id}-err`)!;
+      err.textContent = msg;
+      el.setAttribute('aria-invalid', String(Boolean(msg)));
+      el.closest('.field')!.classList.toggle('is-invalid', Boolean(msg));
+      return msg;
+    };
+
+    const renderSummary = (errors: { name: string; msg: string }[]) => {
+      summary.hidden = errors.length === 0;
+      summary.innerHTML = errors.length
+        ? `<strong>Please fix ${errors.length} ${errors.length === 1 ? 'field' : 'fields'}:</strong><ul>${errors
+            .map((r) => `<li><a href="#${fieldEl(r.name).id}">${r.msg}</a></li>`)
+            .join('')}</ul>`
+        : '';
+    };
+
+    // Keep an open error summary in sync as fields are corrected.
+    const refreshSummary = () => {
+      if (summary.hidden) return;
+      renderSummary(
+        Object.keys(rules)
+          .filter((n) => fieldEl(n).getAttribute('aria-invalid') === 'true')
+          .map((n) => ({ name: n, msg: document.getElementById(`${fieldEl(n).id}-err`)!.textContent ?? '' }))
+      );
+    };
+
+    Object.keys(rules).forEach((name) => {
+      const el = fieldEl(name);
+      const evt = el.type === 'checkbox' || el.tagName === 'SELECT' ? 'change' : 'blur';
+      el.addEventListener(evt, () => {
+        check(name);
+        refreshSummary();
+      });
+      el.addEventListener('input', () => {
+        if (el.getAttribute('aria-invalid') === 'true') {
+          check(name);
+          refreshSummary();
+        }
+      });
+    });
+
+    const setBusy = (busy: boolean) => {
+      submitBtn.disabled = busy;
+      submitBtn.setAttribute('aria-busy', String(busy));
+      submitLabel.textContent = busy ? 'Sending…' : 'Send message';
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (submitBtn.disabled) return;
+      sendError.hidden = true;
+
+      const errors = Object.keys(rules)
+        .map((name) => ({ name, msg: check(name) }))
+        .filter((r) => r.msg);
+
+      renderSummary(errors);
+      if (errors.length) {
+        fieldEl(errors[0].name).focus();
+        return;
+      }
+
+      const v = (n: string) => fieldEl(n).value.trim();
+      const payload = {
+        name: v('name'),
+        email: v('email'),
+        phone: v('phone') || '—',
+        organisation: v('company') || '—',
+        topic: v('subject'),
+        message: v('message'),
+        _subject: `[Website] ${v('subject')} — ${v('name')}`,
+        _replyto: v('email'),
+        _template: 'table',
+        _captcha: 'false',
+        _honey: (form.elements.namedItem('_honey') as HTMLInputElement).value,
+      };
+
+      setBusy(true);
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || String(data.success) !== 'true') throw new Error(data.message || `HTTP ${res.status}`);
+
+        replyTo.textContent = payload.email;
+        grid.hidden = true;
+        footer.hidden = true;
+        success.hidden = false;
+        success.focus();
+      } catch (err) {
+        console.warn('[contact] send failed', err);
+        sendError.hidden = false;
+        sendError.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      } finally {
+        setBusy(false);
+      }
+    });
+
+    form.querySelector('[data-reset]')!.addEventListener('click', () => {
+      form.reset();
+      form.querySelectorAll('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
+      form.querySelectorAll('.is-invalid').forEach((el) => el.classList.remove('is-invalid'));
+      success.hidden = true;
+      sendError.hidden = true;
+      grid.hidden = false;
+      footer.hidden = false;
+      fieldEl('name').focus();
+    });
+  }
+</script>
+
+<style>
+  .form {
+    display: grid;
+    gap: var(--sp-5);
+  }
+
+  .form__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-5) var(--sp-4);
+  }
+
+  .form__grid[hidden],
+  .form__footer[hidden] {
+    display: none;
+  }
+
+  .field {
+    display: grid;
+    gap: var(--sp-2);
+    align-content: start;
+  }
+
+  .field :is(input, textarea, select) {
+    scroll-margin-top: calc(var(--header-h) + 3rem);
+  }
+
+  .field--full {
+    grid-column: 1 / -1;
+  }
+
+  label {
+    font-weight: 600;
+    font-size: var(--fs-sm);
+    color: var(--ink-900);
+  }
+
+  .req {
+    color: var(--danger);
+  }
+
+  .opt {
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+
+  input:not([type='checkbox']),
+  textarea,
+  select {
+    width: 100%;
+    min-height: 50px;
+    padding: 0.75rem 0.95rem;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: rgb(255 255 255 / 0.82);
+    transition:
+      border-color var(--dur) var(--ease),
+      box-shadow var(--dur) var(--ease);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 150px;
+  }
+
+  input:not([type='checkbox']):hover,
+  textarea:hover,
+  select:hover {
+    border-color: var(--ink-400);
+  }
+
+  input:not([type='checkbox']):focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--brand);
+    box-shadow: 0 0 0 4px rgb(29 78 216 / 0.14);
+  }
+
+  .select {
+    position: relative;
+  }
+
+  .select::after {
+    content: '';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid var(--ink-500);
+    border-bottom: 2px solid var(--ink-500);
+    transform: translateY(-70%) rotate(45deg);
+    pointer-events: none;
+  }
+
+  select {
+    appearance: none;
+    padding-right: 2.5rem;
+    cursor: pointer;
+  }
+
+  .field--check {
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    column-gap: var(--sp-3);
+  }
+
+  .field--check input {
+    width: 20px;
+    height: 20px;
+    margin: 2px 0 0;
+    accent-color: var(--brand);
+    cursor: pointer;
+  }
+
+  .field--check label {
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .field--check .field__error {
+    grid-column: 1 / -1;
+  }
+
+  .field__error {
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    color: var(--danger);
+  }
+
+  .field__error:empty {
+    display: none;
+  }
+
+  .is-invalid input:not([type='checkbox']),
+  .is-invalid textarea,
+  .is-invalid select {
+    border-color: var(--danger);
+  }
+
+  .is-invalid input:focus,
+  .is-invalid textarea:focus,
+  .is-invalid select:focus {
+    box-shadow: 0 0 0 4px rgb(194 50 31 / 0.14);
+  }
+
+  .form__honey {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .form__send-error {
+    padding: var(--sp-4) var(--sp-5);
+    border: 1px solid rgb(194 50 31 / 0.3);
+    border-left: 4px solid var(--danger);
+    border-radius: var(--radius-sm);
+    background: #f6e6e1;
+    color: #7a1e12;
+    font-size: var(--fs-sm);
+  }
+
+  .form__send-error[hidden] {
+    display: none;
+  }
+
+  .form__send-error a {
+    color: inherit;
+    font-weight: 600;
+  }
+
+  .form :global([data-submit][aria-busy='true']) {
+    cursor: progress;
+    opacity: 0.75;
+  }
+
+  .form__summary {
+    padding: var(--sp-4) var(--sp-5);
+    border: 1px solid rgb(194 50 31 / 0.3);
+    border-left: 4px solid var(--danger);
+    border-radius: var(--radius-sm);
+    background: #f6e6e1;
+    color: #7a1e12;
+    font-size: var(--fs-sm);
+  }
+
+  .form__summary :global(ul) {
+    margin-top: var(--sp-2);
+    padding-left: 1.2rem;
+  }
+
+  .form__summary :global(a) {
+    color: #7a1e12;
+  }
+
+  .form__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-4);
+  }
+
+  .form__hint {
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+
+  .form__success {
+    display: grid;
+    justify-items: start;
+    gap: var(--sp-3);
+    padding: var(--sp-6);
+    border-radius: var(--radius);
+    background: var(--teal-50);
+    outline: none;
+  }
+
+  .form__success[hidden] {
+    display: none;
+  }
+
+  .form__success-icon {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--teal-700);
+    color: var(--white);
+  }
+
+  .form__success h3 {
+    font-size: var(--fs-xl);
+  }
+
+  .form__success p {
+    color: var(--ink-700);
+  }
+
+  .form__success-alt {
+    font-size: var(--fs-sm);
+  }
+
+  .form__reset {
+    padding: 0;
+    border: 0;
+    background: none;
+    font-weight: 600;
+    color: var(--brand);
+    cursor: pointer;
+  }
+
+  .form__reset:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 600px) {
+    .form__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .form__footer :global(.btn) {
+      width: 100%;
+    }
+  }
+</style>

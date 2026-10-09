@@ -1,0 +1,531 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+import Icon from '../components/Icon.astro';
+
+// Microscope field: a seeded scatter of cells, with one empty slot where the page should be.
+let seed = 404;
+const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+const cells: { x: number; y: number; r: number; teal: boolean }[] = [];
+while (cells.length < 34) {
+  const a = rand() * Math.PI * 2;
+  const d = Math.sqrt(rand()) * 128;
+  const x = 160 + Math.cos(a) * d;
+  const y = 160 + Math.sin(a) * d;
+  // Keep the centre clear for the missing cell, and avoid overlaps.
+  if (Math.hypot(x - 178, y - 146) < 40) continue;
+  if (cells.some((c) => Math.hypot(c.x - x, c.y - y) < 22)) continue;
+  cells.push({ x, y, r: 5 + rand() * 5, teal: rand() > 0.72 });
+}
+
+const destinations = [
+  { href: '/technology/', label: 'Technology & Software', note: 'TiCoBi, our γδ T-cell platform and patents', icon: 'cell' },
+  { href: '/team/', label: 'Team', note: 'The scientists behind the work', icon: 'molecule' },
+  { href: '/publications/', label: 'Publications', note: '92 papers, patents and book chapters', icon: 'file' },
+  { href: '/contact/', label: 'Contact', note: 'Partnerships, collaborations and enquiries', icon: 'mail' },
+] as const;
+---
+
+<BaseLayout title="Page not found" noindex>
+  <section class="nf" aria-labelledby="nf-title">
+    <div class="container nf__grid">
+      <div class="nf__copy">
+        <p class="eyebrow">Error 404</p>
+        <h1 id="nf-title">
+          This page is below the <span class="nf__accent">detection threshold.</span>
+        </h1>
+        <p class="nf__lead">
+          We looked closely and couldn’t find it. The link may be out of date, or the page may have moved when we
+          rebuilt the site.
+        </p>
+
+        <dl class="nf__readout">
+          <div>
+            <dt>Requested</dt>
+            <dd><code data-path>this address</code></dd>
+          </div>
+          <div>
+            <dt>Status</dt>
+            <dd><span class="nf__status">Not detected</span></dd>
+          </div>
+        </dl>
+
+        <div class="nf__actions">
+          <Button href="/" icon="arrow-right">Back to homepage</Button>
+          <Button href="/contact/" variant="secondary">Report a broken link</Button>
+        </div>
+      </div>
+
+      <figure class="field" aria-hidden="true">
+        <div class="field__lens">
+          <svg viewBox="0 0 320 320">
+            <defs>
+              <radialGradient id="nf-cell" cx="35%" cy="30%" r="75%">
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="55%" stop-color="#8fa6ff" />
+                <stop offset="100%" stop-color="#2643c4" />
+              </radialGradient>
+              <radialGradient id="nf-cell-teal" cx="35%" cy="30%" r="75%">
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="55%" stop-color="#63d2ca" />
+                <stop offset="100%" stop-color="#0b6f69" />
+              </radialGradient>
+              <clipPath id="nf-clip"><circle cx="160" cy="160" r="150" /></clipPath>
+            </defs>
+
+            <g clip-path="url(#nf-clip)">
+              <g class="field__grid">
+                {Array.from({ length: 9 }, (_, i) => <line x1={i * 40} y1="0" x2={i * 40} y2="320" />)}
+                {Array.from({ length: 9 }, (_, i) => <line x1="0" y1={i * 40} x2="320" y2={i * 40} />)}
+              </g>
+              {
+                cells.map((c, i) => (
+                  <circle
+                    class="field__cell"
+                    cx={c.x.toFixed(1)}
+                    cy={c.y.toFixed(1)}
+                    r={c.r.toFixed(1)}
+                    fill={c.teal ? 'url(#nf-cell-teal)' : 'url(#nf-cell)'}
+                    style={`--d:${(i % 7) * 0.6}s`}
+                  />
+                ))
+              }
+              <g class="field__scan">
+                <path d="M160 160 L160 10 A150 150 0 0 1 266 54 Z" />
+              </g>
+            </g>
+
+            <!-- The missing cell -->
+            <g class="field__missing">
+              <circle cx="178" cy="146" r="22" class="field__ghost" />
+              <path d="M170 138 L186 154 M186 138 L170 154" />
+            </g>
+            <line x1="200" y1="132" x2="246" y2="104" class="field__leader" />
+
+            <circle cx="160" cy="160" r="150" class="field__rim" />
+          </svg>
+          <span class="field__tag">404 · not detected</span>
+        </div>
+        <figcaption class="field__caption">
+          <span>FIG. 404</span>
+          <span>Field of view · 34 cells counted · 1 missing</span>
+        </figcaption>
+      </figure>
+    </div>
+
+    <div class="container">
+      <nav class="dest" aria-label="Popular pages">
+        <h2 class="dest__title">Try one of these instead</h2>
+        <ul>
+          {
+            destinations.map((d) => (
+              <li>
+                <a href={d.href}>
+                  <span class="dest__icon">
+                    <Icon name={d.icon} size={20} />
+                  </span>
+                  <span class="dest__text">
+                    <strong>{d.label}</strong>
+                    <span>{d.note}</span>
+                  </span>
+                  <Icon name="arrow-right" size={18} class="dest__arrow" />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  // Show the address the visitor actually asked for (text only, never HTML).
+  const el = document.querySelector<HTMLElement>('[data-path]');
+  if (el && location.pathname !== '/404.html' && location.pathname !== '/404/') {
+    el.textContent = decodeURI(location.pathname).slice(0, 80);
+  }
+</script>
+
+<style>
+  .nf {
+    padding-block: clamp(3rem, 2rem + 4vw, 6rem) clamp(4rem, 3rem + 4vw, 7rem);
+  }
+
+  .nf__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    align-items: center;
+    gap: clamp(2.5rem, 1rem + 5vw, 6rem);
+  }
+
+  .nf__copy {
+    display: grid;
+    justify-items: start;
+    gap: var(--sp-5);
+  }
+
+  h1 {
+    max-width: 14ch;
+    font-size: clamp(2.5rem, 1.6rem + 3.4vw, 4.4rem);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+  }
+
+  .nf__accent {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .nf__lead {
+    max-width: 46ch;
+    font-size: var(--fs-lg);
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  .nf__readout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    width: 100%;
+    max-width: 30rem;
+    margin: 0;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    background: var(--glass-bg);
+    box-shadow: var(--glass-highlight);
+  }
+
+  .nf__readout div {
+    display: grid;
+    gap: 0.3rem;
+    min-width: 0;
+    padding: var(--sp-3) var(--sp-4);
+  }
+
+  .nf__readout div + div {
+    border-left: 1px solid var(--border);
+  }
+
+  .nf__readout dt {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+  }
+
+  .nf__readout dd {
+    margin: 0;
+    min-width: 0;
+  }
+
+  .nf__readout code {
+    display: block;
+    overflow: hidden;
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    color: var(--ink-900);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .nf__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--amber-700);
+    white-space: nowrap;
+  }
+
+  .nf__status::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 0 3px rgb(126 74 8 / 0.15);
+  }
+
+  .nf__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-3);
+    margin-top: var(--sp-2);
+  }
+
+  /* Microscope field */
+  .field {
+    display: grid;
+    justify-items: center;
+    gap: var(--sp-4);
+    margin: 0;
+  }
+
+  .field__lens {
+    position: relative;
+    width: min(100%, 440px);
+    aspect-ratio: 1;
+    padding: 14px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, rgb(255 255 255 / 0.9), rgb(204 215 245 / 0.6));
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.95),
+      0 0 0 1px rgb(38 67 196 / 0.12),
+      0 40px 80px -40px rgb(17 34 102 / 0.55);
+  }
+
+  .field__lens svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #f6f8fd, #dfe6f6 70%, #ccd7f0);
+  }
+
+  .field__grid line {
+    stroke: rgb(38 67 196 / 0.08);
+    stroke-width: 1;
+  }
+
+  .field__cell {
+    opacity: 0.88;
+    animation: nf-drift 7s ease-in-out infinite alternate;
+    animation-delay: var(--d);
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  @keyframes nf-drift {
+    to {
+      transform: translate(2px, -2px) scale(1.06);
+    }
+  }
+
+  .field__scan {
+    transform-origin: 160px 160px;
+    animation: nf-scan 6s linear infinite;
+  }
+
+  .field__scan path {
+    fill: rgb(18 158 150 / 0.09);
+  }
+
+  @keyframes nf-scan {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .field__missing path {
+    stroke: var(--amber-700);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    opacity: 0.7;
+  }
+
+  .field__ghost {
+    fill: rgb(255 255 255 / 0.55);
+    stroke: var(--amber-700);
+    stroke-width: 1.4;
+    stroke-dasharray: 3 4;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: nf-ghost 2.4s var(--ease) infinite;
+  }
+
+  @keyframes nf-ghost {
+    50% {
+      transform: scale(1.08);
+      opacity: 0.6;
+    }
+  }
+
+  .field__leader {
+    stroke: var(--amber-700);
+    stroke-width: 1;
+    opacity: 0.6;
+  }
+
+  .field__rim {
+    fill: none;
+    stroke: rgb(38 67 196 / 0.25);
+    stroke-width: 1;
+  }
+
+  .field__tag {
+    position: absolute;
+    top: 21%;
+    right: 2%;
+    padding: 0.4rem 0.7rem;
+    border: 1px solid rgb(126 74 8 / 0.25);
+    border-radius: 8px;
+    background: rgb(255 255 255 / 0.92);
+    box-shadow: 0 10px 24px -14px rgb(17 34 102 / 0.45);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--amber-700);
+    white-space: nowrap;
+  }
+
+  .field__caption {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.35rem var(--sp-3);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+  }
+
+  .field__caption span:first-child {
+    color: var(--blue-600);
+    font-weight: 600;
+  }
+
+  /* Destinations */
+  .dest {
+    margin-top: clamp(3.5rem, 2.5rem + 3vw, 5.5rem);
+    padding-top: var(--sp-6);
+    border-top: 1px solid var(--border);
+  }
+
+  .dest__title {
+    margin-bottom: var(--sp-5);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+  }
+
+  .dest ul {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--sp-4);
+    list-style: none;
+  }
+
+  .dest a {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--sp-3);
+    height: 100%;
+    padding: var(--sp-4);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    background: var(--glass-bg);
+    box-shadow: var(--glass-highlight);
+    color: inherit;
+    text-decoration: none;
+    transition:
+      transform var(--dur) var(--ease),
+      border-color var(--dur) var(--ease),
+      box-shadow var(--dur) var(--ease);
+  }
+
+  .dest a:hover {
+    transform: translateY(-2px);
+    border-color: rgb(38 67 196 / 0.3);
+    box-shadow: var(--glass-highlight), 0 18px 36px -22px rgb(17 34 102 / 0.5);
+  }
+
+  .dest a:active {
+    transform: scale(0.98);
+  }
+
+  .dest__icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--blue-50);
+    color: var(--blue-600);
+  }
+
+  .dest__text {
+    display: grid;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .dest__text strong {
+    font-size: var(--fs-sm);
+    color: var(--ink-900);
+  }
+
+  .dest__text span {
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: var(--ink-500);
+  }
+
+  .dest a :global(.dest__arrow) {
+    color: var(--ink-400);
+    transition:
+      transform var(--dur) var(--ease),
+      color var(--dur) var(--ease);
+  }
+
+  .dest a:hover :global(.dest__arrow) {
+    transform: translateX(3px);
+    color: var(--blue-600);
+  }
+
+  @media (max-width: 1080px) {
+    .dest ul {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 860px) {
+    .nf__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .field {
+      order: -1;
+    }
+
+    .field__lens {
+      width: min(100%, 300px);
+    }
+  }
+
+  @media (max-width: 560px) {
+    .dest ul {
+      grid-template-columns: 1fr;
+    }
+
+    .nf__readout {
+      grid-template-columns: 1fr;
+    }
+
+    .nf__readout div + div {
+      border-left: 0;
+      border-top: 1px solid var(--border);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .field__cell,
+    .field__scan,
+    .field__ghost {
+      animation: none;
+    }
+  }
+</style>

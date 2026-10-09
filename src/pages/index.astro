@@ -1,0 +1,906 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+import Icon from '../components/Icon.astro';
+import BioVisual from '../components/BioVisual.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import SectionMarker from '../components/SectionMarker.astro';
+import Stat from '../components/Stat.astro';
+import PillarCard from '../components/PillarCard.astro';
+import PartnerWall from '../components/PartnerWall.astro';
+import CTABand from '../components/CTABand.astro';
+import { accessGap, achievements } from '../data/site';
+import ProcessRail from '../components/ProcessRail.astro';
+import { pillars, pocmapAdvantages, amlNeed, ticobi } from '../data/technology';
+import { team } from '../data/team';
+import { memberSlug } from '../utils/slug';
+---
+
+<BaseLayout>
+  <!-- Hero -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero__glow" aria-hidden="true"></div>
+    <div class="container hero__grid">
+      <div class="hero__copy">
+        <p class="eyebrow">Immune-cell therapy · Made in India</p>
+        <h1 id="hero-title">
+          Immune cell therapy <span class="hero__accent">made accessible</span>.
+        </h1>
+        <p class="hero__lead">
+          Thrafford is building India’s first affordable, scalable, off-the-shelf γδ T-cell therapy manufacturing
+          platform — starting with the hidden disease that drives relapse in acute myeloid leukaemia.
+        </p>
+        <div class="hero__actions">
+          <Button href="/technology/#ticobi" size="lg" icon="arrow-right">Explore TiCoBi</Button>
+          <Button href="/contact/" size="lg" variant="outline-light">Partner with us</Button>
+        </div>
+      </div>
+
+      <div class="hero__visual">
+        <div class="hero__image bezel">
+          <BioVisual
+            variant="hero"
+            label="Schematic of a γδ T cell using its γδ T-cell receptor and NKG2D to recognise MICA/B and ULBP stress ligands on a leukaemic cell"
+          />
+        </div>
+        <div class="hero__float hero__float--a">
+          <span class="hero__float-icon"><Icon name="layers" size={20} /></span>
+          <div><strong>Up to 15 doses</strong><span>from one healthy donor</span></div>
+        </div>
+        <div class="hero__float hero__float--b">
+          <span class="hero__float-icon"><Icon name="dna" size={20} /></span>
+          <div><strong>No gene editing</strong><span>no viral vectors</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- The problem -->
+  <section class="section" aria-labelledby="gap-title">
+    <div class="container">
+      <div class="gap__eyebrow" data-reveal><SectionMarker index="01" label="The problem" /></div>
+      <div class="gap__intro">
+        <SectionHeading id="gap-title" title="Remission isn’t the finish line. MRD is where AML relapse begins." />
+        <p class="gap__text" data-reveal>
+          Acute myeloid leukaemia (AML) is a fast-growing cancer of the blood and bone marrow. Current therapies can
+          achieve remission but often fail to eliminate measurable residual disease (MRD) — leukaemic cells hiding below
+          what a microscope can see. Once relapse occurs, survival is poor, and transplantation remains costly and
+          inaccessible to many. No AML-specific therapy exists to eliminate MRD early.
+        </p>
+      </div>
+
+      <div class="gap__stats">
+        {
+          amlNeed.map((s) => (
+            <Stat value={s.value} prefix={s.prefix} display={s.display} label={s.label} note={s.note} />
+          ))
+        }
+      </div>
+
+      <div class="context" data-reveal>
+        <p class="context__title">The wider access gap in cell therapy</p>
+        <dl class="context__list">
+          {
+            accessGap.map((s) => (
+              <div>
+                <dt>{s.display ?? `${s.prefix ?? ''}${s.value.toLocaleString('en-US')}`}</dt>
+                <dd>{s.label.split(/(\S+-\S+)/).map((t, i) => (i % 2 ? <span class="nowrap">{t}</span> : t))}</dd>
+              </div>
+            ))
+          }
+          <div>
+            <dt>₹30–50 L</dt>
+            <dd>per patient for autologous <span class="nowrap">CAR-T</span></dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- The solution -->
+  <section class="section section--alt solution" aria-labelledby="solution-title">
+    <div class="container">
+      <div class="solution__grid">
+        <div>
+          <SectionHeading
+            id="solution-title"
+            eyebrow="Our solution"
+            index="02"
+            size="md"
+            title="TiCoBi: off-the-shelf γδ T cells from a single donor"
+            lead={ticobi.summary}
+          >
+            <ul class="solution__chips" aria-label="TiCoBi characteristics">
+              {ticobi.attributes.slice(0, 4).map((a) => (
+                <li>
+                  <Icon name="check" size={14} />
+                  {a}
+                </li>
+              ))}
+            </ul>
+            <div>
+              <Button href="/technology/#ticobi" icon="arrow-right">How TiCoBi works</Button>
+            </div>
+          </SectionHeading>
+        </div>
+        <div class="solution__figure bezel" data-reveal>
+          <BioVisual
+            variant="ticobi"
+            label="Schematic: blood from one healthy donor passes through a time-controlled expansion chamber and yields up to fifteen off-the-shelf γδ T-cell doses"
+          />
+        </div>
+      </div>
+      <div class="solution__rail">
+        <ProcessRail steps={ticobi.steps} compact label="How TiCoBi works" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Approach -->
+  <section class="section" aria-labelledby="approach-title">
+    <div class="container">
+      <SectionHeading
+        id="approach-title"
+        eyebrow="Our approach"
+        index="03"
+        title="Three pillars to close the gap"
+        lead="We are rebuilding how cell therapy is manufactured, so treatments become affordable, scalable and accessible."
+      />
+      <div class="pillars">
+        {pillars.map((p, i) => <PillarCard pillar={p} index={i} href={`/technology/#${p.id}`} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- PoCMAP -->
+  <section class="section section--dark pocmap" aria-labelledby="pocmap-title">
+    <div class="container pocmap__grid">
+      <div class="pocmap__copy">
+        <SectionHeading
+          id="pocmap-title"
+          eyebrow="The PoCMAP advantage"
+          index="04"
+          size="md"
+          title="Manufacturing that happens where patients are treated"
+          lead="PoCMAP moves cell therapy production out of distant centralised facilities and into the hospital."
+        >
+          <div>
+            <Button href="/technology/" variant="light" icon="arrow-right">See the platform</Button>
+          </div>
+        </SectionHeading>
+      </div>
+      <ul class="pocmap__list">
+        {
+          pocmapAdvantages.map((a) => (
+            <li data-reveal>
+              <span class="pocmap__icon">
+                <Icon name={a.icon} size={22} />
+              </span>
+              <div>
+                <h3>{a.title}</h3>
+                <p>{a.body}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Collaborations -->
+  <section class="section" aria-labelledby="partners-title">
+    <div class="container">
+      <SectionHeading
+        id="partners-title"
+        eyebrow="Our collaborations"
+        index="05"
+        title="Working alongside leading institutions"
+        lead="Collaborations with clinicians, hospitals, academia, labs and strategic advisors."
+        align="center"
+      />
+      <PartnerWall />
+    </div>
+  </section>
+
+  <!-- Leadership -->
+  <section class="section section--alt" aria-labelledby="team-title">
+    <div class="container">
+      <div class="leaders__head">
+        <SectionHeading
+          id="team-title"
+          eyebrow="Leadership"
+          index="06"
+          size="md"
+          title="Decades of drug discovery and GMP manufacturing experience"
+        />
+        <div data-reveal>
+          <Button href="/team/" icon="arrow-right">Meet the team</Button>
+        </div>
+      </div>
+
+      <div class="leaders">
+        {
+          team.map((m) => (
+            <a class="leader" href={`/team/?member=${memberSlug(m.name)}`} aria-label={`${m.name} — view profile on the team page`} data-reveal>
+              <span class="leader__photo"><img src={m.photo} alt="" width="600" height="560" loading="lazy" decoding="async" /></span>
+              <div>
+                <h3>{m.name}</h3>
+                <p class="leader__role">{m.role}</p>
+                <p class="leader__creds">{(m.credentials ?? []).map((c) => c.value.split(',')[0]).join(' · ')}</p>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+
+      <ul class="achievements" aria-label="Collective achievements">
+        {
+          achievements.map((a) => (
+            <li data-reveal>
+              <span class="achievements__value">
+                {a.prefix}
+                <span data-count={a.value}>{a.value}</span>
+                {a.suffix}
+              </span>
+              <span class="achievements__label">{a.label}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <CTABand />
+</BaseLayout>
+
+<style>
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    padding-block: clamp(3.5rem, 2rem + 6vw, 7rem);
+    background: var(--ink-950);
+    color: var(--ink-100);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .hero__glow {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(700px 420px at 85% 20%, rgb(53 87 222 / 0.22), transparent 70%),
+      radial-gradient(520px 380px at 60% 110%, rgb(18 158 150 / 0.16), transparent 70%),
+      var(--gradient-dark);
+  }
+
+  .hero__glow::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1px);
+    background-size: 24px 24px;
+    mask-image: radial-gradient(ellipse at 30% 40%, black, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse at 30% 40%, black, transparent 75%);
+  }
+
+  .hero__grid {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    align-items: center;
+    gap: clamp(2.5rem, 1rem + 5vw, 5rem);
+  }
+
+  .hero__copy {
+    display: grid;
+    gap: var(--sp-5);
+  }
+
+  .hero .eyebrow {
+    color: var(--teal-300);
+  }
+
+  .hero h1 {
+    font-size: clamp(2.25rem, 1.4rem + 3vw, 3.75rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.04;
+    color: var(--white);
+  }
+
+  .hero__accent {
+    background: linear-gradient(100deg, #7fb0ff, var(--teal-300));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .hero__lead {
+    max-width: 52ch;
+    font-size: var(--fs-lg);
+    color: var(--ink-200);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-3);
+    margin-top: var(--sp-2);
+  }
+
+
+  .hero__visual {
+    position: relative;
+    padding: var(--sp-5) 0;
+  }
+
+  .hero__image {
+    margin: 0;
+    border-radius: 28px;
+    overflow: hidden;
+    aspect-ratio: 750 / 620;
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.08),
+      0 40px 80px -30px rgb(0 0 0 / 0.7);
+    animation: hero-in 1100ms var(--ease) both;
+  }
+
+  .hero__float {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: 0.8rem 1.1rem 0.8rem 0.8rem;
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--canvas) 93%, transparent);
+    color: var(--ink-900);
+    box-shadow: 0 20px 40px -18px rgb(0 0 0 / 0.55);
+    animation: float-in 900ms var(--ease) both;
+  }
+
+  .hero__float div {
+    display: grid;
+    line-height: 1.2;
+  }
+
+  .hero__float strong {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 800;
+  }
+
+  .hero__float span:not(.hero__float-icon) {
+    font-size: var(--fs-xs);
+    color: var(--ink-500);
+  }
+
+  .hero__float-icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--gradient-brand);
+    color: var(--white);
+  }
+
+  .hero__float--a {
+    left: -28px;
+    bottom: -2%;
+    animation-delay: 500ms;
+  }
+
+  .hero__float--b {
+    right: -16px;
+    top: 4%;
+    animation-delay: 700ms;
+  }
+
+  @keyframes hero-in {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+  }
+
+  @keyframes float-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px) scale(0.96);
+    }
+  }
+
+  @media (max-width: 960px) {
+    .hero__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .hero__visual {
+      max-width: 560px;
+    }
+
+    .hero__float--a {
+      left: 12px;
+    }
+
+    .hero__float--b {
+      right: 12px;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .hero__actions :global(.btn) {
+      flex: 1 1 100%;
+    }
+
+    .hero__float {
+      padding: 0.6rem 0.9rem 0.6rem 0.6rem;
+    }
+
+    .hero__float-icon {
+      width: 34px;
+      height: 34px;
+    }
+
+    .hero__float--b {
+      top: -3%;
+    }
+
+    .hero__float--a {
+      bottom: -4%;
+    }
+
+    .hero__float strong {
+      font-size: 1rem;
+    }
+  }
+
+  /* ---------- Access gap ---------- */
+  .gap__eyebrow {
+    margin-bottom: var(--sp-5);
+  }
+
+  .gap__intro {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--sp-5);
+    margin-bottom: var(--sp-7);
+  }
+
+  .gap__intro {
+    --heading-max: 1100px;
+  }
+
+  .gap__intro :global(.section-heading) {
+    margin-bottom: 0;
+  }
+
+  .gap__text {
+    max-width: 68ch;
+    color: var(--text-muted);
+    font-size: var(--fs-lg);
+    line-height: 1.65;
+  }
+
+  .gap__stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-top: 1px solid var(--border-strong);
+  }
+
+  .gap__stats > :global(*) {
+    padding: var(--sp-6) var(--sp-5) 0 0;
+  }
+
+  .gap__stats > :global(* + *) {
+    padding-left: var(--sp-5);
+    border-left: 1px solid var(--border);
+  }
+
+  .gap__stats > :global(*:nth-child(3) .stat__value) {
+    color: var(--teal-700);
+  }
+
+  .gap__stats > :global(*:nth-child(4) .stat__value) {
+    color: var(--brand);
+  }
+
+  @media (max-width: 960px) {
+    .gap__intro {
+      grid-template-columns: 1fr;
+      gap: var(--sp-4);
+    }
+
+    .gap__text {
+      padding-top: 0;
+    }
+
+    .gap__stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .gap__stats > :global(*) {
+      padding: var(--sp-5) var(--sp-4) var(--sp-5) 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .gap__stats > :global(*:nth-child(odd)) {
+      border-left: 0;
+      padding-left: 0;
+    }
+
+    .gap__stats > :global(*:nth-child(even)) {
+      padding-left: var(--sp-4);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .gap__stats {
+      grid-template-columns: 1fr;
+    }
+
+    .gap__stats > :global(*),
+    .gap__stats > :global(*:nth-child(even)) {
+      border-left: 0;
+      padding-left: 0;
+    }
+  }
+
+  /* Wider CAR-T access context */
+  .context {
+    display: grid;
+    gap: var(--sp-4);
+    margin-top: var(--sp-7);
+    padding: var(--sp-5) var(--sp-6);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    background: var(--glass-bg);
+    box-shadow: var(--glass-highlight), var(--shadow-soft);
+  }
+
+  .context__title {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+  }
+
+  .context__list {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--sp-4);
+    margin: 0;
+  }
+
+  .context__list dt {
+    font-family: var(--font-display);
+    font-size: var(--fs-xl);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--ink-900);
+  }
+
+  .context__list dd {
+    margin: 0;
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  @media (max-width: 960px) {
+    .context__list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 560px) {
+    .context__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* ---------- Solution ---------- */
+  .solution__grid {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    align-items: center;
+    gap: clamp(2rem, 1rem + 4vw, 5rem);
+  }
+
+  .solution__grid :global(.section-heading) {
+    margin-bottom: 0;
+  }
+
+  .solution__figure {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    aspect-ratio: 750 / 520;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .solution__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    list-style: none;
+  }
+
+  .solution__chips li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.8rem;
+    border: 1px solid rgb(255 255 255 / 0.85);
+    border-radius: var(--radius-pill);
+    background: var(--blue-50);
+    color: var(--blue-700);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+  }
+
+  .solution__chips li :global(svg) {
+    color: var(--teal-700);
+  }
+
+  .solution__rail {
+    margin-top: clamp(2.5rem, 2rem + 2vw, 4rem);
+    padding: var(--sp-6);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    background: var(--glass-bg);
+    box-shadow: var(--glass-highlight), var(--shadow-soft);
+  }
+
+  @media (max-width: 960px) {
+    .solution__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- Pillars ---------- */
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--sp-5);
+  }
+
+  @media (max-width: 960px) {
+    .pillars {
+      grid-template-columns: 1fr;
+      max-width: 560px;
+    }
+  }
+
+  /* ---------- PoCMAP ---------- */
+  .pocmap {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .pocmap::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(600px 400px at 0% 100%, rgb(14 159 154 / 0.22), transparent 70%);
+  }
+
+  .pocmap__grid {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: clamp(2rem, 1rem + 4vw, 5rem);
+    align-items: start;
+  }
+
+  .pocmap__copy {
+    position: sticky;
+    top: calc(var(--header-h) + 2rem);
+  }
+
+  .pocmap__list {
+    display: grid;
+    gap: var(--sp-3);
+    list-style: none;
+  }
+
+  .pocmap__list li {
+    display: flex;
+    gap: var(--sp-4);
+    padding: var(--sp-5);
+    border: 1px solid rgb(255 255 255 / 0.08);
+    border-radius: var(--radius);
+    background: rgb(255 255 255 / 0.03);
+    transition:
+      background-color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
+  }
+
+  .pocmap__list li:hover {
+    background: rgb(255 255 255 / 0.06);
+    border-color: rgb(255 255 255 / 0.16);
+  }
+
+  .pocmap__icon {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgb(95 212 207 / 0.12);
+    color: var(--teal-300);
+  }
+
+  .pocmap__list h3 {
+    font-size: 1.0625rem;
+    color: var(--white);
+    margin-bottom: var(--sp-1);
+  }
+
+  .pocmap__list p {
+    color: var(--ink-200);
+    font-size: var(--fs-sm);
+  }
+
+  @media (max-width: 900px) {
+    .pocmap__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .pocmap__copy {
+      position: static;
+    }
+  }
+
+  /* ---------- Leadership ---------- */
+  .leaders__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: var(--sp-5);
+    margin-bottom: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+  }
+
+  .leaders__head :global(.section-heading) {
+    flex: 1 1 560px;
+    margin-bottom: 0;
+  }
+
+  .leaders {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-5);
+  }
+
+  .leader {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-5);
+    padding: var(--sp-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--glass-bg);
+    border-color: var(--glass-border);
+    box-shadow: var(--glass-highlight), var(--shadow-soft);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    color: inherit;
+    text-decoration: none;
+    transition:
+      box-shadow var(--dur) var(--ease),
+      transform var(--dur) var(--ease);
+  }
+
+  .leader:hover {
+    color: inherit;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-3px);
+  }
+
+  .leader__photo {
+    flex-shrink: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: linear-gradient(160deg, var(--surface-sunken), var(--blue-100));
+  }
+
+  .leader img {
+    width: 112px;
+    height: 112px;
+    flex-shrink: 0;
+    border-radius: 16px;
+    object-fit: cover;
+    object-position: top;
+    mix-blend-mode: multiply;
+  }
+
+  .leader h3 {
+    font-size: var(--fs-lg);
+  }
+
+  .leader__role {
+    margin-top: var(--sp-1);
+    font-weight: 600;
+    font-size: var(--fs-sm);
+    color: var(--teal-700);
+  }
+
+  .leader__creds {
+    margin-top: var(--sp-2);
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+
+  .achievements {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--sp-3);
+    margin-top: var(--sp-6);
+    list-style: none;
+  }
+
+  .achievements li {
+    display: grid;
+    gap: var(--sp-1);
+    padding: var(--sp-5);
+    border-radius: var(--radius);
+    background: var(--glass-bg);
+    border-color: var(--glass-border);
+    box-shadow: var(--glass-highlight), var(--shadow-soft);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .achievements__value {
+    font-family: var(--font-display);
+    font-size: var(--fs-2xl);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--ink-900);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .achievements__label {
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 860px) {
+    .leaders {
+      grid-template-columns: 1fr;
+    }
+
+    .achievements {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 480px) {
+    .leader {
+      gap: var(--sp-4);
+    }
+
+    .leader__photo {
+    flex-shrink: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: linear-gradient(160deg, var(--surface-sunken), var(--blue-100));
+  }
+
+  .leader img {
+      width: 84px;
+      height: 84px;
+    }
+
+    .achievements {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

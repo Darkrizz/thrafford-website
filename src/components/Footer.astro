@@ -1,0 +1,146 @@
+---
+import { nav, contact, site } from '../data/site';
+import Icon from './Icon.astro';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div class="site-footer__brand">
+        <a href="/" aria-label="Thrafford — home">
+          <img src="/images/logo-horizontal-light.png" alt="Thrafford" width="979" height="189" loading="lazy" />
+        </a>
+        <p>{site.tagline} — advancing affordable γδ T-cell and CAR-T therapies for patients in India.</p>
+      </div>
+
+      <nav class="site-footer__col" aria-label="Footer">
+        <h2>Explore</h2>
+        <ul>
+          {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+          <li><a href="/contact/">Contact</a></li>
+        </ul>
+      </nav>
+
+      <div class="site-footer__col">
+        <h2>Contact</h2>
+        <ul>
+          <li>
+            <a href={contact.phoneHref}><Icon name="phone" size={16} />{contact.phoneDisplay}</a>
+          </li>
+          <li>
+            <a href={`mailto:${contact.email}`}><Icon name="mail" size={16} />{contact.email}</a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="site-footer__col">
+        <h2>Visit</h2>
+        <address>
+          {contact.addressLines.map((line) => <span>{line}</span>)}
+        </address>
+      </div>
+    </div>
+
+    <div class="site-footer__bottom">
+      <p>© {year} Thrafford. All rights reserved.</p>
+      <p>Based at the Regional Centre for Biotechnology, Faridabad.</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--ink-950);
+    color: var(--ink-200);
+    padding-block: var(--sp-8) var(--sp-6);
+    font-size: var(--fs-sm);
+  }
+
+  .site-footer__grid {
+    display: grid;
+    grid-template-columns: 1.4fr repeat(3, 1fr);
+    gap: var(--sp-7);
+  }
+
+  .site-footer__brand img {
+    height: 32px;
+    width: auto;
+    margin-bottom: var(--sp-4);
+  }
+
+  .site-footer__brand p {
+    max-width: 34ch;
+    color: var(--ink-400);
+  }
+
+  h2 {
+    margin-bottom: var(--sp-4);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--white);
+  }
+
+  ul {
+    list-style: none;
+    display: grid;
+    gap: var(--sp-3);
+  }
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    color: var(--ink-200);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  a:hover {
+    color: var(--white);
+    text-decoration: underline;
+  }
+
+  a :global(svg) {
+    color: var(--teal-300);
+    flex-shrink: 0;
+  }
+
+  address {
+    display: grid;
+    font-style: normal;
+    color: var(--ink-200);
+    line-height: 1.7;
+  }
+
+  .site-footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    margin-top: var(--sp-7);
+    padding-top: var(--sp-5);
+    border-top: 1px solid rgb(255 255 255 / 0.08);
+    color: var(--ink-400);
+    font-size: var(--fs-xs);
+  }
+
+  @media (max-width: 900px) {
+    .site-footer__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .site-footer__brand {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .site-footer__grid {
+      grid-template-columns: 1fr;
+      gap: var(--sp-6);
+    }
+  }
+</style>

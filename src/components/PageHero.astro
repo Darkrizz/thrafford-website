@@ -1,0 +1,178 @@
+---
+/**
+ * Light page hero. Pass content into the `aside` slot for a split layout
+ * (copy on the left, a visual or data panel on the right).
+ */
+interface Props {
+  eyebrow: string;
+  title: string;
+  lead?: string;
+}
+
+const { eyebrow, title, lead } = Astro.props;
+const hasAside = Astro.slots.has('aside');
+---
+
+<section class:list={['page-hero', { 'page-hero--split': hasAside }]}>
+  <div class="page-hero__bg" aria-hidden="true">
+    <svg class="page-hero__orbit" viewBox="0 0 600 600">
+      <circle cx="300" cy="300" r="290" />
+      <circle cx="300" cy="300" r="210" />
+      <circle cx="300" cy="300" r="130" />
+      <g class="page-hero__orbiter">
+        <circle cx="300" cy="10" r="5" />
+      </g>
+      <g class="page-hero__orbiter page-hero__orbiter--slow">
+        <circle cx="510" cy="300" r="4" />
+      </g>
+    </svg>
+  </div>
+  <div class="container page-hero__inner">
+    <div class="page-hero__copy">
+      <p class="eyebrow">{eyebrow}</p>
+      <h1>{title}</h1>
+      {lead && <p class="lead">{lead}</p>}
+      <slot />
+    </div>
+    {
+      hasAside && (
+        <div class="page-hero__aside">
+          <slot name="aside" />
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .page-hero {
+    position: relative;
+    padding-block: clamp(3.5rem, 2.5rem + 5vw, 6.5rem) clamp(3.5rem, 2.5rem + 4vw, 5.5rem);
+    background: linear-gradient(180deg, rgb(238 242 251 / 0.55) 0%, rgb(226 232 245 / 0.2) 100%);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  /* Gradient hairline closing the hero. */
+  .page-hero::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgb(38 67 196 / 0.35), rgb(18 158 150 / 0.35), transparent);
+  }
+
+  .page-hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(640px 380px at 88% 8%, rgb(69 101 230 / 0.18), transparent 70%),
+      radial-gradient(520px 320px at 62% 110%, rgb(18 158 150 / 0.14), transparent 70%),
+      radial-gradient(420px 300px at 0% 0%, rgb(255 255 255 / 0.7), transparent 70%);
+  }
+
+  .page-hero__bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(rgb(28 51 148 / 0.06) 1px, transparent 1px) 0 0 / 56px 56px,
+      linear-gradient(90deg, rgb(28 51 148 / 0.06) 1px, transparent 1px) 0 0 / 56px 56px;
+    mask-image: radial-gradient(ellipse 70% 90% at 80% 30%, #000, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 90% at 80% 30%, #000, transparent 75%);
+  }
+
+  /* Slow orbital rings: a quiet nod to cells and instruments. */
+  .page-hero__orbit {
+    position: absolute;
+    top: 50%;
+    right: -160px;
+    width: 640px;
+    height: 640px;
+    transform: translateY(-50%);
+    overflow: visible;
+  }
+
+  .page-hero__orbit > circle {
+    fill: none;
+    stroke: rgb(38 67 196 / 0.14);
+    stroke-dasharray: 2 7;
+  }
+
+  .page-hero__orbiter {
+    transform-origin: 300px 300px;
+    animation: ph-orbit 38s linear infinite;
+  }
+
+  .page-hero__orbiter circle {
+    fill: var(--teal-500);
+    opacity: 0.6;
+  }
+
+  .page-hero__orbiter--slow {
+    animation-duration: 64s;
+    animation-direction: reverse;
+  }
+
+  .page-hero__orbiter--slow circle {
+    fill: var(--blue-500);
+  }
+
+  @keyframes ph-orbit {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .page-hero__inner {
+    display: grid;
+    gap: clamp(2.5rem, 1rem + 4vw, 5rem);
+    align-items: center;
+  }
+
+  .page-hero--split .page-hero__inner {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  }
+
+  .page-hero__copy {
+    display: grid;
+    gap: var(--sp-5);
+    justify-items: start;
+  }
+
+  h1 {
+    max-width: 18ch;
+    font-size: clamp(2.5rem, 1.5rem + 3vw, 4rem);
+    font-weight: 800;
+    line-height: 1.03;
+    letter-spacing: -0.045em;
+    color: var(--ink-950);
+  }
+
+  .lead {
+    max-width: 56ch;
+  }
+
+  .page-hero__aside {
+    animation: ph-in 1000ms var(--ease) both;
+  }
+
+  @keyframes ph-in {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+  }
+
+  @media (max-width: 960px) {
+    .page-hero--split .page-hero__inner {
+      grid-template-columns: 1fr;
+    }
+
+    .page-hero__orbit {
+      right: -320px;
+      opacity: 0.6;
+    }
+  }
+</style>

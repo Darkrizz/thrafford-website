@@ -1,0 +1,581 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import PublicationList from '../components/PublicationList.astro';
+import CTABand from '../components/CTABand.astro';
+import Icon from '../components/Icon.astro';
+import { publications, publicationTypes } from '../data/publications';
+
+const total = publications.length;
+const byType = publicationTypes.map((t) => ({ ...t, count: publications.filter((p) => p.type === t.id).length }));
+// Categorical slots, validated for adjacency incl. wrap-around (CVD ΔE ≥ 13).
+const sliceColor: Record<string, string> = {
+  paper: '#2643c4',
+  granted: '#eda100',
+  patent: '#129e96',
+  chapter: '#eb6834',
+};
+const GAP = 0.7; // % of the ring left as surface gap between slices
+let acc = 0;
+const slices = byType.map((t) => {
+  const pct = (t.count / total) * 100;
+  const slice = {
+    ...t,
+    pct,
+    color: sliceColor[t.id],
+    dash: `${Math.max(pct - GAP, 0.4)} ${100 - Math.max(pct - GAP, 0.4)}`,
+    offset: -acc,
+  };
+  acc += pct;
+  return slice;
+});
+const fmtPct = (n: number) => (n < 10 ? n.toFixed(1) : Math.round(n).toString());
+
+// Output per decade (dated entries only).
+const decadeMap = new Map<number, number>();
+for (const p of publications) {
+  if (!p.year) continue;
+  const d = Math.floor(p.year / 10) * 10;
+  decadeMap.set(d, (decadeMap.get(d) ?? 0) + 1);
+}
+const decades = [...decadeMap.entries()].sort((a, b) => a[0] - b[0]).map(([d, n]) => ({ label: `${d}s`, n }));
+const maxDecade = Math.max(...decades.map((d) => d.n));
+const years = publications.map((p) => p.year).filter((y): y is number => !!y);
+const span = `${Math.min(...years)}–${Math.max(...years)}`;
+---
+
+<BaseLayout
+  title="Publications"
+  description="Research papers, granted and published patents, and book chapters by the Thrafford team — spanning CAR-T, drug discovery and pharmacology."
+>
+  <PageHero
+    eyebrow="Publications"
+    title="Research & patents"
+    lead="Peer-reviewed research, patents and book chapters from our team — spanning CAR-T engineering, drug discovery and pharmacology. Team members are highlighted in author lists."
+  >
+    <ul class="jump" aria-label="Jump to a record type">
+      {
+        byType.map((t) => (
+          <li>
+            <a href={`#${t.id}`}>
+              <strong>{t.count}</strong>
+              {t.label}
+              <Icon name="arrow-right" size={14} />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div slot="aside" class="record">
+      <p class="record__span">Research record · {span}</p>
+
+      <figure class="pie" data-pie>
+        <div class="pie__chart">
+          <svg viewBox="0 0 200 200" aria-hidden="true">
+            <circle class="pie__track" cx="100" cy="100" r="78" />
+            {
+              slices.map((sl, i) => (
+                <circle
+                  class="pie__slice"
+                  cx="100"
+                  cy="100"
+                  r="78"
+                  pathLength="100"
+                  stroke={sl.color}
+                  stroke-dasharray={sl.dash}
+                  stroke-dashoffset={sl.offset}
+                  data-slice={sl.id}
+                  style={`--i:${i}`}
+                />
+              ))
+            }
+          </svg>
+          <div class="pie__center" aria-hidden="true">
+            <span class="pie__value" data-pie-value>{total}</span>
+            <span class="pie__label" data-pie-label>entries</span>
+          </div>
+        </div>
+
+        <figcaption class="visually-hidden">Share of the research record by type</figcaption>
+        <ul class="pie__legend">
+          {
+            slices.map((sl) => (
+              <li>
+                <a
+                  href={`#${sl.id}`}
+                  data-slice={sl.id}
+                  data-n={sl.count}
+                  data-name={sl.label}
+                >
+                  <span class="pie__swatch" style={`background:${sl.color}`} />
+                  <span class="pie__name">{sl.label}</span>
+                  <span class="pie__n">{sl.count}</span>
+                  <span class="pie__pct">{fmtPct(sl.pct)}%</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        <table class="visually-hidden">
+          <caption>Research record by type</caption>
+          <thead>
+            <tr>
+              <th scope="col">Type</th>
+              <th scope="col">Entries</th>
+              <th scope="col">Share</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              slices.map((sl) => (
+                <tr>
+                  <th scope="row">{sl.label}</th>
+                  <td>{sl.count}</td>
+                  <td>{fmtPct(sl.pct)}%</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </figure>
+
+      <figure class="decades">
+        <figcaption>Output by decade · all record types</figcaption>
+        <div class="decades__plot" aria-hidden="true">
+          {
+            decades.map((d, i) => (
+              <div class="decades__col" style={`--h:${(d.n / maxDecade) * 100}%; --i:${i}`}>
+                <span class="decades__tip">
+                  {d.n} {d.n === 1 ? 'entry' : 'entries'}
+                </span>
+                <span class="decades__bar" />
+                <span class="decades__x">{d.label}</span>
+              </div>
+            ))
+          }
+        </div>
+        <table class="visually-hidden">
+          <caption>Publications and patents per decade</caption>
+          <thead>
+            <tr>
+              <th scope="col">Decade</th>
+              <th scope="col">Entries</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              decades.map((d) => (
+                <tr>
+                  <th scope="row">{d.label}</th>
+                  <td>{d.n}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </figure>
+    </div>
+  </PageHero>
+
+  <section class="section pubs-bench" aria-label="Publication list">
+    <div class="container">
+      <PublicationList />
+    </div>
+  </section>
+
+  <CTABand
+    title="Interested in a research collaboration?"
+    body="We work with academia, labs and clinicians on cell and gene therapy research. Get in touch to discuss your project."
+  />
+</BaseLayout>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-pie]').forEach((pie) => {
+    const value = pie.querySelector<HTMLElement>('[data-pie-value]')!;
+    const label = pie.querySelector<HTMLElement>('[data-pie-label]')!;
+    const total = value.textContent ?? '';
+    const items = [...pie.querySelectorAll<HTMLAnchorElement>('.pie__legend a')];
+
+    const show = (id: string | null) => {
+      pie.dataset.active = id ?? '';
+      const item = items.find((a) => a.dataset.slice === id);
+      value.textContent = item ? item.dataset.n ?? '' : total;
+      label.textContent = item ? item.dataset.name ?? '' : 'entries';
+    };
+
+    pie.querySelectorAll<SVGElement>('.pie__slice').forEach((slice) => {
+      slice.addEventListener('pointerenter', () => show(slice.dataset.slice ?? null));
+      slice.addEventListener('pointerleave', () => show(null));
+    });
+    items.forEach((a) => {
+      a.addEventListener('pointerenter', () => show(a.dataset.slice ?? null));
+      a.addEventListener('pointerleave', () => show(null));
+      a.addEventListener('focus', () => show(a.dataset.slice ?? null));
+      a.addEventListener('blur', () => show(null));
+    });
+  });
+</script>
+
+<style>
+  /* ---------- Hero ---------- */
+  .jump {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-2);
+    width: 100%;
+    max-width: 520px;
+    margin-top: var(--sp-2);
+    list-style: none;
+  }
+
+  .jump a {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: 0.7rem 0.9rem;
+    border: 1px solid rgb(255 255 255 / 0.9);
+    border-radius: 12px;
+    background: rgb(255 255 255 / 0.6);
+    box-shadow: 0 1px 2px rgb(28 51 148 / 0.06);
+    color: var(--ink-800);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+      transform var(--dur) var(--ease),
+      background-color var(--dur) var(--ease),
+      box-shadow var(--dur) var(--ease);
+  }
+
+  .jump a strong {
+    min-width: 2ch;
+    font-family: var(--font-mono);
+    font-size: var(--fs-base);
+    color: var(--blue-600);
+  }
+
+  .jump a :global(svg) {
+    margin-left: auto;
+    color: var(--ink-400);
+    transition: transform var(--dur) var(--ease);
+  }
+
+  .jump a:hover {
+    transform: translateY(-2px);
+    background: rgb(255 255 255 / 0.9);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .jump a:hover :global(svg) {
+    transform: translateX(3px);
+    color: var(--blue-600);
+  }
+
+  /* Record panel */
+  .record {
+    display: grid;
+    gap: var(--sp-6);
+    padding: clamp(1.5rem, 1rem + 1.5vw, 2.25rem);
+    border: 1px solid rgb(255 255 255 / 0.95);
+    border-radius: 24px;
+    background: rgb(255 255 255 / 0.62);
+    box-shadow:
+      0 0 0 6px rgb(255 255 255 / 0.35),
+      inset 0 1px 0 rgb(255 255 255 / 0.9),
+      0 40px 80px -40px rgb(17 34 102 / 0.4);
+  }
+
+
+  .record__span {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+  }
+
+  /* Donut chart: four slots with 2px surface gaps, legend doubles as direct labels. */
+  .pie {
+    display: grid;
+    grid-template-columns: 176px 1fr;
+    align-items: center;
+    gap: var(--sp-5);
+    margin: 0;
+  }
+
+  .pie__chart {
+    position: relative;
+    width: 176px;
+    aspect-ratio: 1;
+  }
+
+  .pie__chart svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    overflow: visible;
+  }
+
+  .pie__track {
+    fill: none;
+    stroke: rgb(28 51 148 / 0.06);
+    stroke-width: 30;
+  }
+
+  .pie__slice {
+    fill: none;
+    stroke-width: 30;
+    cursor: pointer;
+    transform-origin: 100px 100px;
+    animation: pie-in 900ms var(--ease) both;
+    animation-delay: calc(0.4s + var(--i) * 0.12s);
+    transition:
+      stroke-width var(--dur) var(--ease),
+      opacity var(--dur) var(--ease);
+  }
+
+  @keyframes pie-in {
+    from {
+      opacity: 0;
+      transform: rotate(-20deg) scale(0.9);
+    }
+  }
+
+  .pie[data-active]:not([data-active='']) .pie__slice {
+    opacity: 0.3;
+  }
+
+  .pie[data-active='paper'] .pie__slice[data-slice='paper'],
+  .pie[data-active='granted'] .pie__slice[data-slice='granted'],
+  .pie[data-active='patent'] .pie__slice[data-slice='patent'],
+  .pie[data-active='chapter'] .pie__slice[data-slice='chapter'] {
+    opacity: 1;
+    stroke-width: 36;
+  }
+
+  .pie__center {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    gap: 0.15rem;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .pie__value {
+    font-family: var(--font-display);
+    font-size: 2.6rem;
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    color: var(--ink-950);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pie__label {
+    max-width: 9ch;
+    margin-inline: auto;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--ink-500);
+  }
+
+  .pie__legend {
+    display: grid;
+    gap: var(--sp-1);
+    list-style: none;
+  }
+
+  .pie__legend a {
+    display: grid;
+    grid-template-columns: 12px 1fr auto 3rem;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: 0.55rem 0.65rem;
+    border-radius: 10px;
+    color: var(--ink-800);
+    font-size: var(--fs-sm);
+    text-decoration: none;
+    transition: background-color var(--dur) var(--ease);
+  }
+
+  .pie__legend a:hover,
+  .pie__legend a:focus-visible {
+    background: rgb(255 255 255 / 0.85);
+  }
+
+  .pie__swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 4px;
+  }
+
+  .pie__name {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .pie__n {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--ink-950);
+  }
+
+  .pie__pct {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-align: right;
+    color: var(--ink-500);
+  }
+
+  @media (max-width: 560px) {
+    .pie {
+      grid-template-columns: 1fr;
+      justify-items: center;
+    }
+
+    .pie__legend {
+      width: 100%;
+    }
+  }
+
+  /* Decade column chart: single series, one hue, hover tooltip per bar. */
+  .decades {
+    margin: 0;
+    padding-top: var(--sp-5);
+    border-top: 1px solid var(--border);
+  }
+
+  .decades figcaption {
+    margin-bottom: var(--sp-4);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+  }
+
+  .decades__plot {
+    display: flex;
+    align-items: stretch;
+    gap: var(--sp-3);
+    position: relative;
+    height: 128px;
+    padding-bottom: 1.5rem;
+  }
+
+  .decades__plot::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 1.5rem;
+    height: 1px;
+    background: var(--border-strong);
+  }
+
+  .decades__col {
+    position: relative;
+    flex: 1;
+    display: grid;
+    align-items: end;
+    height: 100%;
+  }
+
+  .decades__bar {
+    display: block;
+    justify-self: center;
+    width: min(100%, 36px);
+    height: max(var(--h), 4px);
+    border-radius: 4px 4px 0 0;
+    background: var(--blue-600);
+    transform-origin: bottom;
+    animation: grow-y 1s var(--ease) both;
+    animation-delay: calc(0.5s + var(--i) * 0.1s);
+    transition: background-color var(--dur) var(--ease);
+  }
+
+  @keyframes grow-y {
+    from {
+      transform: scaleY(0);
+    }
+  }
+
+  .decades__x {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    text-align: center;
+    color: var(--ink-500);
+  }
+
+  .decades__tip {
+    position: absolute;
+    left: 50%;
+    bottom: calc(var(--h) + 8px);
+    z-index: 1;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    background: var(--ink-900);
+    color: var(--white);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translate(-50%, 4px);
+    pointer-events: none;
+    transition:
+      opacity var(--dur) var(--ease),
+      transform var(--dur) var(--ease);
+  }
+
+  .decades__col:hover .decades__bar {
+    background: var(--blue-700);
+  }
+
+  .decades__col:hover .decades__tip {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  @media (max-width: 520px) {
+    .jump {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Dark "lab bench" panel: lifts the light publication cards into high contrast. */
+  .pubs-bench {
+    position: relative;
+    padding-top: var(--sp-6);
+    /* Near-black navy, frosted: a deep gradient with soft cobalt light for depth. */
+    background:
+      radial-gradient(900px 560px at 85% -5%, rgb(69 101 230 / 0.2), transparent 70%),
+      radial-gradient(700px 520px at 5% 55%, rgb(38 67 196 / 0.1), transparent 70%),
+      radial-gradient(900px 600px at 50% 110%, rgb(18 158 150 / 0.07), transparent 70%),
+      linear-gradient(170deg, #0a1026 0%, #060916 45%, #03050c 100%);
+    border-block: 1px solid rgb(255 255 255 / 0.07);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
+    color: var(--ink-100);
+    isolation: isolate;
+  }
+
+  .pubs-bench::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.03) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+</style>

@@ -1,0 +1,203 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import ContactForm from '../components/ContactForm.astro';
+import Icon from '../components/Icon.astro';
+import { contact } from '../data/site';
+
+const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(contact.mapQuery)}&output=embed`;
+const directions = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contact.mapQuery)}`;
+---
+
+<BaseLayout
+  title="Contact"
+  description="Get in touch with Thrafford — BSC BioNEST Bio-Incubator, Regional Centre for Biotechnology, Faridabad. Call +91 84479 89735 or email contact@thrafford.com."
+>
+  <PageHero
+    eyebrow="Contact"
+    title="Let’s talk"
+    lead={`Whether you’re a clinician, hospital, research group or potential partner, we’d love to hear from you. ${contact.responseTime}`}
+  />
+
+  <section class="section">
+    <div class="container contact">
+      <div class="contact__form" data-reveal>
+        <h2>Send a message</h2>
+        <ContactForm />
+      </div>
+
+      <aside class="contact__aside" aria-label="Contact details">
+        <ul class="details" data-reveal>
+          <li>
+            <span class="details__icon"><Icon name="phone" size={20} /></span>
+            <div>
+              <h3>Call us</h3>
+              <a href={contact.phoneHref}>{contact.phoneDisplay}</a>
+            </div>
+          </li>
+          <li>
+            <span class="details__icon"><Icon name="mail" size={20} /></span>
+            <div>
+              <h3>Email</h3>
+              <a href={`mailto:${contact.email}`}>{contact.email}</a>
+              <a class="details__alt" href={`mailto:${contact.emailAlt}`}>{contact.emailAlt}</a>
+            </div>
+          </li>
+          <li>
+            <span class="details__icon"><Icon name="map-pin" size={20} /></span>
+            <div>
+              <h3>Visit</h3>
+              <address>
+                {contact.addressLines.map((l) => <span>{l}</span>)}
+              </address>
+              <a href={directions} target="_blank" rel="noopener noreferrer" class="details__link">
+                Get directions <Icon name="arrow-up-right" size={14} />
+                <span class="visually-hidden">(opens in a new tab)</span>
+              </a>
+            </div>
+          </li>
+          <li>
+            <span class="details__icon"><Icon name="clock" size={20} /></span>
+            <div>
+              <h3>Response time</h3>
+              <p>{contact.responseTime}</p>
+            </div>
+          </li>
+        </ul>
+
+        <div class="map" data-reveal>
+          <iframe
+            src={mapSrc}
+            title="Map showing the Regional Centre for Biotechnology, Faridabad"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .contact {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: clamp(2rem, 1rem + 4vw, 4.5rem);
+    align-items: start;
+  }
+
+  .contact__form {
+    padding: clamp(1.25rem, 0.75rem + 2.5vw, 2.75rem);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--glass-bg);
+    border-color: var(--glass-border);
+    box-shadow: var(--glass-highlight), var(--shadow-soft);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+  }
+
+  .contact__form h2 {
+    margin-bottom: var(--sp-5);
+    font-size: var(--fs-xl);
+  }
+
+  .contact__aside {
+    display: grid;
+    gap: var(--sp-5);
+  }
+
+  .details {
+    display: grid;
+    gap: var(--sp-5);
+    list-style: none;
+  }
+
+  .details li {
+    display: flex;
+    gap: var(--sp-4);
+  }
+
+  .details__icon {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--blue-50);
+    color: var(--brand);
+  }
+
+  .details div {
+    display: grid;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .details h3 {
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+  }
+
+  .details a {
+    font-weight: 600;
+    font-size: 1.0625rem;
+    color: var(--ink-900);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  .details a:hover {
+    color: var(--brand);
+    text-decoration: underline;
+  }
+
+  .details .details__alt {
+    font-weight: 500;
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+
+  .details .details__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: var(--sp-2);
+    font-size: var(--fs-sm);
+    color: var(--brand);
+  }
+
+  address {
+    display: grid;
+    font-style: normal;
+    color: var(--ink-700);
+  }
+
+  .details p {
+    color: var(--ink-700);
+  }
+
+  .map {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    aspect-ratio: 4 / 3;
+    background: var(--ink-50);
+  }
+
+  .map iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  @media (max-width: 960px) {
+    .contact {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

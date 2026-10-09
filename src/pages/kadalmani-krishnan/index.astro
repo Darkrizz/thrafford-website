@@ -1,0 +1,8 @@
+---
+import LeaderPage from '../../components/LeaderPage.astro';
+import { leaderProfiles } from '../../data/leaders';
+
+const profile = leaderProfiles.find((p) => p.slug === 'kadalmani-krishnan')!;
+---
+
+<LeaderPage profile={profile} />

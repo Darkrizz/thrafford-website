@@ -1,0 +1,355 @@
+---
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import type { TeamMember } from '../data/team';
+import { memberSlug } from '../utils/slug';
+
+interface Props {
+  member: TeamMember;
+  featured?: boolean;
+}
+
+const { member: m, featured = false } = Astro.props;
+const slug = memberSlug(m.name);
+const id = `${slug}-name`;
+const initials = m.name
+  .replace(/^(Dr|Mr|Ms|Mrs|Prof)\.?\s+/i, '')
+  .split(/\s+/)
+  .map((w) => w[0])
+  .slice(0, 2)
+  .join('');
+---
+
+<article
+  class:list={['member', { 'member--featured': featured }]}
+  id={slug}
+  tabindex="-1"
+  aria-labelledby={id}
+  data-reveal
+>
+  <header class="member__head">
+    <div class="member__photo">
+      {
+        m.photo ? (
+          <img src={m.photo} alt={`Portrait of ${m.name}`} width="600" height="560" loading="lazy" decoding="async" />
+        ) : m.pending ? (
+          <span class="member__placeholder" aria-hidden="true">
+            <Icon name="user" size={28} />
+          </span>
+        ) : (
+          <span class="member__monogram" aria-hidden="true">
+            {initials}
+          </span>
+        )
+      }
+    </div>
+    <div class="member__id">
+      <h3 id={id}>{m.name}</h3>
+      <p class="member__role">{m.role}</p>
+    </div>
+  </header>
+
+  {
+    m.headline ? (
+      <p class="member__headline">{m.headline}</p>
+    ) : (
+      <p class="member__headline member__headline--pending">Profile details coming soon.</p>
+    )
+  }
+
+  {
+    (!!m.credentials?.length || !!m.expertise?.length) && (
+      <div class="member__more">
+        {!!m.credentials?.length && (
+          <dl class="member__creds">
+            {m.credentials.map((c) => (
+              <div>
+                <dt>{c.label}</dt>
+                <dd>{c.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+        {!!m.expertise?.length && (
+          <ul class="member__tags" aria-label="Areas of expertise">
+            {m.expertise.map((e) => (
+              <li>{e}</li>
+            ))}
+          </ul>
+        )}
+      </div>
+    )
+  }
+
+  <footer class="member__actions">
+    {
+      m.linkedin ? (
+        <Button href={m.linkedin} variant="secondary" icon="linkedin" iconPosition="start" external class="member__linkedin">
+          LinkedIn profile
+        </Button>
+      ) : (
+        <span class="member__linkedin-pending" aria-disabled="true">
+          <Icon name="linkedin" size={16} />
+          LinkedIn · coming soon
+        </span>
+      )
+    }
+  </footer>
+</article>
+
+<style>
+  .member {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+    height: 100%;
+    padding: var(--sp-5);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    background: var(--glass-bg);
+    box-shadow: var(--glass-highlight), var(--shadow-soft);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    transition:
+      transform var(--dur) var(--ease),
+      box-shadow var(--dur) var(--ease);
+  }
+
+  .member:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--glass-highlight), var(--shadow-lg);
+  }
+
+  .member {
+    scroll-margin-top: calc(var(--header-h) + 2rem);
+  }
+
+  .member:focus {
+    outline: none;
+  }
+
+  /* Arrived via a deep link from the homepage (or a #anchor). */
+  .member:target,
+  .member.is-highlighted {
+    animation: member-spotlight 2.4s var(--ease) 1;
+  }
+
+  @keyframes member-spotlight {
+    0%,
+    35% {
+      box-shadow:
+        var(--glass-highlight),
+        0 0 0 3px rgb(69 101 230 / 0.55),
+        0 24px 60px -20px rgb(38 67 196 / 0.55);
+    }
+    100% {
+      box-shadow: var(--glass-highlight), var(--shadow-soft);
+    }
+  }
+
+  /* Hairline accent along the top edge */
+  .member::before {
+    content: '';
+    position: absolute;
+    inset: 0 var(--sp-5) auto;
+    height: 2px;
+    border-radius: 0 0 2px 2px;
+    background: var(--gradient-brand);
+    opacity: 0.8;
+  }
+
+  .member__head {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-4);
+  }
+
+  .member__photo {
+    flex-shrink: 0;
+    width: 76px;
+    height: 76px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: linear-gradient(160deg, var(--surface-sunken), var(--blue-100));
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.7);
+  }
+
+  .member__photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    mix-blend-mode: multiply;
+  }
+
+  .member__monogram {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    background: var(--gradient-brand);
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .member__placeholder {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    border: 1.5px dashed var(--border-strong);
+    border-radius: inherit;
+    background:
+      repeating-linear-gradient(135deg, rgb(255 255 255 / 0.5) 0 6px, transparent 6px 12px),
+      linear-gradient(160deg, var(--surface-raised), var(--blue-50));
+    color: var(--blue-500);
+  }
+
+  .member__id {
+    display: grid;
+    gap: var(--sp-1);
+    min-width: 0;
+  }
+
+  .member h3 {
+    font-size: var(--fs-xl);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+
+  .member__role {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+    color: var(--teal-700);
+  }
+
+  .member__headline {
+    color: var(--ink-700);
+  }
+
+  /* LinkedIn always sits at the foot of the card so buttons line up across a row. */
+  .member__actions {
+    display: flex;
+    margin-top: auto;
+    padding-top: var(--sp-2);
+  }
+
+  .member__headline--pending {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    letter-spacing: 0.02em;
+    color: var(--ink-500);
+  }
+
+  /* Visual stand-in for a LinkedIn button until the profile URL is supplied. */
+  .member__linkedin-pending {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    min-height: 46px;
+    padding: 0.7rem 1.25rem;
+    border: 1.5px dashed var(--border-strong);
+    border-radius: var(--radius-pill);
+    color: var(--ink-400);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    cursor: default;
+    user-select: none;
+  }
+
+  .member__more {
+    display: grid;
+    gap: var(--sp-4);
+    padding-top: var(--sp-4);
+    border-top: 1px dashed var(--border-strong);
+  }
+
+  .member__creds {
+    display: grid;
+    gap: var(--sp-2);
+    margin: 0;
+  }
+
+  .member__creds > div {
+    display: grid;
+    grid-template-columns: 9.5rem 1fr;
+    gap: var(--sp-3);
+    font-size: var(--fs-sm);
+  }
+
+  .member__creds dt {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+    padding-top: 0.15rem;
+  }
+
+  .member__creds dd {
+    margin: 0;
+    font-weight: 600;
+    color: var(--ink-900);
+  }
+
+  .member__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    list-style: none;
+  }
+
+  .member__tags li {
+    padding: 0.25rem 0.7rem;
+    border-radius: var(--radius-pill);
+    background: var(--blue-50);
+    border: 1px solid rgb(255 255 255 / 0.8);
+    color: var(--blue-700);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+  }
+
+  /* Featured (leadership): bigger portrait */
+  .member--featured {
+    padding: var(--sp-6);
+  }
+
+  .member--featured .member__photo {
+    width: 112px;
+    height: 112px;
+    border-radius: 18px;
+  }
+
+  .member--featured h3 {
+    font-size: var(--fs-2xl);
+  }
+
+  .member--featured .member__headline {
+    font-size: var(--fs-lg);
+  }
+
+  @media (max-width: 520px) {
+    .member,
+    .member--featured {
+      padding: var(--sp-5) var(--sp-4);
+    }
+
+    .member--featured .member__photo {
+      width: 84px;
+      height: 84px;
+    }
+
+    .member__creds > div {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+  }
+</style>
