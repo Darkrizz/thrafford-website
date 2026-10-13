@@ -5,7 +5,8 @@ export interface Partner {
 }
 
 export const partners: Partner[] = [
-  { name: 'IBM Quantum', logo: '/images/partners/ibm-quantum.webp', kind: 'Industry' },
+  { name: 'All India Institute of Medical Sciences (AIIMS), New Delhi', logo: '/images/partners/aiims-delhi.webp', kind: 'Clinical' },
+  { name: 'National Cancer Institute (NCI), AIIMS Jhajjar', logo: '/images/partners/aiims-delhi.webp', kind: 'Clinical' },
   {
     name: 'UNESCO – Regional Centre for Biotechnology',
     logo: '/images/partners/unesco-rcb.webp',

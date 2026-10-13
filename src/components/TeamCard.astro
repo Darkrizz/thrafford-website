@@ -191,8 +191,8 @@ const initials = m.name
     background: var(--gradient-brand);
     color: var(--white);
     font-family: var(--font-display);
-    font-size: 1.5rem;
-    font-weight: 800;
+    font-size: var(--fs-xl);
+    font-weight: 600;
     letter-spacing: -0.02em;
   }
 
@@ -217,15 +217,13 @@ const initials = m.name
 
   .member h3 {
     font-size: var(--fs-xl);
-    font-weight: 800;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.02em;
   }
 
   .member__role {
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
+    font-family: var(--font-display);
+    font-size: var(--fs-sm);
     font-weight: 600;
-    letter-spacing: 0.02em;
     line-height: 1.4;
     color: var(--teal-700);
   }
@@ -242,10 +240,8 @@ const initials = m.name
   }
 
   .member__headline--pending {
-    font-family: var(--font-mono);
     font-size: var(--fs-sm);
-    letter-spacing: 0.02em;
-    color: var(--ink-500);
+    color: var(--ink-700);
   }
 
   /* Visual stand-in for a LinkedIn button until the profile URL is supplied. */
@@ -279,24 +275,20 @@ const initials = m.name
 
   .member__creds > div {
     display: grid;
-    grid-template-columns: 9.5rem 1fr;
+    grid-template-columns: 10.5rem 1fr;
+    align-items: baseline;
     gap: var(--sp-3);
-    font-size: var(--fs-sm);
   }
 
   .member__creds dt {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-family: var(--font-display);
+    font-size: var(--fs-base);
     font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ink-500);
-    padding-top: 0.15rem;
+    color: var(--blue-700);
   }
 
   .member__creds dd {
     margin: 0;
-    font-weight: 600;
     color: var(--ink-900);
   }
 

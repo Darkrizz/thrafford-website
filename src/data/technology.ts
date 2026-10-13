@@ -109,26 +109,22 @@ export const amlNeed = [
   {
     value: 80,
     display: '70–80%',
-    label: 'of AML deaths happen after remission',
-    note: 'The disease hides as measurable residual disease, then resurfaces months later.',
+    label: 'of AML deaths happen after relapse',
   },
   {
     value: 40000,
     prefix: '~',
     label: 'new AML cases a year in India',
-    note: 'A fast-growing cancer of the blood and bone marrow.',
   },
   {
     value: 17000,
     prefix: '~',
     label: 'patients MRD-positive each year',
-    note: 'Intermediate- or high-risk, with no therapy designed for this window.',
   },
   {
     value: 80,
     display: '65–80%',
     label: 'relapse if MRD persists after consolidation',
-    note: 'Despite conventional post-remission therapy.',
   },
 ];
 
@@ -175,76 +171,83 @@ export const mechanism = [
   },
 ];
 
-/** How TiCoBi compares with today’s approaches. */
-export const comparison = {
-  columns: ['Autologous CAR-T', 'Gene-edited allogeneic CAR-T', 'Thrafford TiCoBi'],
-  rows: [
-    {
-      label: 'Cell source',
-      values: ['The patient’s own cells', 'Healthy donor', 'Healthy donor (γδ T cells)'],
-    },
-    {
-      label: 'Manufacturing',
-      values: ['One batch per patient, made sequentially', 'Multi-gene editing (TRAC/B2M knockouts)', 'One donor batch, up to 15 doses'],
-    },
-    {
-      label: 'Gene editing / viral vectors',
-      values: ['Viral vector required', 'Multiple edits required', 'None'],
-    },
-    {
-      label: 'Status & cost',
-      values: ['₹30–50 lakh per patient in India', 'Investigational (Phase 1/2), high COGS', 'Structural cost advantage, off-the-shelf'],
-    },
-  ],
-};
-
-export const pipeline = [
+export const pipeline: { code: string; indication: string; modality: string; platform: string; lead?: boolean }[] = [
   {
     code: 'TLS-GD-001AM',
     indication: 'Acute Myeloid Leukaemia',
-    detail: 'γδ T cells for intermediate- and high-risk, MRD-positive AML in remission.',
     modality: 'Allogeneic γδ T cells',
     platform: 'TiCoBi',
-    tags: ['Oncology', 'MRD'],
     lead: true,
   },
   {
     code: 'TLS-GD-001GB',
     indication: 'Glioblastoma',
-    detail: 'Extending the TiCoBi platform to glioblastoma and other solid tumours.',
     modality: 'Allogeneic γδ T cells',
     platform: 'TiCoBi',
-    tags: ['Oncology', 'Solid tumour'],
   },
   {
     code: 'TLS-GDC-001LL',
     indication: 'Lymphoma & Leukaemia',
-    detail:
-      'Healthy-donor γδ CD19 CAR-T: one batch for 4–8 patients at ~5× lower cost, with a reagent-agnostic design that extends to autoimmune disease such as lupus.',
     modality: 'γδ CD19 CAR-T',
-    platform: 'Healthy donor',
-    tags: ['Oncology', 'Autoimmune'],
+    platform: 'Healthy donor · one batch for 15 patients',
   },
 ];
+
+/** Ongoing project: a human data census for conventional and quantum AI (aim and uses only). */
+export const quantumAI = {
+  aim: 'We are mapping how human genes, proteins, metabolites, drugs and cells interact, drawing on the largest possible census of biomedical data resources and structuring it for quantum AI. The first goal is a working simulation of the immune system; every layer we add opens new questions, from cancer to autoimmunity and ageing.',
+  contrast: [
+    {
+      topic: 'Scope',
+      conventional: 'Models one layer of biology at a time, such as gene expression or protein binding, and joins the results afterwards.',
+      quantum: 'Aims to hold several layers of human biology inside a single model.',
+    },
+    {
+      topic: 'Interactions',
+      conventional: 'Trims the interactions it considers down to what classical hardware can compute.',
+      quantum: 'Explores interaction spaces that grow too quickly for exhaustive classical search.',
+    },
+    {
+      topic: 'Readiness',
+      conventional: 'Mature, and in routine use across drug discovery today.',
+      quantum: 'Still emerging. We are preparing the data now so it is ready when the hardware is.',
+    },
+  ],
+  uses: [
+    {
+      title: 'Predicting adverse reactions',
+      body: 'Simulating how a patient’s immune system may respond to a cell therapy, including cytokine release syndrome and neurotoxicity, before the first dose.',
+      icon: 'alert' as IconName,
+    },
+    {
+      title: 'Choosing targets',
+      body: 'Ranking the stress ligands, receptors and pathways worth pursuing in future γδ T-cell and CAR-T programmes.',
+      icon: 'molecule' as IconName,
+    },
+    {
+      title: 'Matching patients',
+      body: 'Identifying the patients most likely to respond, from the molecular profile of their disease.',
+      icon: 'user' as IconName,
+    },
+    {
+      title: 'Repurposing drugs',
+      body: 'Finding approved drugs that act on the same interaction networks as a disease, as candidates for new uses.',
+      icon: 'flask' as IconName,
+    },
+  ],
+};
 
 export const patents = [
   {
-    number: '202611062935',
+    number: '2026••••2935',
     title: 'Temporally and Volumetrically Controlled Process for Ex-vivo Expansion of V-Gamma-9V-Delta-2 T Cells',
   },
   {
-    number: '202511108309',
+    number: '2025••••8309',
     title: 'Point of Care Manufacturing Platform for Engineered Gamma Delta T cells',
   },
   {
-    number: '202511022865',
+    number: '2025••••2865',
     title: 'Point of Care Manufacturing and Processing Platform for Cell Therapy',
   },
-];
-
-export const moat: { title: string; icon: IconName }[] = [
-  { title: 'Patent-filed manufacturing', icon: 'file' },
-  { title: 'Trade-secret process logic', icon: 'shield' },
-  { title: 'AML-specific regulatory dossier & MRD strategy', icon: 'layers' },
-  { title: 'Four hospital letters of intent', icon: 'hospital' },
 ];

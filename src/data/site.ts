@@ -8,7 +8,7 @@ export const site = {
 
 export const nav = [
   { label: 'Home', href: '/' },
-  { label: 'Technology & Software', href: '/technology/' },
+  { label: 'TiCoBi', href: '/technology/' },
   { label: 'Team', href: '/team/' },
   { label: 'Publications', href: '/publications/' },
 ];
@@ -23,6 +23,12 @@ export const contact = {
     'Regional Centre for Biotechnology',
     '3rd Milestone, Faridabad–Gurugram Expressway',
     'Faridabad – 121001, Haryana, India',
+  ],
+  /** Registered office of the company (legal address). */
+  registeredAddressLines: [
+    'A-905, Plot No. A-40, Unit No. 5',
+    'Sector 62, Noida, Gautam Buddha Nagar',
+    'Uttar Pradesh – 201301, India',
   ],
   mapQuery: 'Regional Centre for Biotechnology, Faridabad',
   responseTime: 'We usually reply within one business day.',
@@ -57,8 +63,8 @@ export const accessGap = [
 
 export const achievements = [
   { value: 55, suffix: '', label: 'Publications' },
-  { value: 46, suffix: '', label: 'Patents' },
-  { value: 13, prefix: '$', suffix: 'M', label: 'Grants' },
+  { value: 46, suffix: '', label: 'Patents filed' },
+  { value: 7, prefix: '$', suffix: 'M', label: 'Grants' },
   { value: 20, suffix: '+', label: 'Awards' },
   { value: 2, suffix: '', label: 'Books' },
 ];

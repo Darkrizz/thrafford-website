@@ -167,9 +167,9 @@ const destinations = [
 
   h1 {
     max-width: 14ch;
-    font-size: clamp(2.5rem, 1.6rem + 3.4vw, 4.4rem);
+    font-size: var(--fs-display);
     line-height: 1.02;
-    letter-spacing: -0.04em;
+    letter-spacing: var(--ls-heading);
   }
 
   .nf__accent {
@@ -210,11 +210,9 @@ const destinations = [
   }
 
   .nf__readout dt {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ink-500);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--ink-700);
   }
 
   .nf__readout dd {
@@ -225,8 +223,9 @@ const destinations = [
   .nf__readout code {
     display: block;
     overflow: hidden;
-    font-family: var(--font-mono);
+    font-family: var(--font-body);
     font-size: var(--fs-sm);
+    font-weight: 600;
     color: var(--ink-900);
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -236,7 +235,6 @@ const destinations = [
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
-    font-family: var(--font-mono);
     font-size: var(--fs-sm);
     font-weight: 600;
     color: var(--amber-700);
@@ -368,11 +366,8 @@ const destinations = [
     border-radius: 8px;
     background: rgb(255 255 255 / 0.92);
     box-shadow: 0 10px 24px -14px rgb(17 34 102 / 0.45);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
+    font-size: 0.8125rem;
     font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
     color: var(--amber-700);
     white-space: nowrap;
   }
@@ -382,11 +377,8 @@ const destinations = [
     flex-wrap: wrap;
     justify-content: center;
     gap: 0.35rem var(--sp-3);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--ink-500);
+    font-size: var(--fs-sm);
+    color: var(--ink-700);
   }
 
   .field__caption span:first-child {
@@ -403,12 +395,8 @@ const destinations = [
 
   .dest__title {
     margin-bottom: var(--sp-5);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ink-500);
+    font-size: var(--fs-xl);
+    color: var(--ink-900);
   }
 
   .dest ul {

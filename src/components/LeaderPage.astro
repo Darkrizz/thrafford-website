@@ -19,7 +19,6 @@ const member = teamGroups.flatMap((g) => g.members).find((m) => m.name === p.mem
 const [honorific, ...nameParts] = p.member.split(' ');
 const others = leaderProfiles.filter((x) => x.slug !== p.slug);
 const otherMember = (name: string) => teamGroups.flatMap((g) => g.members).find((m) => m.name === name)!;
-const roman = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
 const person = {
   '@context': 'https://schema.org',
   '@type': 'Person',
@@ -35,10 +34,6 @@ const person = {
 <BaseLayout title={p.member} description={p.seoDescription} activeNav="/team/">
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(person)} />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap"
-      rel="stylesheet"
-    />
   </Fragment>
 
   <!-- Hero -->
@@ -157,10 +152,7 @@ const person = {
             <ol class="story__index">
               {p.chapters.map((c, i) => (
                 <li>
-                  <a href={`#chapter-${i + 1}`}>
-                    <span>{roman[i]}</span>
-                    {c.title}
-                  </a>
+                  <a href={`#chapter-${i + 1}`}>{c.title}</a>
                 </li>
               ))}
             </ol>
@@ -186,9 +178,6 @@ const person = {
           p.chapters &&
             p.chapters.map((c, i) => (
               <article class="chapter" id={`chapter-${i + 1}`} data-reveal>
-                <p class="chapter__num" aria-hidden="true">
-                  {roman[i]}
-                </p>
                 <h3>{c.title}</h3>
                 {c.body.map((b) => (
                   <p>{b}</p>
@@ -223,12 +212,7 @@ const person = {
         <h2 id="focus-title" class="lp-kicker">{p.focusTitle}</h2>
         <ol class="focus__list">
           {
-            p.focus.map((f, i) => (
-              <li data-reveal>
-                <span>{String(i + 1).padStart(2, '0')}</span>
-                {f}
-              </li>
-            ))
+            p.focus.map((f) => <li data-reveal>{f}</li>)
           }
         </ol>
       </div>
@@ -310,12 +294,11 @@ const person = {
 <style>
   /* ---------- Shared type ---------- */
   .lp-kicker {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-family: var(--font-display);
+    font-size: var(--fs-xl);
     font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--teal-700);
+    letter-spacing: -0.02em;
+    color: var(--ink-950);
   }
 
   /* ---------- Hero ---------- */
@@ -360,10 +343,8 @@ const person = {
     align-items: center;
     gap: var(--sp-2);
     list-style: none;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.06em;
-    color: var(--ink-500);
+    font-size: var(--fs-sm);
+    color: var(--ink-700);
   }
 
   .crumbs li {
@@ -409,29 +390,26 @@ const person = {
   }
 
   .lp-role {
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
+    font-family: var(--font-display);
+    font-size: var(--fs-base);
     font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
     color: var(--teal-700);
   }
 
-  /* The name, set in a quiet editorial serif. */
   .lp-hero h1 {
-    font-family: 'Instrument Serif', Georgia, serif;
-    font-size: clamp(3.2rem, 1.8rem + 5vw, 6.2rem);
-    font-weight: 400;
-    line-height: 0.95;
-    letter-spacing: -0.02em;
+    font-size: var(--fs-display);
+    font-weight: var(--fw-heading);
+    line-height: 1.04;
+    letter-spacing: var(--ls-heading);
     color: var(--ink-950);
   }
 
   .lp-honorific {
     display: block;
-    margin-bottom: 0.1em;
-    font-style: italic;
-    font-size: 0.5em;
+    margin-bottom: 0.15em;
+    font-size: 0.45em;
+    font-weight: 500;
+    letter-spacing: -0.01em;
     color: var(--blue-600);
   }
 
@@ -457,25 +435,23 @@ const person = {
 
   .lp-edu > div {
     display: grid;
-    grid-template-columns: 11rem 1fr;
+    grid-template-columns: 12rem 1fr;
+    align-items: baseline;
     gap: var(--sp-4);
     padding-block: var(--sp-3);
     border-bottom: 1px solid var(--border);
   }
 
   .lp-edu dt {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
+    font-family: var(--font-display);
+    font-size: var(--fs-base);
     font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink-500);
-    padding-top: 0.2rem;
+    color: var(--blue-700);
   }
 
   .lp-edu dd {
     margin: 0;
-    font-weight: 600;
+    font-size: var(--fs-base);
     color: var(--ink-900);
   }
 
@@ -571,17 +547,15 @@ const person = {
   }
 
   .niche__plate span:first-child {
-    font-family: 'Instrument Serif', Georgia, serif;
-    font-size: 1.25rem;
+    font-family: var(--font-display);
+    font-size: var(--fs-base);
+    font-weight: 600;
     color: var(--ink-950);
   }
 
   .niche__plate span:last-child {
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--ink-500);
+    font-size: var(--fs-sm);
+    color: var(--ink-700);
   }
 
   @media (max-width: 900px) {
@@ -619,8 +593,10 @@ const person = {
   }
 
   .ledger dt {
-    font-family: 'Instrument Serif', Georgia, serif;
-    font-size: clamp(3rem, 2rem + 3vw, 4.5rem);
+    font-family: var(--font-display);
+    font-size: var(--fs-2xl);
+    font-weight: var(--fw-heading);
+    letter-spacing: var(--ls-heading);
     line-height: 1;
     color: var(--ink-950);
   }
@@ -630,7 +606,7 @@ const person = {
     margin: 0;
     font-size: var(--fs-sm);
     line-height: 1.5;
-    color: var(--text-muted);
+    color: var(--ink-700);
   }
 
   /* ---------- Quote ---------- */
@@ -678,11 +654,11 @@ const person = {
   }
 
   blockquote p {
-    font-family: 'Instrument Serif', Georgia, serif;
-    font-style: italic;
-    font-size: clamp(2rem, 1.3rem + 2.8vw, 3.6rem);
-    line-height: 1.15;
-    letter-spacing: -0.01em;
+    font-family: var(--font-display);
+    font-size: var(--fs-2xl);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: var(--ls-heading);
     color: var(--ink-950);
   }
 
@@ -700,18 +676,17 @@ const person = {
     display: grid;
     gap: var(--sp-1);
     margin-top: var(--sp-5);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ink-500);
+    font-family: var(--font-display);
+    font-size: var(--fs-base);
+    font-weight: 600;
+    color: var(--ink-900);
   }
 
   .lp-quote__note {
     font-family: var(--font-body);
     font-size: var(--fs-sm);
-    letter-spacing: 0;
-    text-transform: none;
+    font-weight: 400;
+    color: var(--ink-700);
   }
 
   /* ---------- Story ---------- */
@@ -736,9 +711,7 @@ const person = {
   }
 
   .story__index a {
-    display: grid;
-    grid-template-columns: 2.5rem 1fr;
-    gap: var(--sp-2);
+    display: block;
     padding-block: var(--sp-3);
     border-bottom: 1px solid var(--border);
     color: var(--ink-700);
@@ -747,12 +720,6 @@ const person = {
     line-height: 1.35;
     text-decoration: none;
     transition: color var(--dur) var(--ease);
-  }
-
-  .story__index a span {
-    font-family: 'Instrument Serif', Georgia, serif;
-    font-size: 1.1rem;
-    color: var(--blue-600);
   }
 
   .story__index a:hover {
@@ -794,23 +761,14 @@ const person = {
     scroll-margin-top: calc(var(--header-h) + 2rem);
   }
 
-  .chapter__num {
-    font-family: 'Instrument Serif', Georgia, serif;
-    font-size: 4.5rem;
-    line-height: 0.8;
-    color: transparent;
-    -webkit-text-stroke: 1px rgb(38 67 196 / 0.4);
-  }
-
   .chapter h3 {
-    font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.3rem);
-    font-weight: 800;
-    letter-spacing: -0.035em;
-    line-height: 1.12;
+    font-size: var(--fs-xl);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
     color: var(--ink-950);
   }
 
-  .chapter p:not(.chapter__num),
+  .chapter p,
   .bio p {
     max-width: 66ch;
     font-size: var(--fs-lg);
@@ -850,9 +808,10 @@ const person = {
   .bio p:first-child::first-letter {
     float: left;
     margin: 0.06em 0.12em 0 0;
-    font-family: 'Instrument Serif', Georgia, serif;
-    font-size: 4.6em;
-    line-height: 0.8;
+    font-family: var(--font-display);
+    font-size: 3.6em;
+    font-weight: 600;
+    line-height: 0.85;
     color: var(--blue-600);
   }
 
@@ -882,22 +841,25 @@ const person = {
   }
 
   .focus__list li {
-    display: grid;
-    grid-template-columns: 3rem 1fr;
+    display: flex;
     align-items: baseline;
+    gap: var(--sp-3);
     padding-block: var(--sp-4);
     border-bottom: 1px solid var(--border);
-    font-size: clamp(1.15rem, 1rem + 0.5vw, 1.4rem);
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-family: var(--font-display);
+    font-size: var(--fs-lg);
+    font-weight: 600;
+    letter-spacing: -0.015em;
     color: var(--ink-950);
   }
 
-  .focus__list span {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--blue-600);
+  .focus__list li::before {
+    content: '';
+    flex-shrink: 0;
+    width: 7px;
+    height: 7px;
+    background: var(--gradient-brand);
+    transform: rotate(45deg) translateY(-2px);
   }
 
   .focus__career {
@@ -924,7 +886,7 @@ const person = {
     border: 1px solid rgb(255 255 255 / 0.85);
     color: var(--blue-700);
     font-size: var(--fs-sm);
-    font-weight: 700;
+    font-weight: 600;
   }
 
   @media (max-width: 900px) {
@@ -953,9 +915,7 @@ const person = {
   }
 
   .highlights__col h3 {
-    font-family: 'Instrument Serif', Georgia, serif;
-    font-size: 1.9rem;
-    font-weight: 400;
+    font-size: var(--fs-xl);
     color: var(--ink-950);
   }
 
@@ -1044,15 +1004,21 @@ const person = {
     gap: 0.2rem;
   }
 
+  .next__text .lp-kicker {
+    font-size: var(--fs-sm);
+    color: var(--teal-700);
+  }
+
   .next__text strong {
-    font-family: 'Instrument Serif', Georgia, serif;
-    font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.2rem);
-    font-weight: 400;
+    font-family: var(--font-display);
+    font-size: var(--fs-xl);
+    font-weight: 600;
+    letter-spacing: -0.02em;
     color: var(--ink-950);
   }
 
   .next__text span:last-child {
-    color: var(--text-muted);
+    color: var(--ink-700);
     font-size: var(--fs-sm);
   }
 

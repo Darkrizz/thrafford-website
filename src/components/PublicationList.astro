@@ -323,8 +323,8 @@ const lookupUrl = (p: Publication) => {
     border-radius: var(--radius-pill);
     background: rgb(255 255 255 / 0.1);
     color: var(--ink-200);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: var(--fs-sm);
+    font-weight: 600;
   }
 
   [aria-selected='true'] .tabs__count {
@@ -370,10 +370,9 @@ const lookupUrl = (p: Publication) => {
 
   .pubs__status {
     margin: var(--sp-5) 0 var(--sp-2);
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    letter-spacing: 0.04em;
-    color: var(--ink-400);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--ink-700);
   }
 
   .group {
@@ -391,15 +390,13 @@ const lookupUrl = (p: Publication) => {
     display: grid;
     gap: var(--sp-1);
     font-size: var(--fs-2xl);
-    font-weight: 800;
+    font-weight: var(--fw-heading);
     color: var(--white);
   }
 
   .group__title span {
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    font-weight: 500;
-    letter-spacing: 0.04em;
+    font-size: var(--fs-sm);
+    font-weight: 600;
     color: var(--teal-300);
   }
 
@@ -437,10 +434,9 @@ const lookupUrl = (p: Publication) => {
   }
 
   .pub__year {
-    font-family: var(--font-mono) !important;
     font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.0625rem;
+    font-weight: 600;
+    font-size: var(--fs-base);
     color: var(--blue-600);
     font-variant-numeric: tabular-nums;
   }
@@ -455,10 +451,8 @@ const lookupUrl = (p: Publication) => {
   .pub__type {
     padding: 0.1rem 0.55rem;
     border-radius: var(--radius-pill);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    font-size: var(--fs-sm);
+    font-weight: 600;
     background: var(--blue-50);
     color: var(--blue-700);
   }

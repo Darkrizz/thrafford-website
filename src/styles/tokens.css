@@ -55,20 +55,26 @@
   --gradient-brand: linear-gradient(135deg, #1d3285, #2c4bc0 52%, #0f8a83);
   --gradient-dark: linear-gradient(160deg, #141b23 0%, #0a0e13 100%);
 
-  /* Type */
-  --font-display: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /*
+   * Type: two families only. Sora sets every heading and figure; Geist sets body copy.
+   * There is deliberately no monospace face on the site.
+   */
+  --font-display: 'Sora', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-body: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  --font-mono: var(--font-body);
 
-  --fs-xs: 0.8125rem;
+  /* Three heading sizes (page title, section title, card title) over body and small text. */
   --fs-sm: 0.9375rem;
+  --fs-xs: var(--fs-sm);
   --fs-base: 1.0625rem;
   --fs-lg: clamp(1.125rem, 1.05rem + 0.35vw, 1.3125rem);
-  --fs-xl: clamp(1.375rem, 1.2rem + 0.8vw, 1.75rem);
-  --fs-2xl: clamp(1.75rem, 1.4rem + 1.6vw, 2.625rem);
-  --fs-3xl: clamp(2.25rem, 1.6rem + 3vw, 4rem);
-  --fs-stat: clamp(2.25rem, 1.7rem + 2.2vw, 3.4rem);
-  --fs-display: clamp(2.5rem, 1.35rem + 4vw, 4.75rem);
+  --fs-xl: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  --fs-2xl: clamp(2rem, 1.45rem + 2vw, 3.125rem);
+  --fs-3xl: var(--fs-2xl);
+  --fs-stat: var(--fs-2xl);
+  --fs-display: clamp(2.5rem, 1.6rem + 3.2vw, 4.25rem);
+  --fw-heading: 600;
+  --ls-heading: -0.035em;
 
   /* Space (8px base) */
   --sp-1: 0.25rem;

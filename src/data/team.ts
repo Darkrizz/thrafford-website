@@ -44,7 +44,7 @@ export const teamGroups: TeamGroup[] = [
       },
       {
         name: 'Dr. Kadalmani Krishnan',
-        role: 'Chief Executive Officer',
+        role: 'Founder & CEO',
         headline:
           'Biochemist with over 20 years of experience in product development, GMP manufacturing, pre-clinical and clinical trials.',
         photo: '/images/team/krishnan.webp',

@@ -42,7 +42,7 @@ const shortName = (n: string) => n.replace(/^(Dr|Mr|Ms|Mrs|Prof)\.?\s+/i, '');
 const [lead, ...restAchievements] = achievements;
 const achievementNotes: Record<string, string> = {
   Publications: 'Peer-reviewed papers and book chapters across pharmacology, biochemistry and drug discovery.',
-  Patents: 'Granted and published',
+  'Patents filed': 'Filed across the leadership team’s careers',
   Grants: 'Research funding secured',
   Awards: 'Honours and recognition',
   Books: 'Authored',
@@ -129,8 +129,6 @@ const tickerRows = [institutions.slice(0, half), institutions.slice(half)];
             return (
               <li class="chain__stage" style={`--i:${i}`}>
                 <span class="chain__node" aria-hidden="true" />
-                <p class="chain__name">{c.stage}</p>
-                <p class="chain__metric">{c.metric}</p>
                 <p class="chain__claim">{c.claim}</p>
                 <p class="chain__detail">{c.detail}</p>
                 <a class="chain__person" href={`#${memberSlug(c.member)}`}>
@@ -220,8 +218,8 @@ const tickerRows = [institutions.slice(0, half), institutions.slice(half)];
                   </div>
                   {cap && (
                     <p class="profile__stamp">
-                      <strong>{cap.metric}</strong>
-                      <span>{cap.claim}</span>
+                      <strong>{cap.claim}</strong>
+                      <span>{cap.detail}</span>
                     </p>
                   )}
                 </div>
@@ -369,10 +367,10 @@ const tickerRows = [institutions.slice(0, half), institutions.slice(half)];
 
   .hero h1 {
     max-width: 16ch;
-    font-size: clamp(2.5rem, 1.3rem + 3.8vw, 4.6rem);
-    font-weight: 800;
-    line-height: 1.04;
-    letter-spacing: -0.045em;
+    font-size: var(--fs-display);
+    font-weight: var(--fw-heading);
+    line-height: 1.06;
+    letter-spacing: var(--ls-heading);
     color: var(--ink-950);
   }
 
@@ -574,7 +572,7 @@ const tickerRows = [institutions.slice(0, half), institutions.slice(half)];
   @media (max-width: 560px) {
     .constellation__nodes li {
       padding: 0.3rem 0.55rem;
-      font-size: 0.6875rem;
+      font-size: 0.8125rem;
     }
 
     .constellation__dot {
@@ -644,33 +642,17 @@ const tickerRows = [institutions.slice(0, half), institutions.slice(half)];
     background: var(--blue-500);
   }
 
-  .chain__name {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--teal-700);
-  }
-
-  .chain__metric {
-    font-family: var(--font-display);
-    font-size: clamp(2.4rem, 1.8rem + 2vw, 3.5rem);
-    font-weight: 800;
-    letter-spacing: -0.05em;
-    line-height: 1;
-    color: var(--ink-950);
-    font-variant-numeric: tabular-nums;
-  }
-
   .chain__claim {
-    font-weight: 700;
-    color: var(--ink-900);
+    font-family: var(--font-display);
+    font-size: var(--fs-xl);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--ink-950);
   }
 
   .chain__detail {
-    font-size: var(--fs-sm);
-    color: var(--text-muted);
+    color: var(--ink-700);
   }
 
   .chain__person {
@@ -685,7 +667,7 @@ const tickerRows = [institutions.slice(0, half), institutions.slice(half)];
     background: rgb(255 255 255 / 0.65);
     box-shadow: 0 1px 2px rgb(28 51 148 / 0.08);
     color: var(--ink-800);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-sm);
     font-weight: 600;
     text-decoration: none;
     transition:
@@ -798,18 +780,16 @@ const tickerRows = [institutions.slice(0, half), institutions.slice(half)];
     top: var(--sp-6);
     left: var(--sp-6);
     right: var(--sp-6);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    opacity: 0.8;
+    font-family: var(--font-display);
+    font-size: var(--fs-sm);
+    font-weight: 600;
   }
 
   .bento__value {
     font-family: var(--font-display);
-    font-size: clamp(2.4rem, 1.8rem + 2vw, 3.4rem);
-    font-weight: 800;
-    letter-spacing: -0.05em;
+    font-size: var(--fs-2xl);
+    font-weight: var(--fw-heading);
+    letter-spacing: var(--ls-heading);
     line-height: 1;
     color: var(--ink-950);
     font-variant-numeric: tabular-nums;
@@ -828,12 +808,13 @@ const tickerRows = [institutions.slice(0, half), institutions.slice(half)];
   }
 
   .bento__tile--hero .bento__value {
-    font-size: clamp(5rem, 3rem + 6vw, 8.5rem);
+    font-size: clamp(4.5rem, 3rem + 5vw, 7.5rem);
     color: var(--white);
   }
 
   .bento__label {
-    font-weight: 700;
+    font-family: var(--font-display);
+    font-weight: 600;
     color: var(--ink-900);
   }
 
@@ -844,7 +825,7 @@ const tickerRows = [institutions.slice(0, half), institutions.slice(half)];
 
   .bento__note {
     font-size: var(--fs-sm);
-    color: var(--text-muted);
+    color: var(--ink-700);
   }
 
   .bento__tile--hero .bento__note {
@@ -899,12 +880,10 @@ const tickerRows = [institutions.slice(0, half), institutions.slice(half)];
   }
 
   .ticker__title {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-family: var(--font-display);
+    font-size: var(--fs-base);
     font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ink-500);
+    color: var(--ink-900);
   }
 
   .ticker__row {
@@ -935,9 +914,9 @@ const tickerRows = [institutions.slice(0, half), institutions.slice(half)];
     gap: clamp(1.5rem, 1rem + 2vw, 3rem);
     padding-right: clamp(1.5rem, 1rem + 2vw, 3rem);
     font-family: var(--font-display);
-    font-size: clamp(1.4rem, 1rem + 1.5vw, 2.2rem);
-    font-weight: 700;
-    letter-spacing: -0.03em;
+    font-size: var(--fs-xl);
+    font-weight: 600;
+    letter-spacing: -0.02em;
     color: var(--ink-800);
     white-space: nowrap;
   }
@@ -1047,12 +1026,16 @@ const tickerRows = [institutions.slice(0, half), institutions.slice(half)];
     left: -1.25rem;
   }
 
+  .profile__stamp {
+    max-width: 16rem;
+  }
+
   .profile__stamp strong {
     font-family: var(--font-display);
-    font-size: 2rem;
-    font-weight: 800;
-    letter-spacing: -0.04em;
-    line-height: 1;
+    font-size: var(--fs-xl);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
     background: linear-gradient(90deg, #8fa6ff, #63d2ca);
     -webkit-background-clip: text;
     background-clip: text;
@@ -1060,9 +1043,7 @@ const tickerRows = [institutions.slice(0, half), institutions.slice(half)];
   }
 
   .profile__stamp span {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.06em;
+    font-size: var(--fs-sm);
     color: var(--ink-200);
   }
 
@@ -1073,18 +1054,17 @@ const tickerRows = [institutions.slice(0, half), institutions.slice(half)];
   }
 
   .profile__role {
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
+    font-family: var(--font-display);
+    font-size: var(--fs-base);
     font-weight: 600;
-    letter-spacing: 0.04em;
     color: var(--teal-700);
   }
 
   .profile h3 {
-    font-size: clamp(2.2rem, 1.5rem + 2.4vw, 3.5rem);
-    font-weight: 800;
-    letter-spacing: -0.045em;
-    line-height: 1.02;
+    font-size: var(--fs-2xl);
+    font-weight: var(--fw-heading);
+    letter-spacing: var(--ls-heading);
+    line-height: 1.06;
     color: var(--ink-950);
   }
 
@@ -1106,25 +1086,23 @@ const tickerRows = [institutions.slice(0, half), institutions.slice(half)];
 
   .profile__creds > div {
     display: grid;
-    grid-template-columns: 11rem 1fr;
+    grid-template-columns: 12rem 1fr;
+    align-items: baseline;
     gap: var(--sp-4);
     padding-block: var(--sp-3);
     border-bottom: 1px solid var(--border);
   }
 
   .profile__creds dt {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
+    font-family: var(--font-display);
+    font-size: var(--fs-base);
     font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink-500);
-    padding-top: 0.2rem;
+    color: var(--blue-700);
   }
 
   .profile__creds dd {
     margin: 0;
-    font-weight: 600;
+    font-size: var(--fs-base);
     color: var(--ink-900);
   }
 
@@ -1240,7 +1218,6 @@ const tickerRows = [institutions.slice(0, half), institutions.slice(half)];
 
   .pubs-link h2 {
     font-size: var(--fs-xl);
-    font-weight: 800;
   }
 
   .pubs-link p {

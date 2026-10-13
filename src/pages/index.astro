@@ -4,7 +4,6 @@ import Button from '../components/Button.astro';
 import Icon from '../components/Icon.astro';
 import BioVisual from '../components/BioVisual.astro';
 import SectionHeading from '../components/SectionHeading.astro';
-import SectionMarker from '../components/SectionMarker.astro';
 import Stat from '../components/Stat.astro';
 import PillarCard from '../components/PillarCard.astro';
 import PartnerWall from '../components/PartnerWall.astro';
@@ -14,6 +13,15 @@ import ProcessRail from '../components/ProcessRail.astro';
 import { pillars, pocmapAdvantages, amlNeed, ticobi } from '../data/technology';
 import { team } from '../data/team';
 import { memberSlug } from '../utils/slug';
+import type { IconName } from '../components/Icon.astro';
+
+// Hero shortcuts into the three pillars, the pipeline, our collaborators and the quantum AI project.
+const shortcuts: { title: string; body: string; href: string; icon: IconName }[] = [
+  ...pillars.map((p) => ({ title: p.title, body: p.metric, href: `/technology/#${p.id}`, icon: p.icon })),
+  { title: 'Product pipeline', body: 'AML, glioblastoma, lymphoma', href: '/technology/#pipeline', icon: 'flask' },
+  { title: 'Collaborations', body: 'AIIMS, ICMR, UNESCO–RCB', href: '#collaborations', icon: 'users' },
+  { title: 'Conventional vs Quantum AI', body: 'Our human data map', href: '/technology/#quantum-ai', icon: 'atom' },
+];
 ---
 
 <BaseLayout>
@@ -22,16 +30,15 @@ import { memberSlug } from '../utils/slug';
     <div class="hero__glow" aria-hidden="true"></div>
     <div class="container hero__grid">
       <div class="hero__copy">
-        <p class="eyebrow">Immune-cell therapy · Made in India</p>
         <h1 id="hero-title">
-          Immune cell therapy <span class="hero__accent">made accessible</span>.
+          <span class="hero__accent">Immune cell therapy</span> made accessible.
         </h1>
         <p class="hero__lead">
-          Thrafford is building India’s first affordable, scalable, off-the-shelf γδ T-cell therapy manufacturing
-          platform — starting with the hidden disease that drives relapse in acute myeloid leukaemia.
+          Thrafford is building India’s first affordable, off-the-shelf γδ T-cell therapy platform. Our lead programme
+          targets measurable residual disease in acute myeloid leukaemia, the reservoir that relapse grows from.
         </p>
         <div class="hero__actions">
-          <Button href="/technology/#ticobi" size="lg" icon="arrow-right">Explore TiCoBi</Button>
+          <Button href="/technology/" size="lg" icon="arrow-right">Explore our technology</Button>
           <Button href="/contact/" size="lg" variant="outline-light">Partner with us</Button>
         </div>
       </div>
@@ -40,7 +47,7 @@ import { memberSlug } from '../utils/slug';
         <div class="hero__image bezel">
           <BioVisual
             variant="hero"
-            label="Schematic of a γδ T cell using its γδ T-cell receptor and NKG2D to recognise MICA/B and ULBP stress ligands on a leukaemic cell"
+            label="Animated schematic: a γδ T cell recognises a leukaemic cell through its γδ T-cell receptor and NKG2D, releases perforin and granzyme, and the leukaemic cell breaks apart into apoptotic bodies"
           />
         </div>
         <div class="hero__float hero__float--a">
@@ -53,32 +60,65 @@ import { memberSlug } from '../utils/slug';
         </div>
       </div>
     </div>
+
+    <nav class="container hero__tiles" aria-label="Explore Thrafford">
+      <ul>
+        {
+          shortcuts.map((t) => (
+            <li>
+              <a class="tile" href={t.href}>
+                <span class="tile__icon">
+                  <Icon name={t.icon} size={20} />
+                </span>
+                <span class="tile__text">
+                  <strong>{t.title}</strong>
+                  <span>{t.body}</span>
+                </span>
+                <Icon name="arrow-up-right" size={16} class="tile__arrow" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
   </section>
 
   <!-- The problem -->
-  <section class="section" aria-labelledby="gap-title">
+  <section class="section" id="problem" aria-labelledby="gap-title">
     <div class="container">
-      <div class="gap__eyebrow" data-reveal><SectionMarker index="01" label="The problem" /></div>
       <div class="gap__intro">
-        <SectionHeading id="gap-title" title="Remission isn’t the finish line. MRD is where AML relapse begins." />
+        <SectionHeading
+          id="gap-title"
+          eyebrow="The problem"
+          title="The current therapies debulk the tumour burden but fail to eradicate measurable residual disease; this is the driving force of relapse."
+        />
         <p class="gap__text" data-reveal>
-          Acute myeloid leukaemia (AML) is a fast-growing cancer of the blood and bone marrow. Current therapies can
-          achieve remission but often fail to eliminate measurable residual disease (MRD) — leukaemic cells hiding below
-          what a microscope can see. Once relapse occurs, survival is poor, and transplantation remains costly and
-          inaccessible to many. No AML-specific therapy exists to eliminate MRD early.
+          Induction chemotherapy can bring acute myeloid leukaemia (AML) into remission, with fewer than 5% blasts left
+          in the marrow. The cells that survive sit below what a microscope can resolve and show up only on flow
+          cytometry, qPCR or sequencing. This measurable residual disease (MRD) is one of the strongest predictors of
+          relapse, and once AML relapses, survival is poor and a transplant is costly and out of reach for many patients.
         </p>
       </div>
 
-      <div class="gap__stats">
-        {
-          amlNeed.map((s) => (
-            <Stat value={s.value} prefix={s.prefix} display={s.display} label={s.label} note={s.note} />
-          ))
-        }
+      <div class="gap__grid">
+        <div class="gap__figure bezel" data-reveal>
+          <BioVisual
+            variant="mrd"
+            label="Graph of leukaemic burden over time: treatment pushes disease below the microscopy limit, residual disease hides there and relapses, unless γδ T cells given in the intervention window drive it to MRD-negative"
+          />
+        </div>
+        <div class="gap__stats">
+          {amlNeed.map((s) => <Stat value={s.value} prefix={s.prefix} display={s.display} label={s.label} />)}
+        </div>
       </div>
 
+      <p class="bridge" data-reveal>
+        There are currently no approved therapies that target MRD, and advanced technologies such as cell and gene
+        therapies remain inaccessible to the majority of patients.
+      </p>
+
       <div class="context" data-reveal>
-        <p class="context__title">The wider access gap in cell therapy</p>
+        <h3 class="context__title">The wider access gap in cell therapy</h3>
         <dl class="context__list">
           {
             accessGap.map((s) => (
@@ -104,9 +144,8 @@ import { memberSlug } from '../utils/slug';
         <div>
           <SectionHeading
             id="solution-title"
-            eyebrow="Our solution"
-            index="02"
-            size="md"
+            eyebrow="Thrafford’s Solution"
+            eyebrowAccent="Thrafford’s"
             title="TiCoBi: off-the-shelf γδ T cells from a single donor"
             lead={ticobi.summary}
           >
@@ -142,7 +181,6 @@ import { memberSlug } from '../utils/slug';
       <SectionHeading
         id="approach-title"
         eyebrow="Our approach"
-        index="03"
         title="Three pillars to close the gap"
         lead="We are rebuilding how cell therapy is manufactured, so treatments become affordable, scalable and accessible."
       />
@@ -159,8 +197,6 @@ import { memberSlug } from '../utils/slug';
         <SectionHeading
           id="pocmap-title"
           eyebrow="The PoCMAP advantage"
-          index="04"
-          size="md"
           title="Manufacturing that happens where patients are treated"
           lead="PoCMAP moves cell therapy production out of distant centralised facilities and into the hospital."
         >
@@ -188,12 +224,11 @@ import { memberSlug } from '../utils/slug';
   </section>
 
   <!-- Collaborations -->
-  <section class="section" aria-labelledby="partners-title">
+  <section class="section" id="collaborations" aria-labelledby="partners-title">
     <div class="container">
       <SectionHeading
         id="partners-title"
         eyebrow="Our collaborations"
-        index="05"
         title="Working alongside leading institutions"
         lead="Collaborations with clinicians, hospitals, academia, labs and strategic advisors."
         align="center"
@@ -209,8 +244,6 @@ import { memberSlug } from '../utils/slug';
         <SectionHeading
           id="team-title"
           eyebrow="Leadership"
-          index="06"
-          size="md"
           title="Decades of drug discovery and GMP manufacturing experience"
         />
         <div data-reveal>
@@ -297,14 +330,14 @@ import { memberSlug } from '../utils/slug';
   }
 
   .hero .eyebrow {
-    color: var(--teal-300);
+    color: var(--white);
   }
 
   .hero h1 {
-    font-size: clamp(2.25rem, 1.4rem + 3vw, 3.75rem);
-    font-weight: 800;
-    letter-spacing: -0.04em;
-    line-height: 1.04;
+    font-size: var(--fs-display);
+    font-weight: var(--fw-heading);
+    letter-spacing: var(--ls-heading);
+    line-height: 1.06;
     color: var(--white);
   }
 
@@ -365,13 +398,13 @@ import { memberSlug } from '../utils/slug';
 
   .hero__float strong {
     font-family: var(--font-display);
-    font-size: 1.125rem;
-    font-weight: 800;
+    font-size: var(--fs-base);
+    font-weight: 600;
   }
 
   .hero__float span:not(.hero__float-icon) {
-    font-size: var(--fs-xs);
-    color: var(--ink-500);
+    font-size: var(--fs-sm);
+    color: var(--ink-700);
   }
 
   .hero__float-icon {
@@ -394,6 +427,112 @@ import { memberSlug } from '../utils/slug';
     right: -16px;
     top: 4%;
     animation-delay: 700ms;
+  }
+
+  /* Shortcut tiles along the foot of the hero */
+  .hero__tiles {
+    margin-top: clamp(2.5rem, 1.5rem + 3vw, 4.5rem);
+  }
+
+  .hero__tiles ul {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--sp-3);
+    list-style: none;
+  }
+
+  .tile {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: var(--sp-3);
+    height: 100%;
+    padding: var(--sp-4);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: 16px;
+    background: linear-gradient(160deg, rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.02));
+    color: var(--white);
+    text-decoration: none;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    animation: float-in 900ms var(--ease) both;
+    animation-delay: 900ms;
+    transition:
+      border-color var(--dur) var(--ease),
+      background-color var(--dur) var(--ease),
+      transform var(--dur) var(--ease);
+  }
+
+  .tile:hover {
+    color: var(--white);
+    border-color: rgb(99 210 202 / 0.45);
+    background-color: rgb(255 255 255 / 0.05);
+    transform: translateY(-3px);
+  }
+
+  .tile__icon {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, rgb(69 101 230 / 0.35), rgb(18 158 150 / 0.3));
+    color: var(--teal-300);
+  }
+
+  .tile__text {
+    display: grid;
+    gap: 0.2rem;
+    padding-right: var(--sp-3);
+  }
+
+  .tile__text strong {
+    font-family: var(--font-display);
+    font-size: var(--fs-base);
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .tile__text span {
+    font-size: var(--fs-sm);
+    line-height: 1.4;
+    color: var(--ink-200);
+  }
+
+  .tile :global(.tile__arrow) {
+    position: absolute;
+    top: var(--sp-4);
+    right: var(--sp-4);
+    color: var(--ink-200);
+    transition:
+      transform var(--dur) var(--ease),
+      color var(--dur) var(--ease);
+  }
+
+  .tile:hover :global(.tile__arrow) {
+    color: var(--teal-300);
+    transform: translate(2px, -2px);
+  }
+
+  @media (max-width: 1100px) {
+    .hero__tiles ul {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 560px) {
+    .hero__tiles ul {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tile {
+      padding: var(--sp-3);
+    }
+
+    .tile :global(.tile__arrow) {
+      top: var(--sp-3);
+      right: var(--sp-3);
+    }
   }
 
   @keyframes hero-in {
@@ -455,19 +594,11 @@ import { memberSlug } from '../utils/slug';
     }
   }
 
-  /* ---------- Access gap ---------- */
-  .gap__eyebrow {
-    margin-bottom: var(--sp-5);
-  }
-
+  /* ---------- The problem ---------- */
   .gap__intro {
     display: grid;
-    grid-template-columns: 1fr;
     gap: var(--sp-5);
     margin-bottom: var(--sp-7);
-  }
-
-  .gap__intro {
     --heading-max: 1100px;
   }
 
@@ -476,61 +607,75 @@ import { memberSlug } from '../utils/slug';
   }
 
   .gap__text {
-    max-width: 68ch;
-    color: var(--text-muted);
+    max-width: 70ch;
+    color: var(--ink-700);
     font-size: var(--fs-lg);
-    line-height: 1.65;
+    line-height: 1.7;
   }
 
+  .gap__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(2rem, 1rem + 3vw, 4rem);
+  }
+
+  .gap__figure {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    aspect-ratio: 750 / 520;
+  }
+
+  /* Four figures in a ruled 2 x 2 grid, all set in ink. */
   .gap__stats {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    border-top: 1px solid var(--border-strong);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .gap__stats > :global(*) {
-    padding: var(--sp-6) var(--sp-5) 0 0;
+    padding: var(--sp-5) var(--sp-5) var(--sp-5) 0;
+    border-bottom: 1px solid var(--border);
   }
 
-  .gap__stats > :global(* + *) {
+  .gap__stats > :global(*:nth-child(even)) {
     padding-left: var(--sp-5);
     border-left: 1px solid var(--border);
   }
 
-  .gap__stats > :global(*:nth-child(3) .stat__value) {
-    color: var(--teal-700);
+  .gap__stats > :global(*:nth-last-child(-n + 2)) {
+    border-bottom: 0;
   }
 
-  .gap__stats > :global(*:nth-child(4) .stat__value) {
-    color: var(--brand);
+  /* One line that carries the reader from the disease to the access gap. */
+  .bridge {
+    position: relative;
+    max-width: 46ch;
+    margin: clamp(3.5rem, 2.5rem + 3vw, 5.5rem) auto 0;
+    padding-top: clamp(3rem, 2.5rem + 2vw, 4rem);
+    font-family: var(--font-display);
+    font-size: var(--fs-xl);
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: -0.02em;
+    text-align: center;
+    color: var(--ink-900);
+  }
+
+  .bridge::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 2px;
+    height: clamp(2rem, 1.5rem + 1.5vw, 2.75rem);
+    border-radius: 2px;
+    background: linear-gradient(180deg, transparent, var(--blue-500), var(--teal-500));
+    transform: translateX(-50%);
   }
 
   @media (max-width: 960px) {
-    .gap__intro {
+    .gap__grid {
       grid-template-columns: 1fr;
-      gap: var(--sp-4);
-    }
-
-    .gap__text {
-      padding-top: 0;
-    }
-
-    .gap__stats {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .gap__stats > :global(*) {
-      padding: var(--sp-5) var(--sp-4) var(--sp-5) 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .gap__stats > :global(*:nth-child(odd)) {
-      border-left: 0;
-      padding-left: 0;
-    }
-
-    .gap__stats > :global(*:nth-child(even)) {
-      padding-left: var(--sp-4);
     }
   }
 
@@ -541,8 +686,13 @@ import { memberSlug } from '../utils/slug';
 
     .gap__stats > :global(*),
     .gap__stats > :global(*:nth-child(even)) {
-      border-left: 0;
       padding-left: 0;
+      border-left: 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .gap__stats > :global(*:last-child) {
+      border-bottom: 0;
     }
   }
 
@@ -550,7 +700,7 @@ import { memberSlug } from '../utils/slug';
   .context {
     display: grid;
     gap: var(--sp-4);
-    margin-top: var(--sp-7);
+    margin-top: clamp(2.5rem, 2rem + 2vw, 3.5rem);
     padding: var(--sp-5) var(--sp-6);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
@@ -559,12 +709,9 @@ import { memberSlug } from '../utils/slug';
   }
 
   .context__title {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: var(--fs-base);
     font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--ink-500);
+    color: var(--ink-900);
   }
 
   .context__list {
@@ -577,15 +724,15 @@ import { memberSlug } from '../utils/slug';
   .context__list dt {
     font-family: var(--font-display);
     font-size: var(--fs-xl);
-    font-weight: 800;
-    letter-spacing: -0.03em;
+    font-weight: var(--fw-heading);
+    letter-spacing: var(--ls-heading);
     color: var(--ink-900);
   }
 
   .context__list dd {
     margin: 0;
     font-size: var(--fs-sm);
-    color: var(--text-muted);
+    color: var(--ink-700);
     line-height: 1.4;
   }
 
@@ -735,7 +882,7 @@ import { memberSlug } from '../utils/slug';
   }
 
   .pocmap__list h3 {
-    font-size: 1.0625rem;
+    font-size: var(--fs-base);
     color: var(--white);
     margin-bottom: var(--sp-1);
   }
@@ -860,8 +1007,8 @@ import { memberSlug } from '../utils/slug';
   .achievements__value {
     font-family: var(--font-display);
     font-size: var(--fs-2xl);
-    font-weight: 800;
-    letter-spacing: -0.03em;
+    font-weight: var(--fw-heading);
+    letter-spacing: var(--ls-heading);
     line-height: 1;
     color: var(--ink-900);
     font-variant-numeric: tabular-nums;
@@ -869,7 +1016,8 @@ import { memberSlug } from '../utils/slug';
 
   .achievements__label {
     font-size: var(--fs-sm);
-    color: var(--text-muted);
+    font-weight: 600;
+    color: var(--ink-700);
   }
 
   @media (max-width: 860px) {

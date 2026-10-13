@@ -16,7 +16,6 @@ const Tag = href ? 'a' : 'article';
 <Tag class="pillar" href={href} data-reveal>
   <div class="pillar__media">
     <BioVisual variant={pillar.visual} label={pillar.visualLabel} />
-    <span class="pillar__num" aria-hidden="true">0{index + 1}</span>
   </div>
   <div class="pillar__body">
     <span class="pillar__icon"><Icon name={pillar.icon} /></span>
@@ -76,22 +75,6 @@ const Tag = href ? 'a' : 'article';
     transform: scale(1.04);
   }
 
-  .pillar__num {
-    font-family: var(--font-mono) !important;
-    position: absolute;
-    top: var(--sp-4);
-    left: var(--sp-4);
-    padding: 0.2rem 0.6rem;
-    border-radius: var(--radius-pill);
-    background: rgb(255 255 255 / 0.14);
-    border: 1px solid rgb(255 255 255 / 0.2);
-    backdrop-filter: blur(6px);
-    font-family: var(--font-display);
-    font-size: var(--fs-xs);
-    font-weight: 800;
-    color: var(--white);
-  }
-
   .pillar__body {
     position: relative;
     display: flex;
@@ -121,7 +104,7 @@ const Tag = href ? 'a' : 'article';
 
   .pillar__metric {
     font-family: var(--font-display);
-    font-weight: 700;
+    font-weight: 600;
     color: var(--teal-700);
   }
 
@@ -136,7 +119,7 @@ const Tag = href ? 'a' : 'article';
     margin-top: auto;
     padding-top: var(--sp-4);
     font-family: var(--font-display);
-    font-weight: 700;
+    font-weight: 600;
     font-size: var(--fs-sm);
     color: var(--brand);
   }

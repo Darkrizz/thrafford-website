@@ -16,7 +16,7 @@ import { partners } from '../data/partners';
 <style>
   .partners {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--sp-4);
     list-style: none;
   }
@@ -62,9 +62,10 @@ import { partners } from '../data/partners';
   }
 
   .partner__name {
-    font-size: var(--fs-xs);
+    font-size: var(--fs-sm);
+    font-weight: 500;
     line-height: 1.35;
-    color: var(--text-muted);
+    color: var(--ink-700);
   }
 
   @media (max-width: 860px) {

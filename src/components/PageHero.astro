@@ -143,10 +143,10 @@ const hasAside = Astro.slots.has('aside');
 
   h1 {
     max-width: 18ch;
-    font-size: clamp(2.5rem, 1.5rem + 3vw, 4rem);
-    font-weight: 800;
+    font-size: var(--fs-display);
+    font-weight: var(--fw-heading);
     line-height: 1.03;
-    letter-spacing: -0.045em;
+    letter-spacing: var(--ls-heading);
     color: var(--ink-950);
   }
 

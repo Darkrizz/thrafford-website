@@ -42,9 +42,9 @@ const formatted = value.toLocaleString('en-US');
   .stat__value {
     font-family: var(--font-display);
     font-size: var(--fs-stat);
-    font-weight: 800;
+    font-weight: var(--fw-heading);
     line-height: 1;
-    letter-spacing: -0.035em;
+    letter-spacing: var(--ls-heading);
     color: var(--ink-900);
   }
 
@@ -57,8 +57,8 @@ const formatted = value.toLocaleString('en-US');
 
   .stat__label {
     font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 1.0625rem;
+    font-weight: 600;
+    font-size: var(--fs-base);
     line-height: 1.35;
     color: var(--ink-900);
   }

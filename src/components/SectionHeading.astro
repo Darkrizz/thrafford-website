@@ -3,26 +3,26 @@ import SectionMarker from './SectionMarker.astro';
 
 interface Props {
   eyebrow?: string;
-  /** Section number shown in the marker, e.g. "01". */
-  index?: string;
-  title: string;
+  /** Part of the eyebrow set in the brand blue. */
+  eyebrowAccent?: string;
+  /** Plain-text title. For inline highlights, pass a `title` slot instead. */
+  title?: string;
   lead?: string;
   align?: 'start' | 'center';
-  /** 'md' for headings that sit in a half-width column. */
-  size?: 'lg' | 'md';
   as?: 'h1' | 'h2';
   id?: string;
 }
 
-const { eyebrow, index, title, lead, align = 'start', size = 'lg', as: Heading = 'h2', id } = Astro.props;
+const { eyebrow, eyebrowAccent, title = '', lead, align = 'start', as: Heading = 'h2', id } = Astro.props;
+const hasTitleSlot = Astro.slots.has('title');
 // Keep hyphenated terms like "CAR-T" from breaking across lines.
 const parts = title.split(/(\S+-\S+)/);
 ---
 
-<header class:list={['section-heading', `section-heading--${align}`, `section-heading--${size}`]} data-reveal>
-  {eyebrow && <SectionMarker label={eyebrow} index={index} align={align} />}
+<header class:list={['section-heading', `section-heading--${align}`]} data-reveal>
+  {eyebrow && <SectionMarker label={eyebrow} accent={eyebrowAccent} align={align} />}
   <Heading id={id} class="section-heading__title">
-    {parts.map((p, i) => (i % 2 ? <span class="nowrap">{p}</span> : p))}
+    {hasTitleSlot ? <slot name="title" /> : parts.map((p, i) => (i % 2 ? <span class="nowrap">{p}</span> : p))}
   </Heading>
   {lead && <p class="lead">{lead}</p>}
   <slot />
@@ -46,15 +46,11 @@ const parts = title.split(/(\S+-\S+)/);
   }
 
   .section-heading__title {
-    font-size: var(--fs-display);
-    font-weight: 800;
-    line-height: 1.02;
-    letter-spacing: -0.04em;
+    font-size: var(--fs-2xl);
+    font-weight: var(--fw-heading);
+    line-height: 1.08;
+    letter-spacing: var(--ls-heading);
     color: var(--ink-900);
-  }
-
-  .section-heading--md .section-heading__title {
-    font-size: clamp(2.25rem, 1.5rem + 2.4vw, 3.5rem);
   }
 
   .lead {

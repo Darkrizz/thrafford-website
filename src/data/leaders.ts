@@ -104,9 +104,9 @@ export const leaderProfiles: LeaderProfile[] = [
   {
     slug: 'kadalmani-krishnan',
     member: 'Dr. Kadalmani Krishnan',
-    affiliation: 'Founder, Thrafford Lifescience',
+    affiliation: 'Founder & CEO, Thrafford Lifescience',
     seoDescription:
-      'Dr. Kadalmani Krishnan, CEO of Thrafford: Cambridge Ph.D., Harvard alumnus and DBT Innovator Award winner who led India’s first GLP-1 biosimilar.',
+      'Dr. Kadalmani Krishnan, Founder & CEO of Thrafford: Cambridge Ph.D., Harvard alumnus and DBT Innovator Award winner who led India’s first GLP-1 biosimilar.',
     summary:
       'A Cambridge Ph.D. and Harvard Medical School alumnus whose career spans India, Europe and North America — bridging discovery and real-world impact across metabolic disease, cancer diagnostics and next-generation biotherapeutics.',
     stats: [

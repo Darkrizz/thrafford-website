@@ -40,6 +40,10 @@ const year = new Date().getFullYear();
         <address>
           {contact.addressLines.map((line) => <span>{line}</span>)}
         </address>
+        <p class="site-footer__label">Registered address</p>
+        <address>
+          {contact.registeredAddressLines.map((line) => <span>{line}</span>)}
+        </address>
       </div>
     </div>
 
@@ -77,9 +81,7 @@ const year = new Date().getFullYear();
 
   h2 {
     margin-bottom: var(--sp-4);
-    font-size: var(--fs-xs);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-size: var(--fs-base);
     color: var(--white);
   }
 
@@ -113,6 +115,14 @@ const year = new Date().getFullYear();
     font-style: normal;
     color: var(--ink-200);
     line-height: 1.7;
+  }
+
+  .site-footer__label {
+    margin: var(--sp-5) 0 var(--sp-2);
+    font-family: var(--font-display);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--white);
   }
 
   .site-footer__bottom {

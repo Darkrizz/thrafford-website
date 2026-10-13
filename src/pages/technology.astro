@@ -5,32 +5,29 @@ import SectionHeading from '../components/SectionHeading.astro';
 import Icon from '../components/Icon.astro';
 import BioVisual from '../components/BioVisual.astro';
 import CTABand from '../components/CTABand.astro';
-import Stat from '../components/Stat.astro';
 import ProcessRail from '../components/ProcessRail.astro';
 import {
   pillars,
   pocmapAdvantages,
   applications,
   oneLiner,
-  amlNeed,
   ticobi,
   mechanism,
-  comparison,
   pipeline,
   patents,
-  moat,
+  quantumAI,
 } from '../data/technology';
 
-// Chapter index shown at the foot of the hero.
+// Chapter index shown at the foot of the hero, in page order.
 const chapters = [
-  { id: 'need', label: 'The hidden disease' },
   { id: 'ticobi', label: 'TiCoBi platform' },
   { id: 'why', label: 'Why γδ T cells' },
-  { id: 'pipeline', label: 'Pipeline' },
-  { id: 'principles', label: 'Platform principles' },
-  { id: 'point-of-care', label: 'Point-of-care' },
-  { id: 'patents', label: 'Intellectual property' },
   { id: 'applications', label: 'Applications' },
+  { id: 'pipeline', label: 'Product portfolio' },
+  { id: 'point-of-care', label: 'PoCMAP' },
+  { id: 'principles', label: 'Three pillars' },
+  { id: 'patents', label: 'Patents' },
+  { id: 'quantum-ai', label: 'Quantum AI' },
 ];
 
 // Platform read-outs for the hero spec panel (all from the technology brief).
@@ -52,31 +49,17 @@ const curve = Array.from({ length: 61 }, (_, i) => {
 const area = `${curve}L348,124L12,124Z`;
 const checkpoints = [96, 180, 264];
 
-const centralised = [
-  { icon: 'user', label: 'Cells collected at hospital' },
-  { icon: 'freeze', label: 'Frozen & shipped out' },
-  { icon: 'truck', label: 'Manufactured at a distant facility' },
-  { icon: 'freeze', label: 'Frozen & shipped back' },
-  { icon: 'hospital', label: 'Infused at hospital' },
-] as const;
-
-const pointOfCare = [
-  { icon: 'user', label: 'Cells collected' },
-  { icon: 'layers', label: 'Manufactured on-site with PoCMAP' },
-  { icon: 'shield', label: 'Real-time sterility & QC' },
-  { icon: 'hospital', label: 'Treated in the same hospital' },
-] as const;
 ---
 
 <BaseLayout
-  title="Technology & Software"
+  title="TiCoBi"
   description="TiCoBi, Thrafford’s patent-filed bioprocess for off-the-shelf γδ T-cell therapy: up to 15 doses from one donor, no gene editing, built to target MRD in AML."
 >
   <section class="th" aria-labelledby="th-title">
     <div class="th__bg" aria-hidden="true"></div>
     <div class="container th__grid">
       <div class="th__copy">
-        <p class="eyebrow">Technology &amp; Software</p>
+        <p class="eyebrow">TiCoBi</p>
         <h1 id="th-title">
           One donor.<br /><span class="nowrap">Up to <span class="th__accent">fifteen</span> doses.</span>
         </h1>
@@ -89,7 +72,7 @@ const pointOfCare = [
 
       <aside class="spec" aria-label="TiCoBi platform specification">
         <header class="spec__head">
-          <span class="spec__title">TiCoBi · Platform read-out</span>
+          <span class="spec__title">TiCoBi platform read-out</span>
           <span class="spec__status"><span class="spec__dot" aria-hidden="true"></span>Patent filed</span>
         </header>
         <figure class="spec__chart">
@@ -111,7 +94,7 @@ const pointOfCare = [
               checkpoints.map((x, i) => (
                 <g class="spec__cp" style={`--i:${i}`}>
                   <line x1={x} x2={x} y1="16" y2="124" stroke="#63d2ca" stroke-opacity="0.35" stroke-dasharray="3 4" />
-                  <text x={x} y="12" text-anchor="middle">T{i + 1}</text>
+                  <text x={x} y="11" text-anchor="middle">T{i + 1}</text>
                 </g>
               ))
             }
@@ -123,7 +106,7 @@ const pointOfCare = [
           <figcaption>
             <span>Day 0</span>
             <span>Controlled expansion</span>
-            <span>Harvest · ≤15 doses</span>
+            <span>Harvest, up to 15 doses</span>
           </figcaption>
         </figure>
         <dl class="spec__list">
@@ -140,13 +123,14 @@ const pointOfCare = [
     </div>
 
     <nav class="container th__index" aria-label="On this page">
+      <p class="th__index-title">Jump to a section</p>
       <ol>
         {
-          chapters.map((c, i) => (
+          chapters.map((c) => (
             <li>
               <a href={`#${c.id}`}>
-                <span>{String(i + 1).padStart(2, '0')}</span>
-                {c.label}
+                <span>{c.label}</span>
+                <Icon name="arrow-right" size={16} class="th__index-arrow" />
               </a>
             </li>
           ))
@@ -155,36 +139,16 @@ const pointOfCare = [
     </nav>
   </section>
 
-  <!-- The unmet need -->
-  <section class="section section--dark need" id="need" aria-labelledby="need-title" style="--heading-max: 1040px">
-    <div class="container">
-      <SectionHeading
-        id="need-title"
-        eyebrow="The hidden disease"
-        index="01"
-        title="Remission isn’t the finish line. MRD is where AML relapse begins."
-        lead="Therapy can push acute myeloid leukaemia below what a microscope can see — but measurable residual disease (MRD) survives, and it drives relapse. Once relapse occurs, survival is poor, and transplantation remains costly and out of reach for many. No AML-specific therapy exists to eliminate MRD early."
-      />
-      <div class="need__grid">
-        <div class="need__figure bezel" data-reveal>
-          <BioVisual
-            variant="mrd"
-            label="Graph of leukaemic burden over time: treatment pushes disease below the microscopy limit, residual disease hides there and relapses, unless γδ T cells given in the intervention window drive it to MRD-negative"
-          />
-        </div>
-        <div class="need__stats">
-          {amlNeed.map((s) => <Stat {...s} tone="dark" />)}
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- TiCoBi -->
   <section class="section ticobi" id="ticobi" aria-labelledby="ticobi-title">
     <div class="container">
       <div class="ticobi__grid">
         <div class="ticobi__copy">
-          <SectionHeading id="ticobi-title" eyebrow="The platform" index="02" size="md" title={`${ticobi.name} — ${ticobi.expansion}`} lead={ticobi.summary} />
+          <SectionHeading id="ticobi-title" eyebrow="The platform" lead={ticobi.summary}>
+            <Fragment slot="title">
+              <span class="grad">TiCoBi</span>: Proprietary <span class="grad">Ti</span>me-<span class="grad">Co</span>ntrolled <span class="grad">Bi</span>oprocess
+            </Fragment>
+          </SectionHeading>
           <ul class="chips" aria-label="TiCoBi characteristics" data-reveal>
             {
               ticobi.attributes.map((a) => (
@@ -209,13 +173,12 @@ const pointOfCare = [
     </div>
   </section>
 
-  <!-- Mechanism + comparison -->
+  <!-- Why γδ T cells -->
   <section class="section section--alt" id="why" aria-labelledby="why-title">
     <div class="container">
       <SectionHeading
         id="why-title"
         eyebrow="Immune cells that find leukaemia without a map"
-        index="03"
         title="Why γδ T cells"
         lead="Immune-mediated elimination of leukaemia is most likely to work when disease burden is minimal — before overt relapse and an increasingly immunosuppressive microenvironment."
       />
@@ -223,7 +186,7 @@ const pointOfCare = [
         <div class="mech__figure bezel" data-reveal>
           <BioVisual
             variant="hero"
-            label="Schematic of a γδ T cell using its γδ T-cell receptor and NKG2D to recognise MICA/B and ULBP stress ligands on a leukaemic cell"
+            label="Animated schematic: a γδ T cell recognises a leukaemic cell through its γδ T-cell receptor and NKG2D, releases perforin and granzyme, and the leukaemic cell breaks apart into apoptotic bodies"
           />
         </div>
         <ul class="mech__list">
@@ -242,282 +205,6 @@ const pointOfCare = [
           }
         </ul>
       </div>
-
-      <div class="matrix" data-reveal>
-        <table>
-          <caption class="visually-hidden">How TiCoBi compares with today’s CAR-T approaches</caption>
-          <thead>
-            <tr>
-              <th scope="col"><span class="visually-hidden">Attribute</span></th>
-              {comparison.columns.map((c, i) => <th scope="col" class:list={{ 'is-ours': i === comparison.columns.length - 1 }}>{c}</th>)}
-            </tr>
-          </thead>
-          <tbody>
-            {
-              comparison.rows.map((r) => (
-                <tr>
-                  <th scope="row">{r.label}</th>
-                  {r.values.map((v, i) => (
-                    <td class:list={{ 'is-ours': i === r.values.length - 1 }} data-label={comparison.columns[i]}>{v}</td>
-                  ))}
-                </tr>
-              ))
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- Pipeline -->
-  <section class="section" id="pipeline" aria-labelledby="pipeline-title">
-    <div class="container">
-      <SectionHeading
-        id="pipeline-title"
-        eyebrow="Product portfolio"
-        index="04"
-        title="One platform, a growing pipeline"
-        lead="TiCoBi is antigen-agnostic. Beyond AML, the same process extends to glioblastoma and other solid tumours — and TiCoBi-generated γδ T cells can also supply partners’ CAR-T programmes."
-      />
-      <div class="pipeline" role="table" aria-label="Product pipeline" data-reveal>
-        <div class="pipeline__head" role="row">
-          <span role="columnheader">Programme</span>
-          <span role="columnheader">Indication</span>
-          <span role="columnheader">Modality</span>
-          <span role="columnheader">Focus</span>
-        </div>
-        {
-          pipeline.map((p) => (
-            <div class:list={['prog', { 'prog--lead': p.lead }]} role="row">
-              <div class="prog__id" role="cell">
-                <span class="prog__code">{p.code}</span>
-                {p.lead && (
-                  <span class="prog__badge">
-                    <span class="prog__pulse" aria-hidden="true" />
-                    Lead programme
-                  </span>
-                )}
-              </div>
-              <div class="prog__main" role="cell">
-                <h3>{p.indication}</h3>
-                <p class="prog__detail">{p.detail}</p>
-              </div>
-              <div class="prog__modality" role="cell">
-                <span class="prog__label">Modality</span>
-                <strong>{p.modality}</strong>
-                <span class="prog__platform">{p.platform}</span>
-              </div>
-              <ul class="prog__tags" role="cell" aria-label="Therapeutic focus">
-                {p.tags.map((t) => (
-                  <li>{t}</li>
-                ))}
-              </ul>
-            </div>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <!-- Pillars in depth -->
-  <section class="section section--alt" id="principles" aria-labelledby="pillars-title">
-    <div class="container">
-      <SectionHeading
-        id="pillars-title"
-        eyebrow="Platform principles"
-        index="05"
-        title="Our three-pillar approach"
-      >
-        <p class="pillars-kicker" aria-label="Affordable, scalable, accessible">
-          <span>Affordable.</span> <span>Scalable.</span> <span>Accessible.</span>
-        </p>
-      </SectionHeading>
-
-      <div class="rows">
-        {
-          pillars.map((p, i) => (
-            <article class:list={['row', { 'row--flip': i % 2 === 1 }]} id={p.id} aria-labelledby={`${p.id}-title`}>
-              <div class="row__media bezel" data-reveal>
-                <BioVisual variant={p.visual} label={p.visualLabel} />
-              </div>
-              <div class="row__copy" data-reveal>
-                <span class="row__icon">
-                  <Icon name={p.icon} />
-                </span>
-                <p class="row__index">Pillar 0{i + 1}</p>
-                <h3 id={`${p.id}-title`}>{p.title}</h3>
-                <p class="row__metric">{p.metric}</p>
-                <p class="row__body">{p.body}</p>
-              </div>
-            </article>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <!-- Point of care: comparison + PoCMAP advantages -->
-  <section class="section" id="point-of-care" aria-labelledby="compare-title">
-    <div class="container">
-      <SectionHeading
-        id="compare-title"
-        eyebrow="Point-of-care with PoCMAP"
-        index="06"
-        title="Shorter journeys from cell to patient"
-        lead="Decentralising manufacturing to the hospital reduces logistics and freeze–thaw cycles."
-      />
-
-      <div class="compare">
-        <figure class="flow flow--muted" data-reveal>
-          <figcaption>
-            <span class="flow__tag">Conventional</span>
-            Centralised manufacturing
-          </figcaption>
-          <ol>
-            {
-              centralised.map((s) => (
-                <li>
-                  <span class="flow__dot"><Icon name={s.icon} size={18} /></span>
-                  {s.label}
-                </li>
-              ))
-            }
-          </ol>
-        </figure>
-
-        <figure class="flow flow--brand" data-reveal>
-          <figcaption>
-            <span class="flow__tag">Thrafford</span>
-            Point-of-care with PoCMAP
-          </figcaption>
-          <ol>
-            {
-              pointOfCare.map((s) => (
-                <li>
-                  <span class="flow__dot"><Icon name={s.icon} size={18} /></span>
-                  {s.label}
-                </li>
-              ))
-            }
-          </ol>
-        </figure>
-      </div>
-
-      <div class="unit-block">
-        <div class="unit-block__copy">
-          <h3 class="sub-title" id="adv-title" data-reveal>A modular platform built for hospitals</h3>
-          <ol class="adv">
-            {
-              pocmapAdvantages.map((a, i) => (
-                <li class="adv__item" data-reveal>
-                  <span class="adv__num">{i + 1}</span>
-                  <div>
-                    <h4>{a.title}</h4>
-                    <p>{a.body}</p>
-                  </div>
-                </li>
-              ))
-            }
-          </ol>
-        </div>
-
-        <figure class="unit" data-reveal aria-labelledby="unit-cap">
-          <figcaption id="unit-cap" class="unit__cap">
-            <span>Schematic</span> A PoCMAP unit inside the treating hospital
-          </figcaption>
-
-          <div class="unit__site">
-            <span class="unit__site-label">
-              <Icon name="hospital" size={16} /> Hospital <span class="unit__pin">1</span>
-            </span>
-
-            <div class="unit__line">
-              <div class="unit__stage">
-                <span class="unit__stage-icon"><Icon name="user" size={20} /></span>
-                <strong>Cell intake</strong>
-                <span>Collected on site</span>
-              </div>
-
-              <span class="unit__arrow" aria-hidden="true"></span>
-
-              <div class="unit__stage unit__stage--bays">
-                <strong>Parallel batch bays <span class="unit__pin">2</span></strong>
-                <ul class="unit__bays">
-                  <li><span>CAR-T</span><i style="--w: 78%"></i></li>
-                  <li><span>NK</span><i style="--w: 52%"></i></li>
-                  <li><span>Dendritic</span><i style="--w: 64%"></i></li>
-                </ul>
-                <span class="unit__note">Same platform, different cell systems <span class="unit__pin">3</span></span>
-              </div>
-
-              <span class="unit__arrow" aria-hidden="true"></span>
-
-              <div class="unit__stage">
-                <span class="unit__stage-icon unit__stage-icon--teal"><Icon name="check" size={20} /></span>
-                <strong>In-line QC <span class="unit__pin">4</span></strong>
-                <span>Real-time sterility &amp; quality checks</span>
-              </div>
-
-              <span class="unit__arrow" aria-hidden="true"></span>
-
-              <div class="unit__stage">
-                <span class="unit__stage-icon"><Icon name="hospital" size={20} /></span>
-                <strong>Treatment</strong>
-                <span>Same hospital</span>
-              </div>
-            </div>
-
-            <p class="unit__journey">
-              <span class="unit__pin">5</span>
-              Cell to patient without leaving the building: no inter-site shipping and fewer freeze–thaw cycles.
-            </p>
-          </div>
-        </figure>
-      </div>
-    </div>
-  </section>
-
-  <!-- Intellectual property -->
-  <section class="section section--alt ip" id="patents" aria-labelledby="ip-title">
-    <div class="container">
-      <SectionHeading
-        id="ip-title"
-        eyebrow="Intellectual property"
-        index="07"
-        title="Protected by design"
-        lead="Our moat combines patent-filed manufacturing with trade-secret process logic — an integrated value chain that takes years of validation to rebuild."
-      />
-      <ol class="patents">
-        {
-          patents.map((p, i) => (
-            <li class="patent" data-reveal>
-              <div class="patent__top">
-                <span class="patent__idx">P-0{i + 1}</span>
-                <span class="patent__status">
-                  <span class="patent__dot" aria-hidden="true" />
-                  Patent filed
-                </span>
-              </div>
-              <p class="patent__label">Application No.</p>
-              <p class="patent__no">{p.number}</p>
-              <h3>{p.title}</h3>
-            </li>
-          ))
-        }
-      </ol>
-      <ul class="moat" aria-label="Competitive advantages">
-        {
-          moat.map((m) => (
-            <li data-reveal>
-              <Icon name={m.icon} size={18} />
-              {m.title}
-            </li>
-          ))
-        }
-      </ul>
-      <p class="ip__more" data-reveal>
-        <a href="/publications/#patent">See the team’s full patent record <Icon name="arrow-right" size={16} /></a>
-      </p>
     </div>
   </section>
 
@@ -528,8 +215,6 @@ const pointOfCare = [
         <SectionHeading
           id="apps-title"
           eyebrow="Applications"
-          index="08"
-          size="md"
           title="One platform, many cell therapies"
           lead="Our reagent-agnostic design reaches across oncology and autoimmune disease. Longer term, our AI and quantum computation initiative designs and optimises targets, algorithms and processes."
         />
@@ -549,6 +234,270 @@ const pointOfCare = [
       <div class="apps__image bezel" data-reveal>
         <BioVisual variant="genome" label="Schematic of a DNA double helix with a highlighted gene-editing site" />
       </div>
+    </div>
+  </section>
+
+  <!-- Product portfolio -->
+  <section class="section" id="pipeline" aria-labelledby="pipeline-title">
+    <div class="container">
+      <SectionHeading
+        id="pipeline-title"
+        eyebrow="Product portfolio"
+        title="One platform, a growing pipeline"
+        align="center"
+        lead="TiCoBi is antigen-agnostic. Beyond AML, the same process extends to glioblastoma and other solid tumours — and TiCoBi-generated γδ T cells can also supply partners’ CAR-T programmes."
+      />
+      <div class="pipeline" role="table" aria-label="Product portfolio" data-reveal>
+        <div class="pipeline__head" role="row">
+          <span role="columnheader">Programme</span>
+          <span role="columnheader">Indication</span>
+          <span role="columnheader">Modality</span>
+        </div>
+        {
+          pipeline.map((p) => (
+            <div class:list={['prog', { 'prog--lead': p.lead }]} role="row">
+              <div class="prog__id" role="cell">
+                <span class="prog__code">{p.code}</span>
+              </div>
+              <div class="prog__main" role="cell">
+                <h3>{p.indication}</h3>
+                {p.lead && (
+                  <span class="prog__badge">
+                    <span class="prog__pulse" aria-hidden="true" />
+                    Lead programme
+                  </span>
+                )}
+              </div>
+              <div class="prog__modality" role="cell">
+                <strong>{p.modality}</strong>
+                <span class="prog__platform">{p.platform}</span>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Connecting line: why point-of-care matters -->
+  <div class="connector" data-reveal>
+    <p class="container">
+      In low- and middle-income countries, including India, accessibility remains a major challenge, which is why
+      adopting PoCMAP can be a revolutionary intervention.
+    </p>
+  </div>
+
+  <!-- PoCMAP -->
+  <section class="section pocmap" id="point-of-care" aria-labelledby="compare-title">
+    <div class="container">
+      <SectionHeading
+        id="compare-title"
+        eyebrow="Point-of-care with PoCMAP"
+        title="Shorter journeys from cell to patient"
+        lead="In conventional manufacturing, a patient’s cells are collected at the hospital, frozen and shipped to a distant facility, then frozen again and shipped back for infusion. Decentralising manufacturing to the hospital removes both journeys, reducing logistics and freeze–thaw cycles."
+      />
+
+      <figure class="unit" data-reveal aria-labelledby="unit-cap">
+        <figcaption id="unit-cap" class="unit__cap">
+          <strong>Point-of-care with PoCMAP</strong>
+          <span>A PoCMAP unit inside the treating hospital</span>
+        </figcaption>
+
+        <div class="unit__site">
+          <span class="unit__site-label">
+            <Icon name="hospital" size={16} /> Hospital <span class="unit__pin">1</span>
+          </span>
+
+          <div class="unit__line">
+            <div class="unit__stage">
+              <span class="unit__stage-icon"><Icon name="user" size={20} /></span>
+              <strong>Cells collected</strong>
+              <span>On site, from the patient or donor</span>
+            </div>
+
+            <span class="unit__arrow" aria-hidden="true"></span>
+
+            <div class="unit__stage unit__stage--bays">
+              <strong>Manufactured on-site with PoCMAP <span class="unit__pin">2</span></strong>
+              <ul class="unit__bays">
+                <li><span>CAR-T</span><i style="--w: 78%"></i></li>
+                <li><span>NK</span><i style="--w: 52%"></i></li>
+                <li><span>Dendritic</span><i style="--w: 64%"></i></li>
+              </ul>
+              <span class="unit__note">Same platform, different cell systems <span class="unit__pin">3</span></span>
+            </div>
+
+            <span class="unit__arrow" aria-hidden="true"></span>
+
+            <div class="unit__stage">
+              <span class="unit__stage-icon unit__stage-icon--teal"><Icon name="shield" size={20} /></span>
+              <strong>In-line QC <span class="unit__pin">4</span></strong>
+              <span>Real-time sterility &amp; quality checks</span>
+            </div>
+
+            <span class="unit__arrow" aria-hidden="true"></span>
+
+            <div class="unit__stage">
+              <span class="unit__stage-icon"><Icon name="hospital" size={20} /></span>
+              <strong>Treated</strong>
+              <span>In the same hospital</span>
+            </div>
+          </div>
+
+          <p class="unit__journey">
+            <span class="unit__pin">5</span>
+            Cell to patient without leaving the building: no inter-site shipping and fewer freeze–thaw cycles.
+          </p>
+        </div>
+
+        <h3 class="unit__subtitle">A modular platform built for hospitals</h3>
+        <ol class="adv">
+          {
+            pocmapAdvantages.map((a, i) => (
+              <li class="adv__item">
+                <span class="unit__pin unit__pin--lg">{i + 1}</span>
+                <h4>{a.title}</h4>
+                <p>{a.body}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </figure>
+    </div>
+  </section>
+
+  <!-- Three pillars -->
+  <section class="section section--alt" id="principles" aria-labelledby="pillars-title">
+    <div class="container">
+      <SectionHeading id="pillars-title" eyebrow="Platform principles" title="Our three-pillar approach">
+        <p class="pillars-kicker" aria-label="Affordable, scalable, accessible">
+          <span>Affordable.</span> <span>Scalable.</span> <span>Accessible.</span>
+        </p>
+      </SectionHeading>
+
+      <div class="rows">
+        {
+          pillars.map((p, i) => (
+            <article class:list={['row', { 'row--flip': i % 2 === 1 }]} id={p.id} aria-labelledby={`${p.id}-title`}>
+              <div class="row__media bezel" data-reveal>
+                <BioVisual variant={p.visual} label={p.visualLabel} />
+              </div>
+              <div class="row__copy" data-reveal>
+                <h3 id={`${p.id}-title`}>{p.title}</h3>
+                <p class="row__metric">{p.metric}</p>
+                <p class="row__body">{p.body}</p>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Intellectual property -->
+  <section class="section ip" id="patents" aria-labelledby="ip-title">
+    <div class="container">
+      <SectionHeading
+        id="ip-title"
+        eyebrow="Intellectual property"
+        title="Protected by design"
+        lead="Our moat combines patent-filed manufacturing with trade-secret process logic — an integrated value chain that takes years of validation to rebuild."
+      />
+      <ol class="patents">
+        {
+          patents.map((p) => (
+            <li class="patent" data-reveal>
+              <span class="patent__status">
+                <span class="patent__dot" aria-hidden="true" />
+                Patent filed
+              </span>
+              <p class="patent__label">Application no.</p>
+              <p class="patent__no" aria-label="Application number, partly hidden">{p.number}</p>
+              <h3>{p.title}</h3>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="ip__more" data-reveal>
+        <a href="/publications/#patent">See the team’s full patent record <Icon name="arrow-right" size={16} /></a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Ongoing project: conventional vs quantum AI -->
+  <section class="section section--alt quantum" id="quantum-ai" aria-labelledby="quantum-title">
+    <div class="container">
+      <SectionHeading
+        id="quantum-title"
+        eyebrow="Ongoing project"
+        title="Conventional vs Quantum AI"
+        lead={quantumAI.aim}
+        align="center"
+      />
+
+      <div class="versus" data-reveal>
+        <div class="versus__col versus__col--classic">
+          <p class="versus__name">Conventional AI</p>
+          <dl>
+            {
+              quantumAI.contrast.map((c) => (
+                <div>
+                  <dt>{c.topic}</dt>
+                  <dd>{c.conventional}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </div>
+
+        <span class="versus__vs" aria-hidden="true">vs</span>
+
+        <div class="versus__col versus__col--quantum">
+          <svg class="versus__orb" viewBox="0 0 160 160" aria-hidden="true">
+            <defs>
+              <linearGradient id="orb-line" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#8fa6ff" />
+                <stop offset="1" stop-color="#63d2ca" />
+              </linearGradient>
+            </defs>
+            <circle cx="80" cy="80" r="62" fill="none" stroke="url(#orb-line)" stroke-opacity="0.6" />
+            <ellipse cx="80" cy="80" rx="62" ry="18" fill="none" stroke="#8fa6ff" stroke-opacity="0.35" />
+            <ellipse cx="80" cy="80" rx="18" ry="62" fill="none" stroke="#8fa6ff" stroke-opacity="0.2" />
+            <path d="M80 14v132M14 80h132" stroke="#ffffff" stroke-opacity="0.12" stroke-dasharray="2 4" />
+            <g class="versus__state">
+              <path d="M80 80 L118 38" stroke="#63d2ca" stroke-width="2.5" stroke-linecap="round" />
+              <circle cx="118" cy="38" r="5" fill="#63d2ca" />
+            </g>
+            <circle cx="80" cy="80" r="3.5" fill="#ffffff" />
+          </svg>
+          <p class="versus__name">Quantum AI</p>
+          <dl>
+            {
+              quantumAI.contrast.map((c) => (
+                <div>
+                  <dt>{c.topic}</dt>
+                  <dd>{c.quantum}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </div>
+      </div>
+
+      <h3 class="uses__title" data-reveal>Where the map will be used</h3>
+      <ul class="uses">
+        {
+          quantumAI.uses.map((u) => (
+            <li class="use" data-reveal>
+              <span class="use__icon">
+                <Icon name={u.icon} size={22} />
+              </span>
+              <h4>{u.title}</h4>
+              <p>{u.body}</p>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 
@@ -602,12 +551,22 @@ const pointOfCare = [
     justify-items: start;
   }
 
-  .th h1 {
-    font-size: clamp(2.4rem, 1.3rem + 3.4vw, 4.4rem);
-    font-weight: 800;
-    line-height: 1.02;
-    letter-spacing: -0.045em;
+  .th .eyebrow {
     color: var(--white);
+  }
+
+  .th h1 {
+    font-size: var(--fs-display);
+    font-weight: var(--fw-heading);
+    line-height: 1.04;
+    letter-spacing: var(--ls-heading);
+    color: var(--white);
+  }
+
+  @media (max-width: 480px) {
+    .th h1 .nowrap {
+      white-space: normal;
+    }
   }
 
   .th__accent {
@@ -661,20 +620,11 @@ const pointOfCare = [
     gap: var(--sp-3);
   }
 
-  .spec__title,
-  .spec__status,
-  .spec figcaption,
-  .spec dt,
-  .spec__cp text {
-    font-family: var(--font-mono);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
   .spec__title {
-    font-size: 0.75rem;
+    font-family: var(--font-display);
+    font-size: var(--fs-sm);
     font-weight: 600;
-    color: var(--ink-200);
+    color: var(--white);
   }
 
   .spec__status {
@@ -685,8 +635,8 @@ const pointOfCare = [
     border: 1px solid rgb(95 212 207 / 0.35);
     border-radius: var(--radius-pill);
     background: rgb(95 212 207 / 0.1);
-    font-size: 0.625rem;
-    font-weight: 700;
+    font-size: var(--fs-sm);
+    font-weight: 600;
     color: var(--teal-300);
     white-space: nowrap;
   }
@@ -722,7 +672,9 @@ const pointOfCare = [
 
   .spec__cp text {
     fill: var(--teal-300);
-    font-size: 8px;
+    font-family: var(--font-display);
+    font-size: 9px;
+    font-weight: 600;
   }
 
   .spec__cp {
@@ -766,8 +718,8 @@ const pointOfCare = [
     justify-content: space-between;
     gap: var(--sp-2);
     margin-top: var(--sp-3);
-    font-size: 0.5625rem;
-    color: var(--ink-400);
+    font-size: var(--fs-sm);
+    color: var(--ink-200);
   }
 
   .spec__list {
@@ -799,8 +751,8 @@ const pointOfCare = [
   }
 
   .spec dt {
-    font-size: 0.625rem;
-    color: var(--ink-400);
+    font-size: var(--fs-sm);
+    color: var(--ink-200);
   }
 
   .spec dd {
@@ -809,50 +761,76 @@ const pointOfCare = [
     color: var(--white);
   }
 
-  /* Chapter index */
+  /* Chapter index: eight glass buttons that jump down the page */
   .th__index {
-    margin-top: clamp(3rem, 2rem + 3vw, 5rem);
+    margin-top: clamp(3rem, 2rem + 3vw, 4.5rem);
+    padding-bottom: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+  }
+
+  .th__index-title {
+    margin-bottom: var(--sp-4);
+    font-family: var(--font-display);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--white);
   }
 
   .th__index ol {
     display: grid;
-    grid-template-columns: repeat(8, minmax(0, 1fr));
-    border-top: 1px solid rgb(255 255 255 / 0.1);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--sp-3);
     list-style: none;
   }
 
   .th__index a {
-    display: grid;
-    gap: 0.35rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
     height: 100%;
-    padding: var(--sp-4) var(--sp-3) var(--sp-5) 0;
-    border-top: 2px solid transparent;
-    margin-top: -1px;
-    color: var(--ink-200);
-    font-size: var(--fs-sm);
-    font-weight: 500;
-    line-height: 1.3;
+    min-height: 56px;
+    padding: 0.85rem 1rem 0.85rem 1.15rem;
+    border: 1px solid rgb(255 255 255 / 0.16);
+    border-radius: 14px;
+    background: linear-gradient(160deg, rgb(255 255 255 / 0.09), rgb(255 255 255 / 0.03));
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08);
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: var(--fs-base);
+    font-weight: 600;
+    line-height: 1.25;
     text-decoration: none;
     transition:
-      color var(--dur) var(--ease),
-      border-color var(--dur) var(--ease);
+      border-color var(--dur) var(--ease),
+      background-color var(--dur) var(--ease),
+      transform var(--dur) var(--ease);
   }
 
-  .th__index a span {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.1em;
-    color: var(--ink-400);
-    transition: color var(--dur) var(--ease);
+  .th__index a :global(.th__index-arrow) {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    padding: 7px;
+    border-radius: 50%;
+    background: rgb(143 166 255 / 0.16);
+    color: var(--teal-300);
+    transform: rotate(90deg);
+    transition:
+      background-color var(--dur) var(--ease),
+      transform var(--dur) var(--ease);
   }
 
   .th__index a:hover {
     color: var(--white);
-    border-top-color: var(--teal-300);
+    border-color: rgb(99 210 202 / 0.55);
+    background-color: rgb(255 255 255 / 0.06);
+    transform: translateY(-2px);
   }
 
-  .th__index a:hover span {
-    color: var(--teal-300);
+  .th__index a:hover :global(.th__index-arrow) {
+    background: var(--gradient-brand);
+    color: var(--white);
+    transform: rotate(90deg) translateX(2px);
   }
 
   @media (max-width: 1000px) {
@@ -861,7 +839,7 @@ const pointOfCare = [
     }
 
     .th__index ol {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
@@ -889,41 +867,7 @@ const pointOfCare = [
     }
   }
 
-  /* 01 · Unmet need */
-  .need__grid {
-    display: grid;
-    grid-template-columns: 1.25fr 1fr;
-    align-items: center;
-    gap: clamp(2rem, 1rem + 3vw, 4rem);
-  }
-
-  .need__figure {
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    aspect-ratio: 750 / 520;
-    border: 1px solid rgb(255 255 255 / 0.08);
-    box-shadow: 0 30px 80px -30px rgb(0 0 0 / 0.6);
-  }
-
-  .need__stats {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--sp-6) var(--sp-5);
-  }
-
-  @media (max-width: 960px) {
-    .need__grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  @media (max-width: 420px) {
-    .need__stats {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  /* 02 · TiCoBi */
+  /* TiCoBi */
   .ticobi {
     scroll-margin-top: var(--header-h);
   }
@@ -937,6 +881,14 @@ const pointOfCare = [
 
   .ticobi__copy :global(.section-heading) {
     margin-bottom: var(--sp-6);
+  }
+
+  /* Brand gradient on "TiCoBi" and on the letters that spell it out. */
+  .grad {
+    background: linear-gradient(120deg, var(--blue-600), var(--blue-500) 55%, var(--teal-500));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 
   .ticobi__figure {
@@ -985,7 +937,7 @@ const pointOfCare = [
     }
   }
 
-  /* 03 · Mechanism + comparison */
+  /* Why γδ T cells */
   .mech {
     display: grid;
     grid-template-columns: 1.1fr 1fr;
@@ -1036,136 +988,15 @@ const pointOfCare = [
     color: var(--text-muted);
   }
 
-  .matrix {
-    margin-top: clamp(3rem, 2rem + 3vw, 5rem);
-    overflow-x: auto;
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-lg);
-    background: var(--glass-bg);
-    box-shadow: var(--glass-highlight), var(--shadow-soft);
-  }
-
-  .matrix table {
-    width: 100%;
-    min-width: 680px;
-    border-collapse: collapse;
-    font-size: var(--fs-sm);
-  }
-
-  .matrix th,
-  .matrix td {
-    padding: var(--sp-4) var(--sp-5);
-    text-align: left;
-    vertical-align: top;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .matrix tbody tr:last-child > * {
-    border-bottom: 0;
-  }
-
-  .matrix thead th {
-    font-family: var(--font-display);
-    font-size: var(--fs-base);
-    font-weight: 800;
-    color: var(--ink-900);
-  }
-
-  .matrix tbody th {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ink-500);
-    white-space: nowrap;
-  }
-
-  .matrix td {
-    color: var(--ink-700);
-  }
-
-  .matrix .is-ours {
-    background: linear-gradient(180deg, rgb(38 67 196 / 0.07), rgb(18 158 150 / 0.07));
-    color: var(--blue-700);
-    font-weight: 700;
-  }
-
-  .matrix thead .is-ours {
-    background: var(--gradient-brand);
-    color: var(--white);
-  }
-
-  /* Phones: each attribute becomes a card listing the three approaches, labelled inline. */
-  @media (max-width: 640px) {
-    .matrix {
-      overflow: visible;
-    }
-
-    .matrix table {
-      min-width: 0;
-    }
-
-    .matrix thead {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip-path: inset(50%);
-    }
-
-    .matrix tr,
-    .matrix th,
-    .matrix td {
-      display: block;
-    }
-
-    .matrix tbody tr {
-      padding: var(--sp-4) var(--sp-4) var(--sp-2);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .matrix tbody tr:last-child {
-      border-bottom: 0;
-    }
-
-    .matrix th,
-    .matrix td {
-      padding: 0;
-      border: 0;
-    }
-
-    .matrix tbody th {
-      margin-bottom: var(--sp-2);
-      white-space: normal;
-    }
-
-    .matrix td {
-      display: grid;
-      grid-template-columns: 7.5rem minmax(0, 1fr);
-      gap: var(--sp-3);
-      padding: 0.55rem 0.65rem;
-      border-radius: 10px;
-    }
-
-    .matrix td::before {
-      content: attr(data-label);
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--ink-500);
-    }
-  }
-
   @media (max-width: 960px) {
     .mech {
       grid-template-columns: 1fr;
     }
   }
 
-  /* 04 · Pipeline */
-  /* 04 · Pipeline table */
+  /* Product portfolio */
   .pipeline {
-    --cols: minmax(150px, 0.8fr) minmax(0, 2.2fr) minmax(0, 1.1fr) minmax(0, 1fr);
+    --cols: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1.1fr);
     overflow: hidden;
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
@@ -1185,17 +1016,15 @@ const pointOfCare = [
     padding-block: var(--sp-4);
     border-bottom: 1px solid var(--border);
     background: rgb(255 255 255 / 0.45);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
+    font-family: var(--font-display);
+    font-size: var(--fs-sm);
     font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ink-500);
+    color: var(--ink-700);
   }
 
   .prog {
     position: relative;
-    align-items: start;
+    align-items: center;
     padding-block: clamp(1.5rem, 1rem + 1.5vw, 2.25rem);
     transition: background-color var(--dur) var(--ease);
   }
@@ -1205,23 +1034,12 @@ const pointOfCare = [
   }
 
   .prog:hover {
-    background: rgb(255 255 255 / 0.5);
+    background-color: rgb(255 255 255 / 0.5);
   }
 
-  /* Lead programme: a dark, instrument-panel row. */
+  /* Lead programme: the same row, lifted by a faint brand wash and an edge rule. */
   .prog--lead {
-    background:
-      radial-gradient(520px 220px at 92% 0%, rgb(69 101 230 / 0.32), transparent 70%),
-      radial-gradient(420px 200px at 0% 100%, rgb(18 158 150 / 0.18), transparent 70%),
-      linear-gradient(160deg, #141b23, #0a0e13);
-    color: var(--ink-100);
-  }
-
-  .prog--lead:hover {
-    background:
-      radial-gradient(520px 220px at 92% 0%, rgb(69 101 230 / 0.4), transparent 70%),
-      radial-gradient(420px 200px at 0% 100%, rgb(18 158 150 / 0.22), transparent 70%),
-      linear-gradient(160deg, #141b23, #0a0e13);
+    background: linear-gradient(90deg, rgb(69 101 230 / 0.09), rgb(18 158 150 / 0.04) 60%, transparent);
   }
 
   .prog--lead::before {
@@ -1232,91 +1050,60 @@ const pointOfCare = [
     background: var(--gradient-brand);
   }
 
-  .prog__id {
-    display: grid;
-    gap: var(--sp-3);
-    justify-items: start;
-    padding-top: 0.35rem;
-  }
-
   .prog__code {
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
+    font-family: var(--font-display);
+    font-size: var(--fs-xl);
     font-weight: 600;
-    letter-spacing: 0.06em;
+    letter-spacing: -0.01em;
     color: var(--blue-600);
+    font-variant-numeric: tabular-nums;
   }
 
-  .prog--lead .prog__code {
-    color: var(--teal-300);
+  .prog__main {
+    display: grid;
+    justify-items: start;
+    gap: var(--sp-2);
+  }
+
+  .prog__main h3 {
+    font-size: var(--fs-xl);
+    line-height: 1.2;
+    color: var(--ink-900);
   }
 
   .prog__badge {
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
-    padding: 0.2rem 0.6rem;
-    border: 1px solid rgb(95 212 207 / 0.35);
+    padding: 0.2rem 0.7rem;
+    border: 1px solid rgb(38 67 196 / 0.2);
     border-radius: var(--radius-pill);
-    background: rgb(95 212 207 / 0.1);
-    color: var(--teal-300);
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    background: rgb(255 255 255 / 0.7);
+    color: var(--blue-700);
+    font-size: var(--fs-sm);
+    font-weight: 600;
     white-space: nowrap;
   }
 
   .prog__pulse {
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
-    background: var(--teal-300);
-    box-shadow: 0 0 0 0 rgb(99 210 202 / 0.6);
+    background: var(--teal-500);
+    box-shadow: 0 0 0 0 rgb(18 158 150 / 0.5);
     animation: prog-pulse 2.4s var(--ease) infinite;
   }
 
   @keyframes prog-pulse {
     70%,
     100% {
-      box-shadow: 0 0 0 7px rgb(99 210 202 / 0);
+      box-shadow: 0 0 0 7px rgb(18 158 150 / 0);
     }
-  }
-
-  .prog__main h3 {
-    font-size: clamp(1.4rem, 1.1rem + 1vw, 1.9rem);
-    letter-spacing: -0.03em;
-    line-height: 1.15;
-  }
-
-  .prog--lead .prog__main h3 {
-    color: var(--white);
-  }
-
-  .prog__detail {
-    margin-top: var(--sp-2);
-    max-width: 52ch;
-    color: var(--text-muted);
-  }
-
-  .prog--lead .prog__detail {
-    color: var(--ink-200);
   }
 
   .prog__modality {
     display: grid;
     gap: 0.2rem;
-    padding-top: 0.35rem;
-  }
-
-  .prog__label {
-    display: none;
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ink-500);
   }
 
   .prog__modality strong {
@@ -1324,42 +1111,9 @@ const pointOfCare = [
     color: var(--ink-900);
   }
 
-  .prog--lead .prog__modality strong {
-    color: var(--white);
-  }
-
   .prog__platform {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
-    color: var(--ink-500);
-  }
-
-  .prog--lead .prog__platform {
-    color: var(--ink-400);
-  }
-
-  .prog__tags {
-    display: flex;
-    flex-wrap: wrap;
-    align-content: start;
-    gap: var(--sp-2);
-    padding-top: 0.25rem;
-    list-style: none;
-  }
-
-  .prog__tags li {
-    padding: 0.2rem 0.65rem;
-    border-radius: var(--radius-pill);
-    background: var(--blue-50);
-    color: var(--blue-700);
-    font-size: var(--fs-xs);
-    font-weight: 600;
-  }
-
-  .prog--lead .prog__tags li {
-    background: rgb(255 255 255 / 0.08);
-    color: var(--ink-100);
+    font-size: var(--fs-sm);
+    color: var(--ink-700);
   }
 
   @media (max-width: 900px) {
@@ -1369,28 +1123,55 @@ const pointOfCare = [
 
     .prog {
       grid-template-columns: 1fr;
-      gap: var(--sp-4);
-    }
-
-    .prog__id {
-      grid-auto-flow: column;
-      align-items: center;
-      justify-content: start;
-      padding-top: 0;
-    }
-
-    .prog__label {
-      display: block;
+      gap: var(--sp-3);
     }
   }
 
-  .sub-title {
-    margin: clamp(3rem, 2rem + 3vw, 5rem) 0 var(--sp-6);
-    font-size: var(--fs-2xl);
-    letter-spacing: -0.03em;
+  /* Connecting line between the portfolio and PoCMAP: the two sections close in around it. */
+  #pipeline {
+    padding-bottom: var(--sp-6);
   }
 
-  /* 07 · Intellectual property */
+  .pocmap {
+    padding-top: var(--sp-6);
+  }
+
+  .connector {
+    position: relative;
+    padding-block: clamp(1rem, 0.5rem + 1vw, 1.5rem);
+    text-align: center;
+  }
+
+  .connector::before,
+  .connector::after {
+    content: '';
+    display: block;
+    width: 2px;
+    height: clamp(2.5rem, 2rem + 2vw, 4rem);
+    margin-inline: auto;
+    border-radius: 2px;
+  }
+
+  .connector::before {
+    background: linear-gradient(180deg, transparent, var(--blue-500));
+  }
+
+  .connector::after {
+    background: linear-gradient(180deg, var(--teal-500), transparent);
+  }
+
+  .connector p {
+    max-width: 52ch;
+    margin-block: var(--sp-5);
+    font-family: var(--font-display);
+    font-size: var(--fs-xl);
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: -0.02em;
+    color: var(--ink-900);
+  }
+
+  /* Intellectual property */
   .ip {
     scroll-margin-top: var(--header-h);
   }
@@ -1406,6 +1187,7 @@ const pointOfCare = [
     position: relative;
     display: grid;
     align-content: start;
+    justify-items: start;
     gap: var(--sp-2);
     padding: var(--sp-6);
     border-radius: var(--radius-lg);
@@ -1427,21 +1209,7 @@ const pointOfCare = [
     height: 180px;
     border-radius: 50%;
     background: radial-gradient(circle, rgb(69 101 230 / 0.35), transparent 70%);
-  }
-
-  .patent__top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--sp-4);
-  }
-
-  .patent__idx {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    color: var(--ink-400);
+    pointer-events: none;
   }
 
   .patent__status {
@@ -1450,16 +1218,14 @@ const pointOfCare = [
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
-    padding: 0.2rem 0.65rem;
+    margin-bottom: var(--sp-4);
+    padding: 0.2rem 0.7rem;
     border: 1px solid rgb(95 212 207 / 0.35);
     border-radius: var(--radius-pill);
     background: rgb(95 212 207 / 0.1);
     color: var(--teal-300);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-size: var(--fs-sm);
+    font-weight: 600;
   }
 
   .patent__dot {
@@ -1471,18 +1237,16 @@ const pointOfCare = [
   }
 
   .patent__label {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ink-400);
+    font-size: var(--fs-sm);
+    color: var(--ink-200);
   }
 
   .patent__no {
-    font-family: var(--font-mono);
-    font-size: clamp(1.35rem, 1.1rem + 0.8vw, 1.75rem);
-    font-weight: 700;
-    letter-spacing: 0.04em;
+    font-family: var(--font-display);
+    font-size: var(--fs-xl);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
     background: linear-gradient(90deg, #8fa6ff, #63d2ca);
     -webkit-background-clip: text;
     background-clip: text;
@@ -1490,40 +1254,13 @@ const pointOfCare = [
   }
 
   .patent h3 {
+    justify-self: stretch;
     margin-top: var(--sp-3);
     padding-top: var(--sp-4);
     border-top: 1px dashed rgb(255 255 255 / 0.14);
     font-size: var(--fs-lg);
     line-height: 1.35;
     color: var(--white);
-  }
-
-  .moat {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: var(--sp-3);
-    margin-top: var(--sp-6);
-    list-style: none;
-  }
-
-  .moat li {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-3);
-    padding: var(--sp-4);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius);
-    background: var(--glass-bg);
-    box-shadow: var(--glass-highlight), var(--shadow-soft);
-    font-weight: 600;
-    font-size: var(--fs-sm);
-    line-height: 1.35;
-    color: var(--ink-900);
-  }
-
-  .moat li :global(svg) {
-    flex-shrink: 0;
-    color: var(--blue-600);
   }
 
   .ip__more {
@@ -1534,7 +1271,7 @@ const pointOfCare = [
     display: inline-flex;
     align-items: center;
     gap: var(--sp-2);
-    font-weight: 700;
+    font-weight: 600;
     color: var(--blue-600);
     text-decoration: none;
   }
@@ -1548,16 +1285,6 @@ const pointOfCare = [
     .patents {
       grid-template-columns: 1fr;
     }
-
-    .moat {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  @media (max-width: 520px) {
-    .moat {
-      grid-template-columns: 1fr;
-    }
   }
 
   .pillars-kicker {
@@ -1565,9 +1292,9 @@ const pointOfCare = [
     flex-wrap: wrap;
     gap: 0 0.5ch;
     font-family: var(--font-display);
-    font-size: var(--fs-2xl);
-    font-weight: 700;
-    letter-spacing: -0.03em;
+    font-size: var(--fs-xl);
+    font-weight: 600;
+    letter-spacing: -0.02em;
     line-height: 1.1;
   }
 
@@ -1613,35 +1340,15 @@ const pointOfCare = [
     justify-items: start;
   }
 
-  .row__icon {
-    display: grid;
-    place-items: center;
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
-    background: var(--gradient-brand);
-    color: var(--white);
-    margin-bottom: var(--sp-2);
-  }
-
-  .row__index {
-    font-family: var(--font-mono) !important;
-    font-family: var(--font-display);
-    font-size: var(--fs-xs);
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ink-400);
-  }
-
   .row h3 {
     font-size: var(--fs-2xl);
+    letter-spacing: var(--ls-heading);
   }
 
   .row__metric {
     font-family: var(--font-display);
     font-size: var(--fs-xl);
-    font-weight: 700;
+    font-weight: 600;
     color: var(--teal-700);
   }
 
@@ -1661,207 +1368,53 @@ const pointOfCare = [
     }
   }
 
-  /* Comparison flow */
-  .compare {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--sp-5);
-  }
-
-  .flow {
-    margin: 0;
-    padding: var(--sp-6);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border);
-    background: var(--glass-bg);
-    border-color: var(--glass-border);
-    box-shadow: var(--glass-highlight), var(--shadow-soft);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-  }
-
-  .flow--brand {
-    border-color: transparent;
-    background: var(--ink-900);
-    color: var(--ink-100);
-    box-shadow: var(--shadow-lg);
-  }
-
-  figcaption {
-    display: grid;
-    gap: var(--sp-2);
-    margin-bottom: var(--sp-5);
-    font-family: var(--font-display);
-    font-size: var(--fs-xl);
-    font-weight: 700;
-    letter-spacing: -0.02em;
-  }
-
-  .flow--brand figcaption {
-    color: var(--white);
-  }
-
-  .flow__tag {
-    font-family: var(--font-mono) !important;
-    justify-self: start;
-    padding: 0.2rem 0.65rem;
-    border-radius: var(--radius-pill);
-    background: var(--ink-100);
-    color: var(--ink-700);
-    font-size: var(--fs-xs);
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .flow--brand .flow__tag {
-    background: rgb(95 212 207 / 0.16);
-    color: var(--teal-300);
-  }
-
-  .flow ol {
-    position: relative;
-    display: grid;
-    gap: var(--sp-4);
-    list-style: none;
-  }
-
-  .flow ol::before {
-    content: '';
-    position: absolute;
-    left: 19px;
-    top: 20px;
-    bottom: 20px;
-    width: 2px;
-    background: repeating-linear-gradient(to bottom, var(--ink-200) 0 6px, transparent 6px 11px);
-  }
-
-  .flow--brand ol::before {
-    background: linear-gradient(to bottom, var(--blue-500), var(--teal-300));
-  }
-
-  .flow li {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: var(--sp-4);
-    font-weight: 500;
-  }
-
-  .flow--muted li {
-    color: var(--ink-700);
-  }
-
-  .flow__dot {
-    display: grid;
-    flex-shrink: 0;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--ink-50);
-    border: 1px solid var(--ink-200);
-    color: var(--ink-500);
-  }
-
-  .flow--brand .flow__dot {
-    background: var(--ink-800);
-    border-color: rgb(95 212 207 / 0.4);
-    color: var(--teal-300);
-  }
-
-  @media (max-width: 860px) {
-    .compare {
-      grid-template-columns: 1fr;
+  /* PoCMAP: heading on one line on wide screens */
+  @media (min-width: 1000px) {
+    .pocmap :global(.section-heading__title) {
+      max-width: none;
+      white-space: nowrap;
     }
   }
 
-  /* PoCMAP unit: numbered advantages beside an annotated schematic */
-  .unit-block {
-    display: grid;
-    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
-    align-items: start;
-    gap: clamp(2rem, 1rem + 4vw, 5rem);
-    margin-top: clamp(3rem, 2rem + 3vw, 5rem);
-  }
-
-  .unit-block .sub-title {
-    margin-top: 0;
-  }
-
-  .adv {
-    display: grid;
-    list-style: none;
-  }
-
-  .adv__item {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: var(--sp-4);
-    padding-block: var(--sp-4);
-    border-top: 1px solid var(--border);
-  }
-
-  .adv__item:last-child {
-    border-bottom: 1px solid var(--border);
-  }
-
-  .adv__num,
-  .unit__pin {
-    display: inline-grid;
-    place-items: center;
-    flex-shrink: 0;
-    border-radius: 50%;
-    background: var(--gradient-brand);
-    color: var(--white);
-    font-family: var(--font-mono);
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .adv__num {
-    width: 28px;
-    height: 28px;
-    font-size: 0.75rem;
-    box-shadow: 0 6px 14px -6px rgb(38 67 196 / 0.6);
-  }
-
-  .adv h4 {
-    font-size: var(--fs-base);
-    color: var(--ink-900);
-  }
-
-  .adv p {
-    margin-top: 0.15rem;
-    font-size: var(--fs-sm);
-    color: var(--text-muted);
-  }
-
+  /* One dark panel: the hospital schematic above, the five advantages in a row beneath it. */
   .unit {
+    position: relative;
     display: grid;
-    gap: var(--sp-5);
+    gap: clamp(1.5rem, 1rem + 1.5vw, 2.25rem);
     margin: 0;
-    padding: clamp(1rem, 0.5rem + 1.5vw, 1.75rem);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-lg);
-    background: var(--glass-bg);
-    box-shadow: var(--glass-highlight), var(--shadow-soft);
+    padding: clamp(1.25rem, 0.5rem + 2.5vw, 2.75rem);
+    border: 1px solid rgb(255 255 255 / 0.08);
+    border-radius: 24px;
+    background:
+      radial-gradient(640px 320px at 100% 0%, rgb(69 101 230 / 0.28), transparent 70%),
+      radial-gradient(520px 300px at 0% 100%, rgb(18 158 150 / 0.2), transparent 70%),
+      linear-gradient(160deg, #141b23, #0a0e13);
+    color: var(--ink-100);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    isolation: isolate;
   }
 
   .unit__cap {
-    font-size: var(--fs-sm);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--sp-2) var(--sp-5);
+    margin: 0;
+  }
+
+  .unit__cap strong {
+    font-family: var(--font-display);
+    font-size: var(--fs-xl);
     font-weight: 600;
-    color: var(--ink-700);
+    letter-spacing: -0.02em;
+    color: var(--white);
   }
 
   .unit__cap span {
-    margin-right: var(--sp-2);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--blue-600);
+    font-size: var(--fs-sm);
+    color: var(--ink-200);
   }
 
   /* The dashed boundary is the hospital: everything happens inside it. */
@@ -1869,40 +1422,55 @@ const pointOfCare = [
     position: relative;
     display: grid;
     gap: var(--sp-5);
-    padding: var(--sp-6) var(--sp-4) var(--sp-4);
-    border: 1.5px dashed rgb(38 67 196 / 0.35);
+    padding: var(--sp-7) var(--sp-5) var(--sp-5);
+    border: 1.5px dashed rgb(143 166 255 / 0.35);
     border-radius: 18px;
     background:
-      linear-gradient(rgb(38 67 196 / 0.05) 1px, transparent 1px) 0 0 / 24px 24px,
-      linear-gradient(90deg, rgb(38 67 196 / 0.05) 1px, transparent 1px) 0 0 / 24px 24px,
-      rgb(255 255 255 / 0.35);
+      linear-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px) 0 0 / 24px 24px,
+      linear-gradient(90deg, rgb(255 255 255 / 0.035) 1px, transparent 1px) 0 0 / 24px 24px;
   }
 
   .unit__site-label {
     position: absolute;
-    top: -0.9rem;
-    left: var(--sp-4);
+    top: -0.95rem;
+    left: var(--sp-5);
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    padding: 0.25rem 0.35rem 0.25rem 0.65rem;
-    border: 1px solid rgb(38 67 196 / 0.25);
+    padding: 0.25rem 0.35rem 0.25rem 0.7rem;
+    border: 1px solid rgb(143 166 255 / 0.35);
     border-radius: var(--radius-pill);
-    background: var(--surface-raised);
-    color: var(--blue-700);
-    font-size: 0.8125rem;
-    font-weight: 700;
+    background: #121922;
+    color: var(--white);
+    font-size: var(--fs-sm);
+    font-weight: 600;
   }
 
   .unit__pin {
-    width: 20px;
-    height: 20px;
-    font-size: 0.6875rem;
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--gradient-brand);
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .unit__pin--lg {
+    width: 30px;
+    height: 30px;
+    font-size: var(--fs-sm);
+    box-shadow: 0 6px 14px -6px rgb(69 101 230 / 0.8);
   }
 
   .unit__line {
     display: grid;
-    grid-template-columns: minmax(0, 0.8fr) 16px minmax(0, 1.5fr) 16px minmax(0, 0.95fr) 16px minmax(0, 0.8fr);
+    grid-template-columns: minmax(0, 0.85fr) 20px minmax(0, 1.5fr) 20px minmax(0, 0.95fr) 20px minmax(0, 0.8fr);
     align-items: stretch;
     gap: var(--sp-2);
   }
@@ -1911,65 +1479,63 @@ const pointOfCare = [
     display: grid;
     justify-items: start;
     align-content: start;
-    gap: 0.3rem;
-    padding: var(--sp-3);
-    border: 1px solid rgb(255 255 255 / 0.95);
+    gap: 0.35rem;
+    padding: var(--sp-4);
+    border: 1px solid rgb(255 255 255 / 0.1);
     border-radius: 14px;
-    background: rgb(255 255 255 / 0.82);
-    box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.9),
-      0 10px 24px -16px rgb(17 34 102 / 0.45);
+    background: rgb(255 255 255 / 0.05);
   }
 
   .unit__stage strong {
     display: inline-flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.35rem;
-    font-size: 0.875rem;
+    gap: 0.4rem;
+    font-family: var(--font-display);
+    font-size: var(--fs-base);
+    font-weight: 600;
     line-height: 1.25;
-    color: var(--ink-900);
+    color: var(--white);
   }
 
   .unit__stage > span:not(.unit__stage-icon) {
-    font-size: 0.75rem;
-    line-height: 1.35;
-    color: var(--ink-500);
+    font-size: var(--fs-sm);
+    line-height: 1.4;
+    color: var(--ink-200);
   }
 
   .unit__stage-icon {
     display: grid;
     place-items: center;
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
     margin-bottom: 0.2rem;
-    border-radius: 10px;
-    background: var(--blue-50);
-    color: var(--blue-600);
+    border-radius: 11px;
+    background: rgb(143 166 255 / 0.14);
+    color: var(--blue-300);
   }
 
   .unit__stage-icon--teal {
-    background: var(--teal-50);
-    color: var(--teal-700);
+    background: rgb(99 210 202 / 0.14);
+    color: var(--teal-300);
   }
 
   .unit__bays {
     display: grid;
-    gap: 0.45rem;
+    gap: 0.5rem;
     width: 100%;
-    margin: 0.25rem 0;
+    margin: 0.35rem 0;
     list-style: none;
   }
 
   .unit__bays li {
     display: grid;
-    grid-template-columns: 4.4rem minmax(0, 1fr);
+    grid-template-columns: 5rem minmax(0, 1fr);
     align-items: center;
     gap: var(--sp-2);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
+    font-size: var(--fs-sm);
     font-weight: 600;
-    color: var(--ink-700);
+    color: var(--ink-100);
   }
 
   .unit__bays i {
@@ -1977,7 +1543,7 @@ const pointOfCare = [
     height: 8px;
     overflow: hidden;
     border-radius: var(--radius-pill);
-    background: var(--blue-50);
+    background: rgb(255 255 255 / 0.08);
   }
 
   .unit__bays i::after {
@@ -1986,7 +1552,7 @@ const pointOfCare = [
     inset: 0 auto 0 0;
     width: var(--w);
     border-radius: inherit;
-    background: var(--gradient-brand);
+    background: linear-gradient(90deg, var(--blue-500), var(--teal-300));
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 1.2s var(--ease) 0.3s;
@@ -2001,14 +1567,14 @@ const pointOfCare = [
     display: inline-flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.4rem;
   }
 
   .unit__arrow {
     position: relative;
     align-self: center;
     height: 2px;
-    background: linear-gradient(90deg, var(--blue-500), var(--teal-500));
+    background: linear-gradient(90deg, var(--blue-500), var(--teal-300));
   }
 
   .unit__arrow::after {
@@ -2018,8 +1584,8 @@ const pointOfCare = [
     top: 50%;
     width: 7px;
     height: 7px;
-    border-top: 2px solid var(--teal-500);
-    border-right: 2px solid var(--teal-500);
+    border-top: 2px solid var(--teal-300);
+    border-right: 2px solid var(--teal-300);
     transform: translateY(-50%) rotate(45deg);
   }
 
@@ -2029,16 +1595,63 @@ const pointOfCare = [
     gap: var(--sp-3);
     padding: var(--sp-3) var(--sp-4);
     border-radius: 12px;
-    background: rgb(18 158 150 / 0.09);
-    color: var(--teal-700);
+    background: rgb(99 210 202 / 0.1);
+    color: var(--teal-300);
     font-size: var(--fs-sm);
     font-weight: 600;
     line-height: 1.45;
   }
 
+  .unit__subtitle {
+    margin-top: var(--sp-2);
+    font-size: var(--fs-xl);
+    color: var(--white);
+  }
+
+  .adv {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    margin-top: calc(-1 * var(--sp-3));
+    list-style: none;
+    border-top: 1px solid rgb(255 255 255 / 0.1);
+  }
+
+  .adv__item {
+    display: grid;
+    align-content: start;
+    justify-items: start;
+    gap: var(--sp-2);
+    padding: var(--sp-5) var(--sp-4) 0;
+  }
+
+  .adv__item:first-child {
+    padding-left: 0;
+  }
+
+  .adv__item + .adv__item {
+    border-left: 1px solid rgb(255 255 255 / 0.1);
+  }
+
+  .adv h4 {
+    margin-top: var(--sp-2);
+    font-size: var(--fs-base);
+    color: var(--white);
+  }
+
+  .adv p {
+    font-size: var(--fs-sm);
+    color: var(--ink-200);
+  }
+
   @media (max-width: 1080px) {
-    .unit-block {
-      grid-template-columns: 1fr;
+    .adv {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      row-gap: var(--sp-5);
+    }
+
+    .adv__item:nth-child(3n + 1) {
+      padding-left: 0;
+      border-left: 0;
     }
   }
 
@@ -2051,8 +1664,8 @@ const pointOfCare = [
     .unit__arrow {
       justify-self: center;
       width: 2px;
-      height: 16px;
-      background: linear-gradient(180deg, var(--blue-500), var(--teal-500));
+      height: 18px;
+      background: linear-gradient(180deg, var(--blue-500), var(--teal-300));
     }
 
     .unit__arrow::after {
@@ -2061,6 +1674,22 @@ const pointOfCare = [
       bottom: 0;
       left: 50%;
       transform: translateX(-50%) rotate(135deg);
+    }
+
+    .adv {
+      grid-template-columns: 1fr;
+      row-gap: 0;
+    }
+
+    .adv__item,
+    .adv__item:nth-child(3n + 1) {
+      padding: var(--sp-4) 0;
+      border-left: 0;
+    }
+
+    .adv__item + .adv__item {
+      border-left: 0;
+      border-top: 1px solid rgb(255 255 255 / 0.1);
     }
   }
 
@@ -2095,7 +1724,7 @@ const pointOfCare = [
     border-radius: var(--radius);
     background: rgb(255 255 255 / 0.04);
     font-family: var(--font-display);
-    font-weight: 700;
+    font-weight: 600;
     color: var(--white);
     line-height: 1.3;
   }
@@ -2131,6 +1760,206 @@ const pointOfCare = [
   @media (max-width: 520px) {
     .apps__list {
       grid-template-columns: 1fr;
+    }
+  }
+
+  /* Ongoing project: conventional vs quantum AI */
+  .versus {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: stretch;
+    gap: var(--sp-4);
+  }
+
+  .versus__col {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: var(--sp-5);
+    padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    border-radius: 22px;
+    overflow: hidden;
+  }
+
+  .versus__col--classic {
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    box-shadow: var(--glass-highlight), var(--shadow-soft);
+  }
+
+  .versus__col--quantum {
+    border: 1px solid rgb(143 166 255 / 0.22);
+    background:
+      radial-gradient(420px 260px at 100% 0%, rgb(69 101 230 / 0.35), transparent 70%),
+      radial-gradient(360px 240px at 0% 100%, rgb(18 158 150 / 0.22), transparent 70%),
+      linear-gradient(160deg, #141b23, #0a0e13);
+    color: var(--ink-100);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .versus__name {
+    font-family: var(--font-display);
+    font-size: var(--fs-xl);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--ink-900);
+  }
+
+  .versus__col--quantum .versus__name {
+    color: var(--white);
+  }
+
+  .versus dl {
+    display: grid;
+    margin: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .versus__col--quantum dl {
+    border-top-color: rgb(255 255 255 / 0.12);
+  }
+
+  .versus dl > div {
+    display: grid;
+    gap: 0.3rem;
+    padding-block: var(--sp-4);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .versus__col--quantum dl > div {
+    border-bottom-color: rgb(255 255 255 / 0.12);
+  }
+
+  .versus dl > div:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .versus dt {
+    font-family: var(--font-display);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--blue-600);
+  }
+
+  .versus__col--quantum dt {
+    color: var(--teal-300);
+  }
+
+  .versus dd {
+    margin: 0;
+    color: var(--ink-700);
+  }
+
+  .versus__col--quantum dd {
+    color: var(--ink-100);
+  }
+
+  .versus__vs {
+    align-self: center;
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--gradient-brand);
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    box-shadow: 0 12px 24px -12px rgb(38 67 196 / 0.8);
+  }
+
+  /* A Bloch sphere: one qubit, its state vector precessing. */
+  .versus__orb {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    width: 150px;
+    height: 150px;
+    opacity: 0.85;
+    pointer-events: none;
+  }
+
+  .versus__state {
+    transform-origin: 80px 80px;
+    animation: orb-precess 14s linear infinite;
+  }
+
+  @keyframes orb-precess {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .uses__title {
+    margin: clamp(3rem, 2rem + 3vw, 4.5rem) 0 var(--sp-5);
+    font-size: var(--fs-xl);
+  }
+
+  .uses {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--sp-4);
+    list-style: none;
+  }
+
+  .use {
+    display: grid;
+    align-content: start;
+    gap: var(--sp-3);
+    padding: var(--sp-5);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    background: var(--glass-bg);
+    box-shadow: var(--glass-highlight), var(--shadow-soft);
+  }
+
+  .use__icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--blue-50);
+    color: var(--blue-600);
+  }
+
+  .use h4 {
+    font-size: var(--fs-base);
+    color: var(--ink-900);
+  }
+
+  .use p {
+    font-size: var(--fs-sm);
+    color: var(--ink-700);
+  }
+
+  @media (max-width: 960px) {
+    .versus {
+      grid-template-columns: 1fr;
+    }
+
+    .versus__vs {
+      justify-self: center;
+      margin-block: calc(-1 * var(--sp-5));
+      z-index: 1;
+    }
+
+    .uses {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 560px) {
+    .uses {
+      grid-template-columns: 1fr;
+    }
+
+    .versus__orb {
+      width: 110px;
+      height: 110px;
     }
   }
 </style>
