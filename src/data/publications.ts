@@ -14,7 +14,7 @@ export interface Publication {
 export const publicationTypes: { id: PublicationType; label: string; singular: string }[] = [
   { id: 'paper', label: 'Research papers', singular: 'Paper' },
   { id: 'granted', label: 'Granted patents', singular: 'Granted patent' },
-  { id: 'patent', label: 'Published patents', singular: 'Published patent' },
+  { id: 'patent', label: 'Patents filed', singular: 'Filed patent' },
   { id: 'chapter', label: 'Book chapters', singular: 'Book chapter' },
 ];
 

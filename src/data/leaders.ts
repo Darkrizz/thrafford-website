@@ -41,7 +41,7 @@ export const leaderProfiles: LeaderProfile[] = [
       { value: '180+', label: 'Scientists led in a single division at Syngene' },
       { value: '~5×', label: 'Revenue growth delivered for that division' },
       { value: '30+', label: 'Peer-reviewed publications' },
-      { value: '43', label: 'Published patents, 3 granted' },
+      { value: '43', label: 'Patents filed, 3 granted' },
     ],
     education: [
       { label: 'Ph.D.', value: 'AIIMS, Delhi, India' },
@@ -60,7 +60,7 @@ export const leaderProfiles: LeaderProfile[] = [
       {
         title: 'Advancing research & translational impact',
         body: [
-          'I have led and contributed to the advancement of 50+ therapeutic candidates from bench to clinic, including seven that progressed to clinical-stage development, spanning oncology, diabetology, cardiovascular disease, CNS, inflammation, and cell & gene therapy. Beyond research execution, I have contributed to in-licensing and out-licensing initiatives and technologies, authored 30+ peer-reviewed publications, and hold 43 published patents (3 granted).',
+          'I have led and contributed to the advancement of 50+ therapeutic candidates from bench to clinic, including seven that progressed to clinical-stage development, spanning oncology, diabetology, cardiovascular disease, CNS, inflammation, and cell & gene therapy. Beyond research execution, I have contributed to in-licensing and out-licensing initiatives and technologies, authored 30+ peer-reviewed publications, and have 43 patents filed (3 granted).',
         ],
       },
       {
