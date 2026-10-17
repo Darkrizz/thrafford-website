@@ -1,0 +1,318 @@
+---
+import Icon from './Icon.astro';
+import { rcbMap } from '../data/rcbMap';
+
+interface Props {
+  href: string;
+}
+
+const { href } = Astro.props;
+const { width: W, height: H, center: C, paths, roadLabel } = rcbMap;
+---
+
+<a
+  class="cmap"
+  href={href}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label="Open the Regional Centre for Biotechnology, Faridabad, in Google Maps (opens in a new tab)"
+>
+  <svg class="cmap__svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <radialGradient id="cmap-glow" cx={C.x} cy={C.y} r="360" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#2c4bc0" stop-opacity="0.55"></stop>
+        <stop offset="1" stop-color="#2c4bc0" stop-opacity="0"></stop>
+      </radialGradient>
+      <pattern id="cmap-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+        <path d="M40 0H0V40" fill="none" stroke="#8fa6ff" stroke-opacity="0.06"></path>
+      </pattern>
+    </defs>
+
+    <rect class="cmap__bg" width={W} height={H}></rect>
+    <rect width={W} height={H} fill="url(#cmap-grid)"></rect>
+    <rect width={W} height={H} fill="url(#cmap-glow)"></rect>
+
+    <g class="cmap__layers">
+      <path class="cmap__green" d={paths.green}></path>
+      <path class="cmap__water" d={paths.water}></path>
+      <path class="cmap__stream" d={paths.stream}></path>
+      <path class="cmap__minor" d={paths.minor}></path>
+      <path class="cmap__local" d={paths.local}></path>
+      <path class="cmap__major-casing" d={paths.major}></path>
+      <path class="cmap__major" d={paths.major}></path>
+      <path class="cmap__campus" d={paths.campus}></path>
+    </g>
+
+    {
+      roadLabel && (
+        <text
+          class="cmap__road-label"
+          transform={`translate(${roadLabel.x} ${roadLabel.y}) rotate(${roadLabel.angle}) translate(0 -9)`}
+        >
+          Faridabad–Gurugram Road
+        </text>
+      )
+    }
+
+    <g class="cmap__pin" transform={`translate(${C.x} ${C.y})`}>
+      <circle class="cmap__pulse" r="18"></circle>
+      <circle class="cmap__pulse cmap__pulse--late" r="18"></circle>
+      <circle class="cmap__halo" r="22"></circle>
+      <circle class="cmap__dot" r="9"></circle>
+      <circle class="cmap__core" r="3.5"></circle>
+    </g>
+  </svg>
+
+  <span class="cmap__card">
+    <span class="cmap__card-icon"><Icon name="map-pin" size={18} /></span>
+    <span>
+      <strong>Regional Centre for Biotechnology</strong>
+      <span>BSC BioNEST Bio-Incubator, Faridabad</span>
+    </span>
+  </span>
+
+  <span class="cmap__open">
+    Open in Google Maps
+    <Icon name="arrow-up-right" size={14} />
+  </span>
+
+  <span class="cmap__credit">© OpenStreetMap contributors</span>
+</a>
+
+<style>
+  .cmap {
+    position: relative;
+    display: block;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: #0b1433;
+    color: var(--white);
+    text-decoration: none;
+    isolation: isolate;
+    box-shadow:
+      0 0 0 6px rgb(255 255 255 / 0.55),
+      0 0 0 7px rgb(38 67 196 / 0.12),
+      0 30px 60px -30px rgb(17 34 102 / 0.55);
+    transition: box-shadow var(--dur) var(--ease);
+  }
+
+  .cmap:hover,
+  .cmap:focus-visible {
+    box-shadow:
+      0 0 0 6px rgb(255 255 255 / 0.7),
+      0 0 0 7px rgb(38 67 196 / 0.3),
+      0 34px 70px -28px rgb(17 34 102 / 0.65);
+  }
+
+  .cmap__svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transition: transform 900ms var(--ease);
+    transform-origin: 50% 50%;
+  }
+
+  .cmap:hover .cmap__svg,
+  .cmap:focus-visible .cmap__svg {
+    transform: scale(1.05);
+  }
+
+  .cmap__bg {
+    fill: #0b1433;
+  }
+
+  .cmap__layers path {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .cmap__layers .cmap__green {
+    fill: rgb(18 158 150 / 0.14);
+    stroke: rgb(99 210 202 / 0.18);
+    stroke-width: 1;
+  }
+
+  .cmap__layers .cmap__water {
+    fill: rgb(69 101 230 / 0.35);
+    stroke: rgb(143 166 255 / 0.45);
+    stroke-width: 1;
+  }
+
+  .cmap__stream {
+    stroke: rgb(143 166 255 / 0.35);
+    stroke-width: 1.2;
+    stroke-dasharray: 4 3;
+  }
+
+  .cmap__minor {
+    stroke: rgb(143 166 255 / 0.26);
+    stroke-width: 1.1;
+    transition: stroke var(--dur) var(--ease);
+  }
+
+  .cmap__local {
+    stroke: rgb(143 166 255 / 0.5);
+    stroke-width: 2;
+  }
+
+  .cmap__major-casing {
+    stroke: rgb(69 101 230 / 0.35);
+    stroke-width: 9;
+  }
+
+  .cmap__major {
+    stroke: #b6c6ff;
+    stroke-width: 3.2;
+  }
+
+  .cmap:hover .cmap__minor {
+    stroke: rgb(143 166 255 / 0.38);
+  }
+
+  .cmap__layers .cmap__campus {
+    fill: rgb(18 158 150 / 0.32);
+    stroke: var(--teal-300);
+    stroke-width: 1.5;
+  }
+
+  .cmap__road-label {
+    fill: rgb(214 224 255 / 0.75);
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-anchor: middle;
+  }
+
+  /* Location marker */
+  .cmap__halo {
+    fill: rgb(255 255 255 / 0.12);
+    stroke: rgb(255 255 255 / 0.35);
+  }
+
+  .cmap__dot {
+    fill: var(--teal-500);
+    stroke: var(--white);
+    stroke-width: 3;
+  }
+
+  .cmap__core {
+    fill: var(--white);
+  }
+
+  .cmap__pulse {
+    fill: none;
+    stroke: var(--teal-300);
+    stroke-width: 2;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: cmap-pulse 2.8s var(--ease) infinite;
+  }
+
+  .cmap__pulse--late {
+    animation-delay: 1.4s;
+  }
+
+  @keyframes cmap-pulse {
+    from {
+      opacity: 0.9;
+      transform: scale(0.6);
+    }
+    to {
+      opacity: 0;
+      transform: scale(3.2);
+    }
+  }
+
+  /* Overlays */
+  .cmap__card,
+  .cmap__open {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    background: rgb(11 20 51 / 0.72);
+    border: 1px solid rgb(143 166 255 / 0.22);
+    backdrop-filter: blur(12px) saturate(1.4);
+    -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  }
+
+  .cmap__card {
+    left: var(--sp-4);
+    bottom: var(--sp-4);
+    max-width: calc(100% - 2 * var(--sp-4));
+    gap: var(--sp-3);
+    padding: var(--sp-3) var(--sp-4) var(--sp-3) var(--sp-3);
+    border-radius: var(--radius);
+    font-size: var(--fs-sm);
+    line-height: 1.35;
+  }
+
+  .cmap__card > span:last-child {
+    display: grid;
+  }
+
+  .cmap__card strong {
+    font-weight: 600;
+  }
+
+  .cmap__card > span:last-child > span {
+    color: var(--ink-200);
+  }
+
+  .cmap__card-icon {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--gradient-brand);
+  }
+
+  .cmap__open {
+    top: var(--sp-4);
+    right: var(--sp-4);
+    gap: var(--sp-2);
+    padding: 0.5rem 0.9rem;
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    transition:
+      background-color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
+  }
+
+  .cmap:hover .cmap__open,
+  .cmap:focus-visible .cmap__open {
+    background: var(--brand);
+    border-color: var(--brand);
+  }
+
+  .cmap__credit {
+    position: absolute;
+    right: var(--sp-2);
+    bottom: var(--sp-1);
+    font-size: 10px;
+    color: rgb(214 224 255 / 0.55);
+  }
+
+  @media (max-width: 420px) {
+    .cmap {
+      aspect-ratio: 1;
+    }
+
+    .cmap__card {
+      left: var(--sp-3);
+      bottom: var(--sp-4);
+    }
+
+    .cmap__open {
+      top: var(--sp-3);
+      right: var(--sp-3);
+    }
+  }
+</style>

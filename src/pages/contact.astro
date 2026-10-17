@@ -3,9 +3,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
 import ContactForm from '../components/ContactForm.astro';
 import Icon from '../components/Icon.astro';
+import ContactMap from '../components/ContactMap.astro';
 import { contact } from '../data/site';
 
-const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(contact.mapQuery)}&output=embed`;
 const directions = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contact.mapQuery)}`;
 ---
 
@@ -75,11 +75,7 @@ const directions = `https://www.google.com/maps/search/?api=1&query=${encodeURIC
         </ul>
 
         <div class="map" data-reveal>
-          <iframe
-            src={mapSrc}
-            title="Map showing the Regional Centre for Biotechnology, Faridabad"
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"></iframe>
+          <ContactMap href={directions} />
         </div>
       </aside>
     </div>
@@ -188,18 +184,7 @@ const directions = `https://www.google.com/maps/search/?api=1&query=${encodeURIC
   }
 
   .map {
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    border: 1px solid var(--border);
-    aspect-ratio: 4 / 3;
-    background: var(--ink-50);
-  }
-
-  .map iframe {
-    display: block;
-    width: 100%;
-    height: 100%;
-    border: 0;
+    margin-top: var(--sp-2);
   }
 
   @media (max-width: 960px) {
