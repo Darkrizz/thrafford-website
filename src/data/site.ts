@@ -8,7 +8,7 @@ export const site = {
 
 export const nav = [
   { label: 'Home', href: '/' },
-  { label: 'TiCoBi', href: '/technology/' },
+  { label: 'Technology and Products', href: '/technology/' },
   { label: 'Team', href: '/team/' },
   { label: 'Publications', href: '/publications/' },
 ];
