@@ -1,25 +1,46 @@
-export interface Partner {
-  name: string;
-  logo: string;
-  kind: 'Industry' | 'Academia' | 'Government' | 'Clinical';
+import type { IconName } from '../components/Icon.astro';
+
+/**
+ * Collaborators grouped by sector. Partner names and logos stay off the site
+ * until each organisation has approved their use, so only counts are kept here.
+ */
+export interface PartnerSector {
+  id: string;
+  title: string;
+  body: string;
+  icon: IconName;
+  count: number;
 }
 
-export const partners: Partner[] = [
-  { name: 'All India Institute of Medical Sciences (AIIMS), New Delhi', logo: '/images/partners/aiims-delhi.webp', kind: 'Clinical' },
-  { name: 'National Cancer Institute (NCI), AIIMS Jhajjar', logo: '/images/partners/aiims-delhi.webp', kind: 'Clinical' },
+export const partnerSectors: PartnerSector[] = [
   {
-    name: 'UNESCO – Regional Centre for Biotechnology',
-    logo: '/images/partners/unesco-rcb.webp',
-    kind: 'Government',
+    id: 'clinical',
+    title: 'Hospitals and cancer centres',
+    body: 'Clinical teams keep our AML programme anchored to the patients they treat, and their hospitals are the setting PoCMAP is built for.',
+    icon: 'hospital',
+    count: 2,
   },
-  { name: 'MIT Vishwaprayag University', logo: '/images/partners/mit-vpu.webp', kind: 'Academia' },
-  { name: 'NIPER Guwahati', logo: '/images/partners/niper-guwahati.webp', kind: 'Academia' },
   {
-    name: 'CVJ Centre for Synthetic Biology & Bio-Manufacturing',
-    logo: '/images/partners/cvj-centre.webp',
-    kind: 'Academia',
+    id: 'academic',
+    title: 'Universities and research institutes',
+    body: 'Academic groups in pharmaceutical sciences, synthetic biology and biomanufacturing work with us on the science underneath TiCoBi.',
+    icon: 'graduation',
+    count: 3,
   },
-  { name: 'Metropolis — The Pathology Specialist', logo: '/images/partners/metropolis.webp', kind: 'Clinical' },
-  { name: 'Indian Council of Medical Research (ICMR)', logo: '/images/partners/icmr.webp', kind: 'Government' },
-  { name: 'Eviogen', logo: '/images/partners/eviogen.webp', kind: 'Industry' },
+  {
+    id: 'public',
+    title: 'Public research bodies',
+    body: 'National and intergovernmental research organisations bring public-health priorities and the standards that publicly backed research has to meet.',
+    icon: 'landmark',
+    count: 2,
+  },
+  {
+    id: 'industry',
+    title: 'Diagnostics and biotech industry',
+    body: 'Pathology laboratories and biotechnology companies add the testing capacity and commercial experience a therapy needs before it reaches the clinic.',
+    icon: 'flask',
+    count: 2,
+  },
 ];
+
+export const partnerTotal = partnerSectors.reduce((sum, s) => sum + s.count, 0);

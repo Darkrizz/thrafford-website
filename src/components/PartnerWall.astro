@@ -1,85 +1,430 @@
 ---
-import { partners } from '../data/partners';
+import Icon from './Icon.astro';
+import Button from './Button.astro';
+import { partnerSectors, partnerTotal } from '../data/partners';
+
+// Network diagram: Thrafford at the centre, one hub per sector, and one
+// unlabelled satellite per partner organisation in that sector.
+const C = 200;
+const HUB_R = 132;
+const SAT_R = 46;
+// Same reading order as the 2×2 card grid: top-left, top-right, bottom-left, bottom-right.
+const hubAngles = [-135, -45, 135, 45];
+const rad = (deg: number) => (deg * Math.PI) / 180;
+const round = (n: number) => Math.round(n * 10) / 10;
+
+const hubs = partnerSectors.map((s, i) => {
+  const a = hubAngles[i % hubAngles.length];
+  const x = round(C + HUB_R * Math.cos(rad(a)));
+  const y = round(C + HUB_R * Math.sin(rad(a)));
+  const spread = 40;
+  const start = a - ((s.count - 1) * spread) / 2;
+  const sats = Array.from({ length: s.count }, (_, j) => {
+    const sa = rad(start + j * spread);
+    return { x: round(x + SAT_R * Math.cos(sa)), y: round(y + SAT_R * Math.sin(sa)) };
+  });
+  return { ...s, x, y, sats };
+});
+const pct = (n: number) => `${(n / 400) * 100}%`;
 ---
 
-<ul class="partners" aria-label="Collaborators">
-  {
-    partners.map((p) => (
-      <li class="partner" data-reveal>
-        <img src={p.logo} alt={p.name} loading="lazy" decoding="async" />
-        <span class="partner__name">{p.name}</span>
-      </li>
-    ))
-  }
-</ul>
+<div class="collab">
+  <figure class="collab__visual bezel" data-reveal>
+    <div class="network">
+      <svg class="network__lines" viewBox="0 0 400 400" aria-hidden="true">
+        <circle class="network__orbit" cx={C} cy={C} r={HUB_R} />
+        <circle class="network__orbit network__orbit--outer" cx={C} cy={C} r={HUB_R + SAT_R + 12} />
+        {
+          hubs.map((h, i) => (
+            <g>
+              <line class="network__spoke" x1={C} y1={C} x2={h.x} y2={h.y} />
+              <line class="network__flow" x1={C} y1={C} x2={h.x} y2={h.y} style={`--i:${i}`} />
+              {h.sats.map((s) => (
+                <>
+                  <line class="network__twig" x1={h.x} y1={h.y} x2={s.x} y2={s.y} />
+                  <circle class="network__sat" cx={s.x} cy={s.y} r="6" />
+                </>
+              ))}
+            </g>
+          ))
+        }
+      </svg>
+      <span class="network__core">
+        <img src="/favicon.png" alt="" width="64" height="64" />
+      </span>
+      {
+        hubs.map((h) => (
+          <span class="network__hub" style={`left:${pct(h.x)};top:${pct(h.y)}`}>
+            <Icon name={h.icon} size={22} />
+          </span>
+        ))
+      }
+    </div>
+    <figcaption class="collab__tally">
+      <span class="collab__count" data-count={partnerTotal}>{partnerTotal}</span>
+      <span>partner organisations across {partnerSectors.length} sectors, one point on the diagram for each</span>
+    </figcaption>
+  </figure>
+
+  <ul class="sectors" aria-label="Collaborations by sector">
+    {
+      partnerSectors.map((s) => (
+        <li class="sector" data-reveal>
+          <article class="sector__card">
+            <div class="sector__head">
+              <span class="sector__icon">
+                <Icon name={s.icon} size={22} />
+              </span>
+              <h3>{s.title}</h3>
+            </div>
+            <p>{s.body}</p>
+            <p class="sector__count">
+              {s.count} {s.count === 1 ? 'organisation' : 'organisations'}
+            </p>
+          </article>
+        </li>
+      ))
+    }
+  </ul>
+
+  <div class="collab__cta" data-reveal>
+    <Button href="/contact/" size="lg" icon="arrow-right">Discuss a collaboration</Button>
+  </div>
+</div>
 
 <style>
-  .partners {
+  .collab {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
     gap: var(--sp-4);
-    list-style: none;
+    align-items: stretch;
   }
 
-  .partner {
-    position: relative;
+  /* Diagram panel */
+  .collab__visual {
     display: grid;
     grid-template-rows: 1fr auto;
-    justify-items: center;
     align-items: center;
-    gap: var(--sp-3);
-    min-height: 168px;
-    padding: var(--sp-5) var(--sp-4) var(--sp-4);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--glass-bg);
-    border-color: var(--glass-border);
-    box-shadow: var(--glass-highlight), var(--shadow-soft);
+    gap: var(--sp-5);
+    margin: 0;
+    padding: clamp(1.25rem, 1rem + 1.5vw, 2rem);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    background:
+      radial-gradient(circle at 50% 42%, rgb(69 101 230 / 0.16), transparent 62%),
+      radial-gradient(circle at 85% 100%, rgb(18 158 150 / 0.12), transparent 55%),
+      var(--glass-bg);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
-    text-align: center;
-    transition:
-      border-color var(--dur) var(--ease),
-      box-shadow var(--dur) var(--ease);
   }
 
-  .partner:hover {
-    border-color: var(--border-strong);
-    box-shadow: var(--shadow);
+  .network {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    aspect-ratio: 1;
+    margin-inline: auto;
   }
 
-  .partner img {
-    max-height: 68px;
-    max-width: 82%;
-    width: auto;
-    object-fit: contain;
-    mix-blend-mode: multiply;
-    transition: transform 300ms var(--ease);
+  .network__lines {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
   }
 
-  .partner:hover img {
-    transform: scale(1.04);
+  .network__orbit {
+    fill: none;
+    stroke: rgb(38 67 196 / 0.22);
+    stroke-width: 1;
+    stroke-dasharray: 2 6;
+    transform-origin: 200px 200px;
+    animation: orbit 90s linear infinite;
   }
 
-  .partner__name {
+  .network__orbit--outer {
+    stroke: rgb(38 67 196 / 0.1);
+    animation-direction: reverse;
+    animation-duration: 140s;
+  }
+
+  .network__spoke {
+    stroke: rgb(38 67 196 / 0.28);
+    stroke-width: 1.5;
+  }
+
+  .network__flow {
+    stroke: var(--blue-500);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-dasharray: 10 140;
+    animation: flow 3.2s var(--ease) infinite;
+    animation-delay: calc(var(--i) * 0.8s);
+  }
+
+  .network__twig {
+    stroke: rgb(18 158 150 / 0.4);
+    stroke-width: 1.25;
+  }
+
+  .network__sat {
+    fill: var(--white);
+    stroke: var(--teal-500);
+    stroke-width: 2;
+  }
+
+  .network__core,
+  .network__hub {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    translate: -50% -50%;
+    border-radius: 50%;
+  }
+
+  .network__core {
+    left: 50%;
+    top: 50%;
+    width: 21%;
+    aspect-ratio: 1;
+    background: var(--glass-bg-strong);
+    box-shadow:
+      0 0 0 6px rgb(255 255 255 / 0.55),
+      0 0 0 7px rgb(38 67 196 / 0.18),
+      0 18px 40px -18px rgb(17 34 102 / 0.5);
+  }
+
+  .network__core img {
+    width: 58%;
+    height: auto;
+  }
+
+  .network__hub {
+    width: 15%;
+    aspect-ratio: 1;
+    color: var(--white);
+    background: var(--gradient-brand);
+    box-shadow:
+      0 0 0 4px rgb(255 255 255 / 0.7),
+      0 12px 26px -12px rgb(28 51 148 / 0.6);
+  }
+
+  .collab__tally {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-4);
+    padding-top: var(--sp-5);
+    border-top: 1px solid rgb(38 67 196 / 0.12);
     font-size: var(--fs-sm);
-    font-weight: 500;
-    line-height: 1.35;
+    line-height: 1.45;
     color: var(--ink-700);
   }
 
-  @media (max-width: 860px) {
-    .partners {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+  .collab__count {
+    font-family: var(--font-display);
+    font-size: var(--fs-2xl);
+    font-weight: var(--fw-heading);
+    letter-spacing: var(--ls-heading);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--brand);
+  }
+
+  /* Sector cards */
+  .sectors {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--sp-4);
+    row-gap: var(--sp-4);
+    list-style: none;
+  }
+
+  /* Each card spans three rows of the parent grid (heading, text, count), so
+     titles, body copy and counts line up across cards that sit side by side. */
+  .sector,
+  .sector__card {
+    display: grid;
+    grid-row: span 3;
+    grid-template-rows: subgrid;
+    row-gap: var(--sp-4);
+  }
+
+  .sector__card {
+    align-content: start;
+    padding: var(--sp-5);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    background: var(--glass-bg);
+    box-shadow: var(--glass-highlight), var(--shadow-soft);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    transition:
+      border-color var(--dur) var(--ease),
+      box-shadow var(--dur) var(--ease),
+      transform var(--dur) var(--ease);
+  }
+
+  .sector__card:hover {
+    border-color: var(--border-strong);
+    box-shadow: var(--glass-highlight), var(--shadow-lg);
+    transform: translateY(-3px);
+  }
+
+  .sector__head {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-4);
+  }
+
+  .sector__icon {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--blue-50);
+    color: var(--brand);
+  }
+
+  .sector__card h3 {
+    font-size: var(--fs-lg);
+    line-height: 1.25;
+    color: var(--ink-900);
+    text-wrap: balance;
+  }
+
+  .sector__card p {
+    font-size: var(--fs-sm);
+    line-height: 1.55;
+    color: var(--ink-700);
+  }
+
+  .sector__card .sector__count {
+    display: flex;
+    align-self: end;
+    align-items: center;
+    gap: var(--sp-2);
+    padding-top: var(--sp-3);
+    border-top: 1px solid var(--border);
+    font-weight: 600;
+    color: var(--teal-700);
+  }
+
+  .sector__count::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border: 2px solid var(--teal-500);
+    border-radius: 50%;
+    background: var(--white);
+  }
+
+  /* Closing call to action: one enlarged primary button with a soft brand glow behind it. */
+  .collab__cta {
+    position: relative;
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    margin-top: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    isolation: isolate;
+  }
+
+  .collab__cta::before {
+    content: '';
+    position: absolute;
+    inset: 50% auto auto 50%;
+    z-index: -1;
+    width: min(520px, 100%);
+    height: 140px;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(69 101 230 / 0.22), transparent);
+    filter: blur(8px);
+    pointer-events: none;
+  }
+
+  .collab__cta :global(.btn) {
+    min-height: 64px;
+    padding: 1rem 1.25rem 1rem 2.25rem;
+    font-size: var(--fs-lg);
+    box-shadow:
+      0 0 0 6px rgb(255 255 255 / 0.55),
+      0 0 0 7px rgb(38 67 196 / 0.14),
+      0 18px 40px -16px rgb(28 51 148 / 0.55);
+  }
+
+  .collab__cta :global(.btn:hover) {
+    box-shadow:
+      0 0 0 6px rgb(255 255 255 / 0.7),
+      0 0 0 7px rgb(38 67 196 / 0.24),
+      0 22px 46px -16px rgb(28 51 148 / 0.65);
+  }
+
+  .collab__cta :global(.btn.btn--lg .btn__orb) {
+    width: 42px;
+    height: 42px;
+    margin-right: 0;
+    margin-left: var(--sp-2);
+  }
+
+  @keyframes orbit {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes flow {
+    from {
+      stroke-dashoffset: 150;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @media (max-width: 960px) {
+    .collab {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .network {
+      max-width: 360px;
+    }
+  }
+
+  /* Tablet: the diagram tile spans the full width, so set the count beside the diagram. */
+  @media (min-width: 641px) and (max-width: 960px) {
+    .collab__visual {
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      grid-template-rows: auto;
+    }
+
+    .collab__tally {
+      flex-direction: column;
+      align-items: flex-start;
       gap: var(--sp-3);
+      padding: 0 0 0 var(--sp-5);
+      border-top: 0;
+      border-left: 1px solid rgb(38 67 196 / 0.12);
+      font-size: var(--fs-base);
     }
 
-    .partner {
-      min-height: 140px;
+    .collab__count {
+      font-size: var(--fs-display);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .sectors {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: var(--sp-3);
     }
 
-    .partner img {
-      max-height: 56px;
+    .collab__cta :global(.btn) {
+      width: 100%;
+      justify-content: center;
     }
   }
 </style>

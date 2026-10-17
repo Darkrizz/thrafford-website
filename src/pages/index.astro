@@ -12,6 +12,7 @@ import { accessGap, achievements } from '../data/site';
 import ProcessRail from '../components/ProcessRail.astro';
 import { pillars, pocmapAdvantages, amlNeed, ticobi } from '../data/technology';
 import { team } from '../data/team';
+import { partnerSectors, partnerTotal } from '../data/partners';
 import { memberSlug } from '../utils/slug';
 import type { IconName } from '../components/Icon.astro';
 
@@ -19,7 +20,7 @@ import type { IconName } from '../components/Icon.astro';
 const shortcuts: { title: string; body: string; href: string; icon: IconName }[] = [
   ...pillars.map((p) => ({ title: p.title, body: p.metric, href: `/technology/#${p.id}`, icon: p.icon })),
   { title: 'Product pipeline', body: 'AML, glioblastoma, lymphoma', href: '/technology/#pipeline', icon: 'flask' },
-  { title: 'Collaborations', body: 'AIIMS, ICMR, UNESCO–RCB', href: '#collaborations', icon: 'users' },
+  { title: 'Collaborations', body: `${partnerTotal} partners across ${partnerSectors.length} sectors`, href: '#collaborations', icon: 'users' },
   { title: 'Conventional vs Quantum AI', body: 'Our human data map', href: '/technology/#quantum-ai', icon: 'atom' },
 ];
 ---
@@ -229,8 +230,8 @@ const shortcuts: { title: string; body: string; href: string; icon: IconName }[]
       <SectionHeading
         id="partners-title"
         eyebrow="Our collaborations"
-        title="Working alongside leading institutions"
-        lead="Collaborations with clinicians, hospitals, academia, labs and strategic advisors."
+        title="Partners at the bench and the bedside"
+        lead="Hospitals, academic labs, public research bodies and diagnostics companies work with us on γδ T-cell therapy, and each brings expertise a young company can’t build on its own."
         align="center"
       />
       <PartnerWall />
