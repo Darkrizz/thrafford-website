@@ -199,7 +199,7 @@ const mrdCells = Array.from({ length: 26 }, () => ({
   d: (rand() * 3).toFixed(2),
 }));
 
-// --- TiCoBi: one donor -> time-controlled expansion -> up to 15 doses ---
+// --- TiCoBi: one donor -> time-controlled expansion -> up to 10 doses ---
 const donor = { x: 112, y: 262 };
 const reactor = { x: 338, y: 262 };
 const ticks = Array.from({ length: 36 }, (_, i) => {
@@ -217,13 +217,13 @@ const expanding = Array.from({ length: 44 }, (_, i) => {
   const r = 14 + Math.sqrt(rand()) * 84;
   return { x: reactor.x + Math.cos(a) * r, y: reactor.y + Math.sin(a) * r, r: 2.4 + rand() * 2.6, d: ((i / 44) * 4).toFixed(2) };
 });
-const vials = Array.from({ length: 15 }, (_, i) => ({
+const vials = Array.from({ length: 10 }, (_, i) => ({
   x: 534 + (i % 5) * 36,
-  y: 178 + Math.floor(i / 5) * 62,
+  y: 209 + Math.floor(i / 5) * 62,
   d: (2 + i * 0.16).toFixed(2),
 }));
-const doseRows = [0, 1, 2].map(
-  (row) => `M${reactor.x + 132},${reactor.y} C${reactor.x + 170},${reactor.y} 490,${198 + row * 62} 526,${198 + row * 62}`
+const doseRows = [0, 1].map(
+  (row) => `M${reactor.x + 132},${reactor.y} C${reactor.x + 170},${reactor.y} 490,${229 + row * 62} 526,${229 + row * 62}`
 );
 ---
 
@@ -675,7 +675,7 @@ const doseRows = [0, 1, 2].map(
             γδ T cells · no editing · no vectors
           </text>
 
-          <text x="606" y="150" class="bv__text bv__text--teal" text-anchor="middle">Up to 15 doses</text>
+          <text x="606" y="181" class="bv__text bv__text--teal" text-anchor="middle">Up to 10 doses</text>
           {vials.map((v) => (
             <g class="bv__vial" style={`animation-delay:${v.d}s`}>
               <rect x={v.x + 3} y={v.y - 6} width="14" height="7" rx="2" fill="#8fa6ff" opacity="0.7" />
@@ -683,7 +683,7 @@ const doseRows = [0, 1, 2].map(
               <rect x={v.x + 3} y={v.y + 14} width="14" height="25" rx="4" fill={`url(#${uid}-core)`} />
             </g>
           ))}
-          <text x="606" y="400" class="bv__text bv__text--dim" text-anchor="middle">Off-the-shelf</text>
+          <text x="606" y="369" class="bv__text bv__text--dim" text-anchor="middle">Off-the-shelf</text>
         </g>
       )
     }

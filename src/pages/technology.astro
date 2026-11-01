@@ -14,6 +14,7 @@ import {
   ticobi,
   mechanism,
   pipeline,
+  socComparison,
   patents,
   quantumAI,
 } from '../data/technology';
@@ -34,7 +35,7 @@ const chapters = [
 const specs = [
   { k: 'Cell type', v: 'γδ T cells · Vγ9Vδ2' },
   { k: 'Source', v: 'One healthy donor' },
-  { k: 'Output', v: 'Up to 15 doses' },
+  { k: 'Output', v: 'Up to 10 doses' },
   { k: 'Gene editing', v: 'None' },
   { k: 'Viral vectors', v: 'None' },
   { k: 'IP', v: '3 patents filed' },
@@ -53,7 +54,7 @@ const checkpoints = [96, 180, 264];
 
 <BaseLayout
   title="TiCoBi"
-  description="TiCoBi, Thrafford’s patent-filed bioprocess for off-the-shelf γδ T-cell therapy: up to 15 doses from one donor, no gene editing, built to target MRD in AML."
+  description="TiCoBi, Thrafford’s patent-filed bioprocess for off-the-shelf γδ T-cell therapy: up to 10 doses from one donor, no gene editing, built to target MRD in AML."
 >
   <section class="th" aria-labelledby="th-title">
     <div class="th__bg" aria-hidden="true"></div>
@@ -61,7 +62,7 @@ const checkpoints = [96, 180, 264];
       <div class="th__copy">
         <p class="eyebrow">TiCoBi</p>
         <h1 id="th-title">
-          One donor.<br /><span class="nowrap">Up to <span class="th__accent">fifteen</span> doses.</span>
+          One donor.<br /><span class="nowrap">Up to <span class="th__accent">ten</span> doses.</span>
         </h1>
         <p class="th__lead">{oneLiner}</p>
         <div class="th__actions">
@@ -106,7 +107,7 @@ const checkpoints = [96, 180, 264];
           <figcaption>
             <span>Day 0</span>
             <span>Controlled expansion</span>
-            <span>Harvest, up to 15 doses</span>
+            <span>Harvest, up to 10 doses</span>
           </figcaption>
         </figure>
         <dl class="spec__list">
@@ -163,7 +164,7 @@ const checkpoints = [96, 180, 264];
         <div class="ticobi__figure bezel" data-reveal>
           <BioVisual
             variant="ticobi"
-            label="Schematic: blood from one healthy donor passes through a time-controlled expansion chamber and yields up to fifteen off-the-shelf γδ T-cell doses"
+            label="Schematic: blood from one healthy donor passes through a time-controlled expansion chamber and yields up to ten off-the-shelf γδ T-cell doses"
           />
         </div>
       </div>
@@ -245,7 +246,7 @@ const checkpoints = [96, 180, 264];
         eyebrow="Product portfolio"
         title="One platform, a growing pipeline"
         align="center"
-        lead="TiCoBi is antigen-agnostic. Beyond AML, the same process extends to glioblastoma and other solid tumours — and TiCoBi-generated γδ T cells can also supply partners’ CAR-T programmes."
+        lead="TiCoBi is antigen-agnostic. Beyond AML, the same process extends to glioblastoma, other solid tumours and rheumatoid arthritis — and TiCoBi-generated γδ T cells can also supply partners’ CAR-T programmes."
       />
       <div class="pipeline" role="table" aria-label="Product portfolio" data-reveal>
         <div class="pipeline__head" role="row">
@@ -276,6 +277,53 @@ const checkpoints = [96, 180, 264];
           ))
         }
       </div>
+    </div>
+  </section>
+
+  <!-- TiCoBi against the standard of care -->
+  <section class="section section--alt soc" id="comparison" aria-labelledby="soc-title">
+    <div class="container">
+      <SectionHeading
+        id="soc-title"
+        eyebrow="Our product vs standard of care"
+        title="TiCoBi vs today’s AML care"
+        align="center"
+        lead="Today’s treatments can bring remission, but leukaemia cells that survive them often bring the disease back. TiCoBi is designed to close that gap."
+      />
+
+      <div class="soc__table" role="table" aria-label="TiCoBi compared with the standard of care for AML" data-reveal>
+        <div class="soc__head" role="row">
+          <span class="soc__corner" role="columnheader"><span class="visually-hidden">Topic</span></span>
+          <span class="soc__col-name" role="columnheader">Standard of care <small>including CAR-T</small></span>
+          <span class="soc__col-name soc__col-name--ours" role="columnheader">TiCoBi <small>allogeneic γδ T cells</small></span>
+        </div>
+        {
+          socComparison.map((r) => (
+            <div class="soc__row" role="row">
+              <div class="soc__topic" role="rowheader">
+                <span class="soc__icon"><Icon name={r.icon} size={20} /></span>
+                <h3>{r.topic}</h3>
+              </div>
+              <div class="soc__cell" role="cell">
+                <span class="soc__label">Standard of care</span>
+                <p>{r.soc}</p>
+              </div>
+              <div class="soc__cell soc__cell--ours" role="cell">
+                <span class="soc__label">TiCoBi</span>
+                <span class="soc__check"><Icon name="check" size={14} /></span>
+                <p>{r.ticobi}</p>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+
+      <p class="soc__note" data-reveal>
+        Standard of care for AML means 7+3 chemotherapy, azacitidine with venetoclax, targeted therapies and donor
+        stem-cell transplant. These modalities are given mainly for disease management and after relapse. Thrafford’s
+        approach is designed to eliminate measurable residual disease during remission, shifting care from rescue to
+        prevention.
+      </p>
     </div>
   </section>
 
@@ -541,7 +589,7 @@ const checkpoints = [96, 180, 264];
   .th__grid {
     display: grid;
     grid-template-columns: 1.3fr 1fr;
-    align-items: center;
+    align-items: start;
     gap: clamp(2.5rem, 1rem + 5vw, 6rem);
   }
 
@@ -1127,11 +1175,211 @@ const checkpoints = [96, 180, 264];
     }
   }
 
-  /* Connecting line between the portfolio and PoCMAP: the two sections close in around it. */
-  #pipeline {
-    padding-bottom: var(--sp-6);
+  /* TiCoBi vs standard of care: the TiCoBi column runs as one dark panel down the table. */
+  .soc__table {
+    position: relative;
+    isolation: isolate;
+    max-width: 1080px;
+    margin-inline: auto;
   }
 
+  .soc__table::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    width: 42%;
+    border: 1px solid rgb(143 166 255 / 0.22);
+    border-radius: 22px;
+    background:
+      radial-gradient(420px 260px at 100% 0%, rgb(69 101 230 / 0.35), transparent 70%),
+      radial-gradient(360px 240px at 0% 100%, rgb(18 158 150 / 0.22), transparent 70%),
+      linear-gradient(160deg, #141b23, #0a0e13);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .soc__head,
+  .soc__row {
+    display: grid;
+    grid-template-columns: 22% 36% 42%;
+  }
+
+  .soc__col-name {
+    display: grid;
+    align-content: start;
+    gap: 2px;
+    padding: var(--sp-5) var(--sp-5) var(--sp-4);
+    font-family: var(--font-display);
+    font-size: var(--fs-lg);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--ink-700);
+  }
+
+  .soc__col-name small {
+    font-family: var(--font-body);
+    font-size: var(--fs-sm);
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--text-muted);
+  }
+
+  .soc__col-name--ours {
+    padding-inline: var(--sp-6);
+    font-size: var(--fs-xl);
+    color: var(--white);
+  }
+
+  .soc__col-name--ours small {
+    color: var(--teal-300);
+  }
+
+  .soc__row > * {
+    border-top: 1px solid var(--border-strong);
+  }
+
+  .soc__row > .soc__cell--ours {
+    border-top-color: rgb(255 255 255 / 0.1);
+  }
+
+  .soc__topic {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-5) var(--sp-4) var(--sp-5) 0;
+  }
+
+  .soc__topic h3 {
+    font-size: var(--fs-base);
+    line-height: 1.3;
+    color: var(--ink-900);
+  }
+
+  .soc__icon {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--blue-50);
+    color: var(--brand);
+  }
+
+  .soc__cell {
+    padding: var(--sp-5);
+  }
+
+  .soc__cell p {
+    font-size: var(--fs-sm);
+    line-height: 1.55;
+    color: var(--ink-700);
+  }
+
+  .soc__cell--ours {
+    position: relative;
+    padding-inline: calc(var(--sp-6) + 28px) var(--sp-6);
+  }
+
+  .soc__cell--ours p {
+    font-size: var(--fs-base);
+    line-height: 1.5;
+    color: var(--ink-100);
+  }
+
+  .soc__check {
+    position: absolute;
+    top: calc(var(--sp-5) + 2px);
+    left: var(--sp-6);
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgb(99 210 202 / 0.16);
+    color: var(--teal-300);
+  }
+
+  .soc__label {
+    display: none;
+  }
+
+  .soc__note {
+    max-width: 78ch;
+    margin: var(--sp-6) auto 0;
+    font-size: var(--fs-sm);
+    line-height: 1.55;
+    text-align: center;
+    text-wrap: pretty;
+    color: var(--text-muted);
+  }
+
+  /* Phones and small tablets: each topic becomes its own card, keeping the two sides together. */
+  @media (max-width: 820px) {
+    .soc__table::before,
+    .soc__head {
+      display: none;
+    }
+
+    .soc__table {
+      display: grid;
+      gap: var(--sp-4);
+    }
+
+    .soc__row {
+      grid-template-columns: minmax(0, 1fr);
+      overflow: hidden;
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      background: var(--glass-bg);
+      box-shadow: var(--glass-highlight), var(--shadow-soft);
+    }
+
+    .soc__row > * {
+      border-top: 0;
+    }
+
+    .soc__topic {
+      padding: var(--sp-4) var(--sp-4) 0;
+    }
+
+    .soc__cell {
+      display: grid;
+      gap: var(--sp-1);
+      padding: var(--sp-3) var(--sp-4) var(--sp-4);
+    }
+
+    .soc__label {
+      display: block;
+      font-size: var(--fs-sm);
+      font-weight: 600;
+      color: var(--ink-500);
+    }
+
+    .soc__cell--ours {
+      padding: var(--sp-4) var(--sp-4) var(--sp-4) calc(var(--sp-4) + 28px);
+      background:
+        radial-gradient(320px 200px at 100% 0%, rgb(69 101 230 / 0.35), transparent 70%),
+        linear-gradient(160deg, #141b23, #0a0e13);
+    }
+
+    .soc__cell--ours .soc__label {
+      color: var(--teal-300);
+    }
+
+    .soc__check {
+      top: calc(var(--sp-4) + 1px);
+      left: var(--sp-4);
+    }
+
+    .soc__note {
+      text-align: left;
+    }
+  }
+
+  /* Connecting line between the comparison and PoCMAP. */
   .pocmap {
     padding-top: var(--sp-6);
   }

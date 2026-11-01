@@ -31,6 +31,11 @@ const isActive = (href: string) =>
       </ul>
     </nav>
 
+    <button class="search-toggle" type="button" data-search-open aria-haspopup="dialog">
+      <span class="visually-hidden">Search the website</span>
+      <Icon name="search" size={20} />
+    </button>
+
     <div class="site-header__cta">
       <Button href="/contact/" icon="arrow-right" aria-current={isActive('/contact/') ? 'page' : undefined}>
         Get in touch
@@ -120,7 +125,7 @@ const isActive = (href: string) =>
     }
   });
 
-  window.matchMedia('(min-width: 960px)').addEventListener('change', (e) => {
+  window.matchMedia('(min-width: 1060px)').addEventListener('change', (e) => {
     if (e.matches) setOpen(false);
   });
 </script>
@@ -271,6 +276,28 @@ const isActive = (href: string) =>
     background: rgb(69 101 230 / 0.28);
   }
 
+  .search-toggle {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border: 1px solid rgb(255 255 255 / 0.18);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--white);
+    cursor: pointer;
+    transition:
+      background-color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
+  }
+
+  .search-toggle:hover {
+    border-color: rgb(255 255 255 / 0.4);
+    background: rgb(255 255 255 / 0.08);
+  }
+
   .menu-toggle {
     display: none;
     margin-left: auto;
@@ -382,7 +409,7 @@ const isActive = (href: string) =>
     overflow: hidden;
   }
 
-  @media (max-width: 959px) {
+  @media (max-width: 1059px) {
     .primary-nav,
     .site-header__cta {
       display: none;
@@ -390,10 +417,21 @@ const isActive = (href: string) =>
 
     .menu-toggle {
       display: inline-flex;
+      margin-left: calc(var(--sp-2) - var(--sp-6));
+    }
+
+    .search-toggle {
+      margin-left: auto;
     }
   }
 
-  @media (min-width: 960px) {
+  @media (min-width: 1060px) {
+    .search-toggle {
+      margin-inline: calc(var(--sp-3) - var(--sp-6));
+    }
+  }
+
+  @media (min-width: 1060px) {
     .mobile-menu {
       display: none !important;
     }

@@ -4,6 +4,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import GradientBackdrop from '../components/GradientBackdrop';
 import MailMenu from '../components/MailMenu.astro';
+import SiteSearch from '../components/SiteSearch.astro';
 import { site, contact } from '../data/site';
 
 interface Props {
@@ -86,6 +87,7 @@ const organization = {
     </main>
     <Footer />
     <MailMenu />
+    <SiteSearch />
 
     <script>
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;

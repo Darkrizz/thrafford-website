@@ -62,9 +62,9 @@ export const accessGap = [
 ];
 
 export const achievements = [
-  { value: 55, suffix: '', label: 'Publications' },
-  { value: 46, suffix: '', label: 'Patents filed' },
-  { value: 7, prefix: '$', suffix: 'M', label: 'Grants' },
-  { value: 20, suffix: '+', label: 'Awards' },
-  { value: 2, suffix: '', label: 'Books' },
+  { value: 55, suffix: '', label: 'Publications', href: '/publications/#paper' },
+  { value: 46, suffix: '', label: 'Patents filed', href: '/publications/#patent' },
+  { value: 7, prefix: '$', suffix: 'M', label: 'Grants', href: '/publications/' },
+  { value: 20, suffix: '+', label: 'Awards', href: '/publications/' },
+  { value: 2, suffix: '', label: 'Books', href: '/publications/#chapter' },
 ];

@@ -1,0 +1,583 @@
+---
+/**
+ * Site-wide search. On first use it fetches every page, reads the rendered text
+ * and searches that in the browser, so anything visible on the site is findable
+ * and the index can never go out of date. There is no build step or dependency.
+ */
+import Icon from './Icon.astro';
+import { nav } from '../data/site';
+
+const labels = new Map([...nav, { label: 'Contact', href: '/contact/' }].map((n) => [n.href, n.label]));
+const pages = Object.keys(import.meta.glob('../pages/**/*.astro'))
+  .map((f) => f.replace('../pages', '').replace(/(index)?\.astro$/, '').replace(/\/?$/, '/'))
+  .filter((path) => !path.startsWith('/404'))
+  .map((path) => ({ path, label: labels.get(path) ?? '' }));
+
+const suggestions = ['TiCoBi', 'γδ T cells', 'Glioblastoma', 'Patents', 'PoCMAP', 'Standard of care'];
+---
+
+<dialog class="ssearch" aria-label="Search the website" data-site-search data-pages={JSON.stringify(pages)}>
+  <div class="ssearch__panel">
+    <div class="ssearch__bar">
+      <Icon name="search" size={20} />
+      <label for="site-search-input" class="visually-hidden">Search the website</label>
+      <input
+        id="site-search-input"
+        type="search"
+        placeholder="Search the website"
+        autocomplete="off"
+        spellcheck="false"
+        data-search-input
+      />
+      <button type="button" class="ssearch__close" data-search-close>
+        <span class="visually-hidden">Close search</span>
+        <Icon name="close" size={18} />
+      </button>
+    </div>
+
+    <p class="ssearch__status" role="status" aria-live="polite" data-search-status></p>
+
+    <div class="ssearch__start" data-search-start>
+      <p>Try one of these</p>
+      <ul>
+        {suggestions.map((s) => <li><button type="button" data-search-suggest>{s}</button></li>)}
+      </ul>
+    </div>
+
+    <div class="ssearch__results" data-search-results></div>
+  </div>
+</dialog>
+
+<script>
+  type Rec = { page: string; title: string; text: string; url: string; hay: string; hayTitle: string; parent?: Rec };
+
+  const dialog = document.querySelector<HTMLDialogElement>('[data-site-search]')!;
+  const input = dialog.querySelector<HTMLInputElement>('[data-search-input]')!;
+  const status = dialog.querySelector<HTMLElement>('[data-search-status]')!;
+  const start = dialog.querySelector<HTMLElement>('[data-search-start]')!;
+  const out = dialog.querySelector<HTMLElement>('[data-search-results]')!;
+  const pages: { path: string; label: string }[] = JSON.parse(dialog.dataset.pages!);
+
+  const MAX_RESULTS = 30;
+  const ALIASES: [RegExp, string][] = [
+    [/\bgamma[\s-]*delta\b/g, 'γδ'],
+    [/\bgd[\s-]*t\b/g, 'γδ t'],
+    [/leukemi/g, 'leukaemi'],
+    [/\btumor/g, 'tumour'],
+    [/allogenic/g, 'allogeneic'],
+    [/\bprogram\b/g, 'programme'],
+    [/\bprograms\b/g, 'programmes'],
+  ];
+
+  const norm = (s: string) => {
+    let t = s.normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[’‘]/g, "'").toLowerCase();
+    for (const [re, to] of ALIASES) t = t.replace(re, to);
+    return t;
+  };
+
+  // A plural in the query still matches the singular on the page, and the other way round.
+  const tokenise = (q: string) =>
+    norm(q)
+      .split(/[^\p{L}\p{N}+-]+/u)
+      .filter(Boolean)
+      .map((t) => (t.length > 3 && t.endsWith('s') ? t.slice(0, -1) : t));
+
+  const textOf = (el: Element) => {
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    const parts: string[] = [];
+    while (walker.nextNode()) parts.push(walker.currentNode.textContent ?? '');
+    return parts.join(' ').replace(/\s+/g, ' ').replace(/ ([,.;:)])/g, '$1').trim();
+  };
+
+  const record = (page: string, title: string, text: string, url: string, parent?: Rec): Rec => ({
+    page,
+    title,
+    text,
+    url,
+    hay: norm(text),
+    hayTitle: norm(title),
+    parent,
+  });
+
+  const anchorOf = (el: Element, fallback: string) => {
+    const owner = el.closest('[id]');
+    return owner && owner.tagName !== 'MAIN' ? `#${owner.id}` : fallback;
+  };
+
+  function readPage(doc: Document, path: string, label: string): Rec[] {
+    const main = doc.querySelector('main');
+    if (!main) return [];
+    main
+      .querySelectorAll('script, style, svg, noscript, template, form, [aria-hidden="true"], .visually-hidden, .cta')
+      .forEach((n) => n.remove());
+
+    const page = label || textOf(main.querySelector('h1') ?? main).slice(0, 60);
+    const recs: Rec[] = [];
+
+    [...main.children].forEach((block) => {
+      const text = textOf(block);
+      if (!text) return;
+      const heading = block.querySelector('h1, h2');
+      const labelled = block.getAttribute('aria-labelledby');
+      const hash = block.id ? `#${block.id}` : labelled ? `#${labelled}` : heading?.id ? `#${heading.id}` : '';
+      const parent = record(page, heading ? textOf(heading) : page, text, path + hash);
+      recs.push(parent);
+
+      // Each card, row or profile inside the block is its own, more precise result.
+      block.querySelectorAll('h3, h4').forEach((h) => {
+        if (h.closest('.pub')) return;
+        const card = h.closest('article, li, [role="row"]') ?? h.parentElement!;
+        const member = h.closest('.member[id], article[id]');
+        const url = member && path === '/team/' ? `/team/?member=${member.id}` : path + anchorOf(h, hash);
+        recs.push(record(page, textOf(h), textOf(card), url, parent));
+      });
+
+      // Publications: one result per entry, opening the list filtered to that entry.
+      block.querySelectorAll('.pub').forEach((pub) => {
+        const title = textOf(pub.querySelector('.pub__title') ?? pub);
+        recs.push(record(page, title, textOf(pub), `${path}?q=${encodeURIComponent(title.slice(0, 80))}`, parent));
+      });
+    });
+    return recs;
+  }
+
+  let index: Promise<Rec[]> | null = null;
+  const loadIndex = () => {
+    index ??= Promise.all(
+      pages.map(async ({ path, label }) => {
+        const res = await fetch(path);
+        if (!res.ok) throw new Error(`${path}: ${res.status}`);
+        return readPage(new DOMParser().parseFromString(await res.text(), 'text/html'), path, label);
+      })
+    )
+      .then((all) => all.flat())
+      .catch((err) => {
+        index = null;
+        throw err;
+      });
+    return index;
+  };
+
+  const score = (r: Rec, tokens: string[]) => {
+    let total = 0;
+    for (const t of tokens) {
+      const inTitle = r.hayTitle.includes(t);
+      const mentions = r.hay.split(t).length - 1;
+      if (!inTitle && !mentions) return 0;
+      // A word in the title counts most; otherwise the section about a topic beats a passing mention.
+      total += inTitle ? (new RegExp(`(^|[^\\p{L}\\p{N}])${esc(t)}`, 'u').test(r.hayTitle) ? 12 : 6) : Math.min(mentions, 6);
+    }
+    return total;
+  };
+
+  const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  function run(recs: Rec[], tokens: string[]) {
+    const phrase = tokens.join(' ');
+    const hits = recs
+      .map((r) => {
+        const s = score(r, tokens);
+        // The exact phrase outranks the same words scattered through a long section.
+        return { r, s: s && s + (r.hayTitle.includes(phrase) ? 20 : r.hay.includes(phrase) ? 10 : 0) };
+      })
+      .filter((h) => h.s > 0);
+    // Drop a whole-section result when one of its cards already answers the query.
+    const answered = new Set(hits.filter((h) => h.r.parent).map((h) => h.r.parent));
+    return hits
+      .filter((h) => !answered.has(h.r) || tokens.every((t) => h.r.hayTitle.includes(t)))
+      .sort((a, b) => b.s - a.s)
+      .slice(0, MAX_RESULTS)
+      .map((h) => h.r);
+  }
+
+  const distance = (a: string, b: string, max: number) => {
+    if (Math.abs(a.length - b.length) > max) return max + 1;
+    let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+    for (let i = 1; i <= a.length; i++) {
+      const row = [i];
+      for (let j = 1; j <= b.length; j++) {
+        row[j] = Math.min(prev[j] + 1, row[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      }
+      prev = row;
+    }
+    return prev[b.length];
+  };
+
+  // Medical terms are easy to misspell: when nothing matches, try the closest words on the site.
+  function correct(recs: Rec[], tokens: string[]) {
+    const vocab = new Set(recs.flatMap((r) => r.hay.split(/[^\p{L}\p{N}-]+/u)).filter((w) => w.length > 3));
+    let changed = false;
+    const fixed = tokens.map((t) => {
+      if (t.length < 4 || recs.some((r) => r.hay.includes(t))) return t;
+      const max = t.length >= 8 ? 2 : 1;
+      let best = '';
+      let bestD = max + 1;
+      for (const w of vocab) {
+        const d = distance(t, w, max);
+        if (d < bestD) {
+          best = w;
+          bestD = d;
+        }
+      }
+      if (best) changed = true;
+      return best || t;
+    });
+    return changed ? fixed : null;
+  }
+
+  function mark(target: HTMLElement, text: string, tokens: string[]) {
+    target.textContent = '';
+    let last = 0;
+    for (const m of text.matchAll(new RegExp(tokens.map(esc).join('|'), 'giu'))) {
+      target.append(text.slice(last, m.index));
+      const el = document.createElement('mark');
+      el.textContent = m[0];
+      target.append(el);
+      last = m.index + m[0].length;
+    }
+    target.append(text.slice(last));
+  }
+
+  const SNIPPET = 170;
+  const snippet = (r: Rec, tokens: string[]) => {
+    const lower = r.text.toLowerCase();
+    const hits = tokens.map((t) => lower.indexOf(t)).filter((i) => i >= 0);
+    const at = hits.length ? Math.min(...hits) : 0;
+    // Start and end on whole words.
+    const from = at > 60 ? r.text.indexOf(' ', at - 60) + 1 : 0;
+    let to = from + SNIPPET;
+    if (to < r.text.length) to = r.text.lastIndexOf(' ', to);
+    return `${from > 0 ? '… ' : ''}${r.text.slice(from, to).trim()}${to < r.text.length ? ' …' : ''}`;
+  };
+
+  function render(results: Rec[], tokens: string[]) {
+    out.textContent = '';
+    const byPage = new Map<string, Rec[]>();
+    results.forEach((r) => byPage.set(r.page, [...(byPage.get(r.page) ?? []), r]));
+    byPage.forEach((recs, page) => {
+      const group = document.createElement('section');
+      const h = document.createElement('h2');
+      h.textContent = page;
+      const list = document.createElement('ul');
+      recs.forEach((r) => {
+        const a = document.createElement('a');
+        a.href = r.url;
+        a.dataset.result = '';
+        const title = document.createElement('strong');
+        mark(title, r.title, tokens);
+        const body = document.createElement('span');
+        mark(body, snippet(r, tokens), tokens);
+        a.append(title, body);
+        const li = document.createElement('li');
+        li.append(a);
+        list.append(li);
+      });
+      group.append(h, list);
+      out.append(group);
+    });
+  }
+
+  let runId = 0;
+  async function update() {
+    const id = ++runId;
+    const raw = input.value.trim();
+    start.hidden = Boolean(raw);
+    if (!raw) {
+      out.textContent = '';
+      status.textContent = '';
+      return;
+    }
+    let recs: Rec[];
+    try {
+      if (!(await Promise.race([index, Promise.resolve(false)]))) status.textContent = 'Loading…';
+      recs = await loadIndex();
+    } catch {
+      if (id === runId) {
+        out.textContent = '';
+        status.textContent = 'Search couldn’t load. Check your connection and try again.';
+      }
+      return;
+    }
+    if (id !== runId) return;
+
+    let tokens = tokenise(raw);
+    let results = tokens.length ? run(recs, tokens) : [];
+    let note = '';
+    if (!results.length && tokens.length) {
+      const fixed = correct(recs, tokens);
+      if (fixed) {
+        results = run(recs, fixed);
+        if (results.length) {
+          tokens = fixed;
+          note = `No exact match. Showing results for “${fixed.join(' ')}”. `;
+        }
+      }
+    }
+    render(results, tokens);
+    status.textContent = results.length
+      ? `${note}${results.length}${results.length === MAX_RESULTS ? '+' : ''} ${results.length === 1 ? 'result' : 'results'}`
+      : `Nothing found for “${raw}”. Try a different word, or ask us through the Contact page.`;
+  }
+
+  function open() {
+    if (dialog.open) return;
+    dialog.showModal();
+    document.documentElement.classList.add('search-open');
+    input.focus();
+    input.select();
+    loadIndex().catch(() => {});
+    if (input.value) update();
+  }
+
+  const close = () => dialog.close();
+
+  document.querySelectorAll('[data-search-open]').forEach((btn) => {
+    btn.addEventListener('click', open);
+    // Start loading on intent so results feel instant.
+    btn.addEventListener('pointerenter', () => loadIndex().catch(() => {}), { once: true });
+  });
+
+  dialog.addEventListener('close', () => document.documentElement.classList.remove('search-open'));
+  dialog.querySelector('[data-search-close]')!.addEventListener('click', close);
+  dialog.addEventListener('click', (e) => {
+    const t = e.target as Element;
+    if (t === dialog) close();
+    if (t.closest('[data-result]')) close();
+    const s = t.closest<HTMLElement>('[data-search-suggest]');
+    if (s) {
+      input.value = s.textContent ?? '';
+      input.focus();
+      update();
+    }
+  });
+
+  let timer: number | undefined;
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = window.setTimeout(update, 120);
+  });
+
+  dialog.addEventListener('keydown', (e) => {
+    const links = [...out.querySelectorAll<HTMLAnchorElement>('[data-result]')];
+    const at = links.indexOf(document.activeElement as HTMLAnchorElement);
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      close();
+    } else if (e.key === 'Enter' && document.activeElement === input && links[0]) {
+      e.preventDefault();
+      links[0].click();
+    } else if (e.key === 'ArrowDown' && links.length) {
+      e.preventDefault();
+      links[Math.min(at + 1, links.length - 1)].focus();
+    } else if (e.key === 'ArrowUp' && links.length) {
+      e.preventDefault();
+      (at <= 0 ? input : links[at - 1]).focus();
+    }
+  });
+
+  // "/" or Ctrl/Cmd+K opens search from anywhere, unless the visitor is typing in a field.
+  document.addEventListener('keydown', (e) => {
+    const el = e.target as HTMLElement;
+    const typing = el.matches?.('input, textarea, select') || el.isContentEditable;
+    if ((e.key === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && !typing)) {
+      e.preventDefault();
+      open();
+    }
+  });
+</script>
+
+<style>
+  :global(html.search-open) {
+    overflow: hidden;
+  }
+
+  .ssearch {
+    width: min(720px, calc(100vw - 2 * var(--gutter)));
+    max-width: none;
+    max-height: none;
+    margin: clamp(0.75rem, 8vh, 5rem) auto 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    overflow: visible;
+  }
+
+  .ssearch::backdrop {
+    background: rgb(10 14 19 / 0.62);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  .ssearch__panel {
+    display: grid;
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    max-height: calc(100dvh - clamp(1.5rem, 16vh, 10rem));
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-raised);
+    box-shadow:
+      0 0 0 1px rgb(38 67 196 / 0.14),
+      0 40px 80px -30px rgb(10 14 19 / 0.7);
+  }
+
+  .ssearch__bar {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-3) var(--sp-3) var(--sp-3) var(--sp-5);
+    border-bottom: 1px solid var(--border);
+    color: var(--brand);
+  }
+
+  .ssearch__bar input {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-family: var(--font-display);
+    font-size: var(--fs-lg);
+    color: var(--ink-900);
+  }
+
+  .ssearch__bar input::placeholder {
+    color: var(--ink-400);
+  }
+
+  .ssearch__bar input::-webkit-search-cancel-button {
+    display: none;
+  }
+
+  .ssearch__close {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ink-500);
+    cursor: pointer;
+    transition: background-color var(--dur) var(--ease);
+  }
+
+  .ssearch__close:hover {
+    background: var(--blue-50);
+    color: var(--brand);
+  }
+
+  .ssearch__status {
+    padding: var(--sp-3) var(--sp-5) 0;
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+
+  .ssearch__status:empty {
+    display: none;
+  }
+
+  .ssearch__start {
+    padding: var(--sp-4) var(--sp-5) var(--sp-5);
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+
+  .ssearch__start[hidden] {
+    display: none;
+  }
+
+  .ssearch__start ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    margin-top: var(--sp-3);
+    list-style: none;
+  }
+
+  .ssearch__start button {
+    min-height: 40px;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    font: inherit;
+    font-weight: 500;
+    color: var(--ink-800);
+    cursor: pointer;
+    transition:
+      border-color var(--dur) var(--ease),
+      background-color var(--dur) var(--ease);
+  }
+
+  .ssearch__start button:hover {
+    border-color: var(--blue-500);
+    background: var(--blue-50);
+  }
+
+  .ssearch__results {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0 var(--sp-3);
+  }
+
+  .ssearch__results:empty {
+    display: none;
+  }
+
+  .ssearch__results :global(section) {
+    padding-block: var(--sp-3);
+  }
+
+  .ssearch__results :global(h2) {
+    padding: 0 var(--sp-2) var(--sp-2);
+    font-family: var(--font-display);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    letter-spacing: 0;
+    color: var(--brand);
+  }
+
+  .ssearch__results :global(ul) {
+    display: grid;
+    gap: 2px;
+    list-style: none;
+  }
+
+  .ssearch__results :global(a) {
+    display: grid;
+    gap: 2px;
+    padding: var(--sp-3);
+    border-radius: var(--radius);
+    color: var(--ink-700);
+    text-decoration: none;
+    transition: background-color 160ms var(--ease);
+  }
+
+  .ssearch__results :global(a:hover),
+  .ssearch__results :global(a:focus-visible) {
+    background: var(--blue-50);
+  }
+
+  .ssearch__results :global(strong) {
+    font-size: var(--fs-base);
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--ink-900);
+  }
+
+  .ssearch__results :global(span) {
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+    color: var(--ink-500);
+  }
+
+  .ssearch__results :global(mark) {
+    border-radius: 3px;
+    background: var(--blue-100);
+    color: var(--blue-700);
+  }
+</style>

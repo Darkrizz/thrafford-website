@@ -132,7 +132,7 @@ export const ticobi = {
   name: 'TiCoBi',
   expansion: 'Time-Controlled Bioprocess',
   summary:
-    'A proprietary, patent-filed, time-controlled bioprocess that expands a single healthy donor’s blood into up to 15 ready-to-use, off-the-shelf γδ T-cell doses — with no viral vectors, no gene editing and no patient-specific manufacturing.',
+    'A proprietary, patent-filed, time-controlled bioprocess that expands a single healthy donor’s blood into up to 10 ready-to-use, off-the-shelf γδ T-cell doses — with no viral vectors, no gene editing and no patient-specific manufacturing.',
   steps: [
     { title: 'Healthy donor', body: 'Blood from a single healthy donor — not the patient.' },
     { title: 'γδ T-cell isolation', body: 'Gamma-delta T cells are isolated and purified ex vivo.' },
@@ -140,7 +140,7 @@ export const ticobi = {
       title: 'Time-controlled expansion',
       body: 'Temporally and volumetrically controlled expansion yields a non-exhausted memory phenotype.',
     },
-    { title: 'Up to 15 doses', body: 'Off-the-shelf doses, ready when the clinician needs them.' },
+    { title: 'Up to 10 doses', body: 'Off-the-shelf doses, ready when the clinician needs them.' },
   ],
   attributes: [
     'No gene editing',
@@ -186,10 +186,56 @@ export const pipeline: { code: string; indication: string; modality: string; pla
     platform: 'TiCoBi',
   },
   {
+    code: 'TLS-TRG-001RA',
+    indication: 'Rheumatoid Arthritis',
+    modality: 'Allogeneic TRG cells',
+    platform: 'TiCoBi',
+  },
+  {
     code: 'TLS-GDC-001LL',
     indication: 'Lymphoma & Leukaemia',
     modality: 'γδ CD19 CAR-T',
-    platform: 'Healthy donor · one batch for 15 patients',
+    platform: 'Healthy donor · one batch for 10 patients',
+  },
+];
+
+/** TiCoBi against current AML care, in plain language (from the client's differentiation note). */
+export const socComparison: { topic: string; icon: IconName; soc: string; ticobi: string }[] = [
+  {
+    topic: 'Leftover disease',
+    icon: 'cell',
+    soc: 'Treatment can bring remission, but leukaemia cells that survive it drive relapse. No dedicated, scalable treatment exists for them.',
+    ticobi: 'Designed to go after those surviving cells and prevent relapse.',
+  },
+  {
+    topic: 'Finding cancer cells',
+    icon: 'molecule',
+    soc: 'CAR-T looks for one target. In AML that target varies between cancer cells and is often shared with healthy blood cells, and toxicity is a concern.',
+    ticobi: 'γδ T cells recognise several tumour-stress signals with no single target to depend on, so cancer cells may find it harder to escape.',
+  },
+  {
+    topic: 'Who it’s made for',
+    icon: 'layers',
+    soc: 'CAR-T is manufactured separately for each patient.',
+    ticobi: 'One healthy-donor batch gives multiple doses, with no HLA matching needed.',
+  },
+  {
+    topic: 'Cell engineering',
+    icon: 'dna',
+    soc: 'CAR-T cells are engineered, using viral vectors or gene editing.',
+    ticobi: 'No viral vectors, no gene editing, and cells that aren’t exhausted.',
+  },
+  {
+    topic: 'Time to treatment',
+    icon: 'clock',
+    soc: 'Weeks of manufacturing before a patient can be treated.',
+    ticobi: 'Frozen and ready to use, so doses are available quickly.',
+  },
+  {
+    topic: 'Role and cost',
+    icon: 'coins',
+    soc: 'Cell therapy today is a costly rescue, used after relapse.',
+    ticobi: 'Designed to be affordable at scale, and given to prevent relapse rather than treat it.',
   },
 ];
 

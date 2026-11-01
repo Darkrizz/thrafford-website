@@ -238,7 +238,12 @@ const lookupUrl = (p: Publication) => {
       });
     });
 
+    // Site search links here with ?q=<title> to open the list on one entry.
+    const q = new URLSearchParams(location.search).get('q');
+    if (q) search.value = q;
+
     select(location.hash.slice(1) || 'all', false);
+    if (q) root.scrollIntoView();
 
     // Hero shortcuts (e.g. #patent) filter the list and glide down to it.
     window.addEventListener('hashchange', () => {

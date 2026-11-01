@@ -19,7 +19,7 @@ import type { IconName } from '../components/Icon.astro';
 // Hero shortcuts into the three pillars, the pipeline, our collaborators and the quantum AI project.
 const shortcuts: { title: string; body: string; href: string; icon: IconName }[] = [
   ...pillars.map((p) => ({ title: p.title, body: p.metric, href: `/technology/#${p.id}`, icon: p.icon })),
-  { title: 'Product pipeline', body: 'AML, glioblastoma, lymphoma', href: '/technology/#pipeline', icon: 'flask' },
+  { title: 'Product pipeline', body: 'AML, glioblastoma, RA, lymphoma', href: '/technology/#pipeline', icon: 'flask' },
   { title: 'Collaborations', body: `${partnerTotal} partners across ${partnerSectors.length} sectors`, href: '#collaborations', icon: 'users' },
   { title: 'Conventional vs Quantum AI', body: 'Our human data map', href: '/technology/#quantum-ai', icon: 'atom' },
 ];
@@ -53,7 +53,7 @@ const shortcuts: { title: string; body: string; href: string; icon: IconName }[]
         </div>
         <div class="hero__float hero__float--a">
           <span class="hero__float-icon"><Icon name="layers" size={20} /></span>
-          <div><strong>Up to 15 doses</strong><span>from one healthy donor</span></div>
+          <div><strong>Up to 10 doses</strong><span>from one healthy donor</span></div>
         </div>
         <div class="hero__float hero__float--b">
           <span class="hero__float-icon"><Icon name="dna" size={20} /></span>
@@ -166,7 +166,7 @@ const shortcuts: { title: string; body: string; href: string; icon: IconName }[]
         <div class="solution__figure bezel" data-reveal>
           <BioVisual
             variant="ticobi"
-            label="Schematic: blood from one healthy donor passes through a time-controlled expansion chamber and yields up to fifteen off-the-shelf γδ T-cell doses"
+            label="Schematic: blood from one healthy donor passes through a time-controlled expansion chamber and yields up to ten off-the-shelf γδ T-cell doses"
           />
         </div>
       </div>
@@ -271,12 +271,15 @@ const shortcuts: { title: string; body: string; href: string; icon: IconName }[]
         {
           achievements.map((a) => (
             <li data-reveal>
-              <span class="achievements__value">
-                {a.prefix}
-                <span data-count={a.value}>{a.value}</span>
-                {a.suffix}
-              </span>
-              <span class="achievements__label">{a.label}</span>
+              <a href={a.href}>
+                <span class="achievements__value">
+                  {a.prefix}
+                  <span data-count={a.value}>{a.value}</span>
+                  {a.suffix}
+                </span>
+                <span class="achievements__label">{a.label}</span>
+                <Icon name="arrow-up-right" size={16} class="achievements__arrow" />
+              </a>
             </li>
           ))
         }
@@ -993,16 +996,53 @@ const shortcuts: { title: string; body: string; href: string; icon: IconName }[]
 
   .achievements li {
     display: grid;
+  }
+
+  .achievements a {
+    position: relative;
+    display: grid;
     gap: var(--sp-1);
     padding: var(--sp-5);
     border-radius: var(--radius);
     background: var(--glass-bg);
-    border-color: var(--glass-border);
     box-shadow: var(--glass-highlight), var(--shadow-soft);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
     border: 1px solid var(--border);
     text-align: center;
+    text-decoration: none;
+    transition:
+      border-color var(--dur) var(--ease),
+      box-shadow var(--dur) var(--ease),
+      transform var(--dur) var(--ease);
+  }
+
+  .achievements a:hover,
+  .achievements a:focus-visible {
+    border-color: var(--blue-500);
+    box-shadow: var(--glass-highlight), var(--shadow-lg);
+    transform: translateY(-3px);
+  }
+
+  .achievements a :global(.achievements__arrow) {
+    position: absolute;
+    top: var(--sp-3);
+    right: var(--sp-3);
+    color: var(--ink-400);
+    transition:
+      color var(--dur) var(--ease),
+      transform var(--dur) var(--ease);
+  }
+
+  .achievements a:hover :global(.achievements__arrow),
+  .achievements a:focus-visible :global(.achievements__arrow) {
+    color: var(--brand);
+    transform: translate(2px, -2px);
+  }
+
+  .achievements a:hover .achievements__value,
+  .achievements a:focus-visible .achievements__value {
+    color: var(--brand);
   }
 
   .achievements__value {
@@ -1013,6 +1053,7 @@ const shortcuts: { title: string; body: string; href: string; icon: IconName }[]
     line-height: 1;
     color: var(--ink-900);
     font-variant-numeric: tabular-nums;
+    transition: color var(--dur) var(--ease);
   }
 
   .achievements__label {
